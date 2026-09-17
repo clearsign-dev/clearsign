@@ -93,6 +93,87 @@ uintptr_t guest_ram_vaddr;
 #define SIGNER_DOORBELL_GPA 0x60200000
 #define SIGNER_DOORBELL_SIZE 0x1000
 
+/* ---- The guest's console --------------------------------------------------
+ * The guest used to have the serial device mapped into it, which meant the
+ * untrusted side could write anything to the same screen the signer reports on,
+ * including lines that look exactly like the signer's. A review a person reads
+ * from a channel the attacker can write is not a review.
+ *
+ * The device now belongs to this VMM. The guest's view of it is unmapped, so
+ * its writes trap here and are relayed one line at a time behind a prefix it
+ * cannot produce. What the signer prints, only the signer can print. */
+#define GUEST_UART_GPA 0x9000000
+#define GUEST_UART_SIZE 0x1000
+#define UART_DR 0x00   /* data register: writes are characters */
+#define UART_FR 0x18   /* flag register: reads tell the driver it may send */
+#define UART_FR_RXFE (1 << 4) /* receive FIFO empty: always, the guest has no input here */
+#define UART_FR_TXFE (1 << 7) /* transmit FIFO empty: always, since we never queue */
+/* The AMBA bus identifies a device by eight ID registers at the end of its page.
+ * Without them the PL011 driver does not recognise what it is talking to, gives
+ * up, and Linux falls back to a console that goes nowhere — which is how this
+ * change first showed up: the guest booted in silence. These are the values
+ * QEMU's own PL011 reports. */
+#define UART_ID_FIRST 0xfe0
+static const uint8_t uart_id[8] = { 0x11, 0x10, 0x14, 0x00, 0x0d, 0xf0, 0x05, 0xb1 };
+#define GUEST_LINE_MAX 240
+
+static char guest_line[GUEST_LINE_MAX];
+static size_t guest_line_len;
+
+static void guest_console_flush(void)
+{
+    if (guest_line_len == 0) {
+        return;
+    }
+    guest_line[guest_line_len] = 0;
+    microkit_dbg_puts("GUEST|");
+    microkit_dbg_puts(guest_line);
+    microkit_dbg_puts("\n");
+    guest_line_len = 0;
+}
+
+static void guest_console_putchar(char c)
+{
+    if (c == '\n' || c == '\r') {
+        guest_console_flush();
+        return;
+    }
+    /* Anything that is not plainly printable is shown as a dot rather than sent
+     * to the terminal: the guest must not be able to move the cursor, clear the
+     * screen, or start a colour sequence on a display the signer shares. */
+    char safe = (c >= 0x20 && c < 0x7f) ? c : '.';
+    if (guest_line_len + 1 >= GUEST_LINE_MAX) {
+        guest_console_flush();
+    }
+    guest_line[guest_line_len++] = safe;
+}
+
+static bool guest_uart(size_t vcpu_id, size_t offset, size_t fsr, seL4_UserContext *regs, void *data)
+{
+    if (fault_is_write(fsr)) {
+        if (offset == UART_DR) {
+            guest_console_putchar((char)(fault_get_data(regs, fsr) & 0xff));
+        }
+        /* Every other register write is accepted and dropped: the guest may
+         * configure a UART it does not have. */
+        return true;
+    }
+    /* Reads: a transmitter that is always ready, nothing to receive, and the
+     * identification the driver needs to bind at all. Zero elsewhere, so it
+     * never waits for a device that is not there. */
+    uint64_t value = 0;
+    if (offset == UART_FR) {
+        value = UART_FR_TXFE | UART_FR_RXFE;
+    } else if (offset >= UART_ID_FIRST) {
+        /* One register every four bytes, eight of them, ending the page. */
+        size_t index = (offset - UART_ID_FIRST) / 4;
+        if (index < sizeof(uart_id)) {
+            value = uart_id[index];
+        }
+    }
+    return fault_advance(vcpu_id, regs, GUEST_UART_GPA + offset, fsr, value);
+}
+
 static bool signer_doorbell(size_t vcpu_id, size_t offset, size_t fsr, seL4_UserContext *regs, void *data)
 {
     if (fault_is_write(fsr)) {
@@ -127,6 +208,10 @@ void init(void)
 
     if (!fault_register_vm_exception_handler(SIGNER_DOORBELL_GPA, SIGNER_DOORBELL_SIZE, signer_doorbell, NULL)) {
         LOG_VMM_ERR("Failed to register signer doorbell\n");
+        return;
+    }
+    if (!fault_register_vm_exception_handler(GUEST_UART_GPA, GUEST_UART_SIZE, guest_uart, NULL)) {
+        LOG_VMM_ERR("Failed to take the serial device away from the guest\n");
         return;
     }
 
