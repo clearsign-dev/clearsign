@@ -313,7 +313,15 @@ fn review_batch(
                 format!(
                     "This batch contains more than {} calls. It is not decoded, because a batch \
                      too long to read is not a batch that was reviewed.",
-                    multisend::MAX_BATCH_CALLS
+                    multisend::MAX_BATCH_CALLS_PARSED
+                ),
+            );
+            review.find(
+                Severity::Critical,
+                "UNDECODED_DELEGATECALL_POSSIBLE",
+                String::from(
+                    "Part of this transaction was not decoded, and code that runs as this Safe \
+                     could be inside it. Nothing here rules out the pattern that emptied Bybit.",
                 ),
             );
             return;
@@ -333,6 +341,13 @@ fn review_batch(
     };
 
     s.field("Calls in batch", format!("{}", calls.len()));
+    let shown = calls.len().min(multisend::MAX_BATCH_CALLS);
+    if calls.len() > shown {
+        s.field(
+            "Calls shown below",
+            format!("{shown} of {} — the rest are not displayed", calls.len()),
+        );
+    }
     if !value.is_zero() {
         s.field("Native value (wei)", value.to_grouped_decimal());
     }
@@ -358,10 +373,64 @@ fn review_batch(
             "NESTING_LIMIT",
             format!("Batches are nested more than {MAX_NESTING} levels deep; the innermost calls are not decoded."),
         );
+        review.find(
+            Severity::Critical,
+            "UNDECODED_DELEGATECALL_POSSIBLE",
+            String::from(
+                "The innermost calls were not decoded, and code that runs as this Safe could be \
+                 among them.",
+            ),
+        );
         return;
     }
+
+    // Every call is judged, including the ones there is no room to display. An
+    // operator who acknowledges "this batch is too long" must not be signing an
+    // inner DELEGATECALL they were never shown.
+    if let Some(hidden) = calls.get(shown..) {
+        let hidden_delegatecalls = hidden
+            .iter()
+            .filter(|c| matches!(c.operation, Operation::DelegateCall))
+            .count();
+        let hidden_invalid = hidden
+            .iter()
+            .filter(|c| matches!(c.operation, Operation::Invalid(_)))
+            .count();
+        if hidden_delegatecalls > 0 {
+            review.find(
+                Severity::Critical,
+                "SAFE_DELEGATECALL",
+                format!(
+                    "{hidden_delegatecalls} of the {} calls in this batch are DELEGATECALLs that run \
+                     code with full control over this Safe, and they are past the {shown} shown \
+                     below. This is the pattern that emptied Bybit.",
+                    calls.len()
+                ),
+            );
+        }
+        if hidden_invalid > 0 {
+            review.find(
+                Severity::Critical,
+                "SAFE_INVALID_OPERATION",
+                format!("{hidden_invalid} calls past the ones shown have an operation value that is neither CALL nor DELEGATECALL."),
+            );
+        }
+        if !hidden.is_empty() {
+            review.find(
+                Severity::Blind,
+                "MULTISEND_CALLS_NOT_SHOWN",
+                format!(
+                    "{} of the {} calls in this batch are not shown. What they do cannot be read \
+                     from this screen.",
+                    hidden.len(),
+                    calls.len()
+                ),
+            );
+        }
+    }
+
     let total = calls.len();
-    for (i, call) in calls.iter().enumerate() {
+    for (i, call) in calls.iter().take(shown).enumerate() {
         let BatchCall {
             operation,
             to: inner_to,

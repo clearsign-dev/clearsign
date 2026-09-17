@@ -6,6 +6,7 @@
 //! `safe-global/safe-deployments`. Nothing in this file was hand-assembled.
 
 #![allow(
+    clippy::expect_used,
     clippy::unwrap_used,
     clippy::indexing_slicing,
     clippy::arithmetic_side_effects,
@@ -182,15 +183,29 @@ fn an_empty_batch_is_refused() {
 }
 
 #[test]
-fn a_batch_longer_than_the_display_limit_is_blind_not_summarised() {
-    let mut packed = Vec::new();
+fn a_batch_is_parsed_further_than_it_is_displayed() {
+    // The decoder reads past the display limit so it can answer the question
+    // that matters about a long batch — is there a DELEGATECALL in the part you
+    // are not being shown? — and stops at a hard limit beyond which nothing can
+    // be ruled out. See the audit regression tests for what the review says.
+    let element = |out: &mut Vec<u8>| {
+        out.push(0u8);
+        out.extend_from_slice(&[0x11u8; 20]);
+        out.extend_from_slice(&[0u8; 32]);
+        out.extend_from_slice(&[0u8; 32]);
+    };
+    let mut past_display = Vec::new();
     for _ in 0..MAX_BATCH_CALLS + 1 {
-        packed.push(0u8);
-        packed.extend_from_slice(&[0x11u8; 20]);
-        packed.extend_from_slice(&[0u8; 32]);
-        packed.extend_from_slice(&[0u8; 32]);
+        element(&mut past_display);
     }
-    assert!(multisend::decode_batch(&packed).is_err());
+    let parsed = multisend::decode_batch(&past_display).expect("parsed past the display limit");
+    assert_eq!(parsed.len(), MAX_BATCH_CALLS + 1);
+
+    let mut past_parsing = Vec::new();
+    for _ in 0..multisend::MAX_BATCH_CALLS_PARSED + 1 {
+        element(&mut past_parsing);
+    }
+    assert!(multisend::decode_batch(&past_parsing).is_err());
 }
 
 #[test]
