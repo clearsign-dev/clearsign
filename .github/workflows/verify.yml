@@ -10,7 +10,11 @@
 name: verify
 
 on:
+  # Branches are covered by the pull_request trigger. Without this, every push to
+  # a branch with an open PR runs the whole suite twice, and the reproducible
+  # build alone takes about twenty minutes a time.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -68,18 +72,30 @@ jobs:
       - name: Fetch the crate sources named by Cargo.lock
         working-directory: signing-core
         run: cargo fetch --locked
+      - name: Keep the recorded hashes so they can be compared afterwards
+        run: cp signing-core/EXPECTED-HASHES.txt /tmp/recorded.txt
       - name: Build twice in the canonical environment
+        # The script fails on its own if the two builds disagree, which is the
+        # reproducibility claim. It rewrites EXPECTED-HASHES.txt on success.
         run: SKIP_HOST_BUILD=1 signing-core/scripts/reproducible-cross-check.sh
       - name: Compare with the recorded hashes
         run: |
           set -euo pipefail
-          # The script rewrites EXPECTED-HASHES.txt on success; if this machine
-          # built the same bytes as the recorded ones, git sees no change.
-          if git diff --quiet -- signing-core/EXPECTED-HASHES.txt; then
+          # Two separate questions, reported separately:
+          #   1. did two builds in the canonical environment agree here?
+          #      (the step above already failed if not)
+          #   2. are the recorded hashes still the hashes of this source?
+          if diff -u /tmp/recorded.txt signing-core/EXPECTED-HASHES.txt; then
             echo "This machine reproduced the recorded binaries exactly."
           else
-            echo "::error::This machine built different bytes from the same source."
-            git --no-pager diff -- signing-core/EXPECTED-HASHES.txt
+            echo "::error::Reproducible here, but signing-core/EXPECTED-HASHES.txt no longer matches this source."
+            echo "The two builds in the canonical environment agreed with each other, so the"
+            echo "build is still reproducible; the recorded hashes are stale. Whoever changed"
+            echo "the source should regenerate them:"
+            echo ""
+            echo "    signing-core/scripts/reproducible-cross-check.sh"
+            echo ""
+            echo "and commit signing-core/EXPECTED-HASHES.txt with the change that caused it."
             exit 1
           fi
 
