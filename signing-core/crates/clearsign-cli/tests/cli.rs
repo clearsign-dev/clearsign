@@ -139,9 +139,15 @@ const QR_PARTS: [&str; 5] = [
 const EXPECTED_SIGNATURE: &str = "0x6c41afa9f38028749bb734ae6817c158ae298a636cf9ca6344664a196524895c0095065b752486f9d282f810a4abca5973b944ce29aff5fa164ce8cd115da0bd1b";
 
 fn write_codes(lines: &[&str]) -> std::path::PathBuf {
+    // Tests run in parallel in one process, so the file name must be unique per
+    // call. Naming it after the number of codes meant three tests shared one
+    // path and raced: the file was being rewritten while another test's binary
+    // was reading it.
+    static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let n = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let dir = std::env::temp_dir().join(format!("clearsign-qr-test-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
-    let path = dir.join(format!("codes-{}.txt", lines.len()));
+    let path = dir.join(format!("codes-{n}.txt"));
     std::fs::write(&path, lines.join("\n")).unwrap();
     path
 }
