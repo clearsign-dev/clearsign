@@ -59,7 +59,9 @@ impl Section {
 pub struct Review {
     pub title: String,
     pub sections: Vec<Section>,
-    pub findings: Vec<Finding>,
+    /// Private: a caller that could empty this could show one transaction and
+    /// obtain permission to sign another. Read it with [`Review::findings`].
+    findings: Vec<Finding>,
     /// Hashes the signer should compare out of band. INV-5.
     pub digests: Vec<(String, String)>,
     /// The exact digest this review covers, if it may be signed. Private so that
@@ -106,6 +108,37 @@ impl Review {
         self.signing_target = Some(target);
     }
 
+    /// Everything the review found, in the order it was found.
+    pub fn findings(&self) -> &[Finding] {
+        &self.findings
+    }
+
+    /// The acknowledgements a signer must be given, one per finding that needs
+    /// one, numbered as they are displayed.
+    ///
+    /// Two findings with the same code are two separate requirements: a review
+    /// showing unlimited approvals to two different spenders must be confirmed
+    /// twice, not once.
+    pub fn required_acknowledgements(&self) -> Vec<(u16, &'static str)> {
+        self.numbered()
+            .into_iter()
+            .filter(|(_, f)| f.severity >= Severity::Blind)
+            .map(|(n, f)| (n, f.code))
+            .collect()
+    }
+
+    /// Findings in display order, each with the number shown beside it.
+    fn numbered(&self) -> Vec<(u16, &Finding)> {
+        let mut findings: Vec<&Finding> = self.findings.iter().collect();
+        // Most serious first; stable within a severity.
+        findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
+        findings
+            .into_iter()
+            .enumerate()
+            .map(|(i, f)| (u16::try_from(i.saturating_add(1)).unwrap_or(u16::MAX), f))
+            .collect()
+    }
+
     pub fn find(&mut self, severity: Severity, code: &'static str, message: String) {
         self.findings.push(Finding {
             severity,
@@ -134,20 +167,27 @@ impl Review {
             }
         }
 
-        let mut findings: Vec<&Finding> = self.findings.iter().collect();
-        // Most serious first; stable order within a severity.
-        findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
+        let numbered = self.numbered();
         out.push_str("\n-- Findings --\n");
-        if findings.is_empty() {
+        if numbered.is_empty() {
             out.push_str("(none)\n");
         }
-        for f in findings {
+        for (n, f) in &numbered {
+            // The number is part of how a finding is acknowledged, so it has to
+            // be on screen next to the thing it refers to.
             out.push_str(&format!(
-                "[{}] {}: {}\n",
+                "[{}] {n}:{} - {}\n",
                 f.severity.label(),
                 f.code,
                 f.message
             ));
+        }
+        let required = self.required_acknowledgements();
+        if !required.is_empty() {
+            out.push_str("\n-- Must be acknowledged, one by one --\n");
+            for (n, code) in &required {
+                out.push_str(&format!("  {n}:{code}\n"));
+            }
         }
 
         if !self.digests.is_empty() {

@@ -44,13 +44,14 @@ REVIEW (safe on any computer):
       Review a Safe transaction an owner is asked to sign, and compute its hash.
 
 SIGNING AND SEEDS (development only, see below):
-  clearsign sign-tx <HEX> [--account <I>] [--ack <CODE>]...
-  clearsign sign-safe-tx <safe-tx flags> [--account <I>] [--ack <CODE>]...
+  clearsign sign-tx <HEX> [--account <I>] [--ack <N:CODE>]...
+  clearsign sign-safe-tx <safe-tx flags> [--account <I>] [--ack <N:CODE>]...
       Review, then sign only if every BLIND and CRITICAL finding is acknowledged
-      with --ack, exactly. The recovery phrase is read from stdin, first line;
-      an optional passphrase from the second line.
+      individually, by the number and code shown beside it, exactly. Two findings
+      that share a code take two acknowledgements. The recovery phrase is read
+      from stdin, first line; an optional passphrase from the second line.
 
-  clearsign qr-sign <FILE> [--ack <CODE>]...
+  clearsign qr-sign <FILE> [--ack <N:CODE>]...
       Read an EIP-4527 eth-sign-request from FILE (the scanned ur: strings, one
       per line), review it, sign with the key path the request asks for, and
       print the reply as an eth-signature UR and a QR code. The recovery phrase
@@ -136,6 +137,24 @@ struct SignFlags {
     acks: Vec<String>,
 }
 
+/// Parse `--ack 2:UNLIMITED_APPROVAL` into the pair the library wants.
+///
+/// The number is the one printed beside the finding, so acknowledging two
+/// findings that share a code takes two different acknowledgements.
+fn parse_acks(acks: &[String]) -> Result<Vec<(u16, &str)>, String> {
+    let mut out = Vec::with_capacity(acks.len());
+    for ack in acks {
+        let (n, code) = ack.split_once(':').ok_or_else(|| {
+            format!("--ack {ack:?} should be the number and code shown in the review, like 2:UNLIMITED_APPROVAL")
+        })?;
+        let n: u16 = n.trim().parse().map_err(|_| {
+            format!("--ack {ack:?} does not start with the number shown beside the finding")
+        })?;
+        out.push((n, code.trim()));
+    }
+    Ok(out)
+}
+
 /// Pull `--account` and repeated `--ack` out of the arguments; return the rest.
 fn split_sign_flags(args: &[String]) -> Result<(SignFlags, Vec<String>), String> {
     let mut flags = SignFlags {
@@ -182,7 +201,7 @@ fn sign_safe_tx(args: &[String]) -> Result<Outcome, String> {
 
 fn sign_reviewed(review: &Review, flags: &SignFlags) -> Result<Outcome, String> {
     print!("{}", review.render());
-    let acks: Vec<&str> = flags.acks.iter().map(String::as_str).collect();
+    let acks = parse_acks(&flags.acks)?;
     let approval = approve(review, &acks).map_err(|e| format!("signing refused: {e}"))?;
 
     let secrets = read_stdin()?;
@@ -463,7 +482,7 @@ fn qr_sign(args: &[String]) -> Result<Outcome, String> {
     let review = review_request(&request)?;
     print!("{}", review.render());
 
-    let acks: Vec<&str> = flags.acks.iter().map(String::as_str).collect();
+    let acks = parse_acks(&flags.acks)?;
     let approval = approve(&review, &acks).map_err(|e| format!("signing refused: {e}"))?;
 
     let index = account_index_for_path(&request)?;

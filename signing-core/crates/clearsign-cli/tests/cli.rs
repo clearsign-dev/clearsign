@@ -72,7 +72,7 @@ fn review_exit_code_reflects_critical() {
 fn signing_requires_dev_guard() {
     let mut args = vec!["sign-safe-tx"];
     args.extend(safe_args());
-    args.extend(["--ack", "SAFE_DELEGATECALL"]);
+    args.extend(["--ack", "1:SAFE_DELEGATECALL"]);
     let out = run(&args, MNEMONIC, false);
     assert_eq!(out.status.code(), Some(1));
     assert!(text(&out.stderr).contains("development-only"));
@@ -87,7 +87,13 @@ fn signing_refused_without_exact_acknowledgement() {
     assert!(text(&out.stderr).contains("SAFE_DELEGATECALL must be explicitly acknowledged"));
     assert!(!text(&out.stdout).contains("-- Signature --"));
 
-    args.extend(["--ack", "SAFE_DELEGATECALL", "--ack", "UNLIMITED_APPROVAL"]);
+    // An extra acknowledgement that names a finding the review does not have.
+    args.extend([
+        "--ack",
+        "1:SAFE_DELEGATECALL",
+        "--ack",
+        "2:UNLIMITED_APPROVAL",
+    ]);
     let out = run(&args, MNEMONIC, true);
     assert_eq!(out.status.code(), Some(1));
     assert!(text(&out.stderr).contains("must match exactly"));
@@ -97,7 +103,7 @@ fn signing_refused_without_exact_acknowledgement() {
 fn signing_with_acknowledgement_matches_cast() {
     let mut args = vec!["sign-safe-tx"];
     args.extend(safe_args());
-    args.extend(["--ack", "SAFE_DELEGATECALL"]);
+    args.extend(["--ack", "1:SAFE_DELEGATECALL"]);
     let out = run(&args, MNEMONIC, true);
     assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
     // cast wallet sign --no-hash --mnemonic "test ... junk" 0xa62b640d...df2d

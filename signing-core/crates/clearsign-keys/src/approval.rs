@@ -1,9 +1,9 @@
 //! Turning a review into permission to sign.
 
-use alloc::collections::BTreeSet;
+use alloc::vec::Vec;
 use core::marker::PhantomData;
 
-use clearsign::{Review, Severity, TargetKind};
+use clearsign::{Review, TargetKind};
 
 use crate::KeyError;
 
@@ -29,27 +29,37 @@ impl Approval<'_> {
 
 /// Grant permission to sign a review.
 ///
-/// `acknowledged` must contain **exactly** the codes of every BLIND and CRITICAL
-/// finding in the review: no fewer, and no extras. Requiring an exact match stops
-/// an interface from passing a blanket "acknowledge everything" list; the person
-/// has to be shown, and confirm, each specific risk. WARNING and INFO findings
-/// need no acknowledgement.
-pub fn approve<'r>(review: &'r Review, acknowledged: &[&str]) -> Result<Approval<'r>, KeyError> {
+/// `acknowledged` must name **exactly** the findings that require it: each one
+/// by the number shown beside it on screen and its code, no fewer and no extras.
+///
+/// Naming each finding individually, rather than passing a set of codes, is what
+/// makes two unlimited approvals to two different spenders two separate
+/// confirmations. A set of codes collapses them into one, which is the ritual
+/// looking like it happened rather than happening.
+pub fn approve<'r>(
+    review: &'r Review,
+    acknowledged: &[(u16, &str)],
+) -> Result<Approval<'r>, KeyError> {
     let target = review.signing_target().ok_or(KeyError::NotSignable)?;
+    let required: Vec<(u16, &'static str)> = review.required_acknowledgements();
 
-    let required: BTreeSet<&'static str> = review
-        .findings
-        .iter()
-        .filter(|f| f.severity >= Severity::Blind)
-        .map(|f| f.code)
-        .collect();
-    let given: BTreeSet<&str> = acknowledged.iter().copied().collect();
-
-    if let Some(missing) = required.iter().find(|code| !given.contains(**code)) {
-        return Err(KeyError::UnacknowledgedFinding(missing));
+    for (n, code) in &required {
+        if !acknowledged.iter().any(|(m, c)| m == n && c == code) {
+            return Err(KeyError::UnacknowledgedFinding(code));
+        }
     }
-    if given.len() != required.len() || acknowledged.len() != given.len() {
+    // No extras, and no repeats standing in for a second finding.
+    if acknowledged.len() != required.len() {
         return Err(KeyError::UnexpectedAcknowledgement);
+    }
+    for (i, (n, code)) in acknowledged.iter().enumerate() {
+        let duplicated = acknowledged
+            .iter()
+            .skip(i.saturating_add(1))
+            .any(|(m, c)| m == n && c == code);
+        if duplicated || !required.iter().any(|(m, c)| m == n && c == code) {
+            return Err(KeyError::UnexpectedAcknowledgement);
+        }
     }
 
     Ok(Approval {

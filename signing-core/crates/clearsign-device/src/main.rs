@@ -24,7 +24,8 @@ clearsign signer
 This image contains one program: this one. No shell, no network, no storage.
 
   ur:…            paste one scanned QR code per line; repeat until complete
-  ack <CODE>      acknowledge one BLIND or CRITICAL finding, by its exact code
+  ack <N:CODE>    acknowledge one BLIND or CRITICAL finding, by the number and
+                  code printed beside it. Each one is acknowledged separately
   sign            enter the recovery phrase and sign what was reviewed
   reset           forget the current request and start again
 
@@ -60,7 +61,7 @@ struct Session {
     decoder: Decoder,
     request: Option<SignRequest>,
     review: Option<Review>,
-    acks: Vec<String>,
+    acks: Vec<(u16, String)>,
 }
 
 impl Session {
@@ -83,13 +84,16 @@ impl Session {
             }
             "sign" => self.sign(input),
             _ if line.starts_with("ack ") => {
-                let code = line.get(4..).unwrap_or("").trim();
-                if code.is_empty() {
-                    Err(String::from("ack needs a finding code"))
-                } else {
-                    self.acks.push(String::from(code));
-                    println!("acknowledged {code}");
-                    Ok(())
+                let spec = line.get(4..).unwrap_or("").trim();
+                match parse_ack(spec) {
+                    Some((n, code)) => {
+                        self.acks.push((n, String::from(code)));
+                        println!("acknowledged {n}:{code}");
+                        Ok(())
+                    }
+                    None => Err(String::from(
+                        "acknowledge a finding by the number and code printed beside it, like: ack 2:UNLIMITED_APPROVAL",
+                    )),
                 }
             }
             _ if line.starts_with("ur:") || line.starts_with("UR:") => self.scan(line),
@@ -115,7 +119,7 @@ impl Session {
                 print!("{}", review.render());
                 match review.highest_severity() {
                     Some(Severity::Critical | Severity::Blind) => println!(
-                        "\nAcknowledge every BLIND and CRITICAL finding with `ack <CODE>`, then `sign`."
+                        "\nAcknowledge each BLIND and CRITICAL finding with `ack <N:CODE>`, one per finding, then `sign`."
                     ),
                     _ => println!("\nType `sign` to sign this, or `reset` to discard it."),
                 }
@@ -140,7 +144,7 @@ impl Session {
             (Some(r), Some(v)) => (r, v),
             _ => return Err(String::from("nothing has been reviewed yet")),
         };
-        let acks: Vec<&str> = self.acks.iter().map(String::as_str).collect();
+        let acks: Vec<(u16, &str)> = self.acks.iter().map(|(n, c)| (*n, c.as_str())).collect();
         let approval = approve(review, &acks).map_err(|e| e.to_string())?;
         let index = account_index_for_path(request)?;
 
@@ -185,6 +189,18 @@ impl Session {
         *self = Session::new();
         println!("\nready for a new request");
         Ok(())
+    }
+}
+
+/// `2:UNLIMITED_APPROVAL` -> `(2, "UNLIMITED_APPROVAL")`.
+fn parse_ack(spec: &str) -> Option<(u16, &str)> {
+    let (n, code) = spec.split_once(':')?;
+    let n: u16 = n.trim().parse().ok()?;
+    let code = code.trim();
+    if code.is_empty() {
+        None
+    } else {
+        Some((n, code))
     }
 }
 
