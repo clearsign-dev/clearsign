@@ -94,7 +94,10 @@ fn pinned_addresses_are_unique() {
 fn ordinary_batch_is_readable_and_is_not_critical() {
     // The point of the whole feature: a routine batch must not read CRITICAL,
     // because a warning that always fires is a warning nobody reads.
-    let review = review_safe_transaction(&batch_tx(MULTISEND_1_3_0, BATCH_TWO_CALLS), DomainVersion::V1_3Plus);
+    let review = review_safe_transaction(
+        &batch_tx(MULTISEND_1_3_0, BATCH_TWO_CALLS),
+        DomainVersion::V1_3Plus,
+    );
     assert_eq!(max_severity(&review), Severity::Warning);
     assert!(codes(&review).contains(&"SAFE_MULTISEND_BATCH"));
     assert!(!codes(&review).contains(&"SAFE_DELEGATECALL"));
@@ -123,7 +126,10 @@ fn a_delegatecall_inside_a_batch_is_still_critical() {
 fn the_same_calldata_at_an_unpinned_address_stays_critical() {
     // Same bytes, different batching contract. Being called `multiSend` earns
     // nothing; only a published deployment address is looked inside.
-    let review = review_safe_transaction(&batch_tx(NOT_MULTISEND, BATCH_TWO_CALLS), DomainVersion::V1_3Plus);
+    let review = review_safe_transaction(
+        &batch_tx(NOT_MULTISEND, BATCH_TWO_CALLS),
+        DomainVersion::V1_3Plus,
+    );
     assert_eq!(max_severity(&review), Severity::Critical);
     assert!(codes(&review).contains(&"SAFE_DELEGATECALL"));
     assert!(!codes(&review).contains(&"SAFE_MULTISEND_BATCH"));
@@ -190,7 +196,12 @@ fn a_batch_longer_than_the_display_limit_is_blind_not_summarised() {
 #[test]
 fn every_deployment_publishes_at_least_one_chain_and_lists_them_sorted() {
     for d in multisend::DEPLOYMENTS {
-        assert!(!d.chains.is_empty(), "{} {} has no chains", d.contract, d.version);
+        assert!(
+            !d.chains.is_empty(),
+            "{} {} has no chains",
+            d.contract,
+            d.version
+        );
         assert!(
             d.chains.windows(2).all(|w| w[0] < w[1]),
             "{} {} {} chain list is not sorted and unique",
@@ -229,7 +240,10 @@ fn the_same_batch_is_decoded_on_a_chain_that_publishes_it() {
         tx.chain_id = U256::from_u64(chain);
         let review = review_safe_transaction(&tx, DomainVersion::V1_3Plus);
         assert_eq!(max_severity(&review), Severity::Warning, "chain {chain}");
-        assert!(codes(&review).contains(&"SAFE_MULTISEND_BATCH"), "chain {chain}");
+        assert!(
+            codes(&review).contains(&"SAFE_MULTISEND_BATCH"),
+            "chain {chain}"
+        );
     }
 }
 

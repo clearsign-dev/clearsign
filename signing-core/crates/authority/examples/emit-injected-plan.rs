@@ -10,7 +10,11 @@
 
 // A build-time generator, not device code: it runs on a developer's machine
 // and its failures are build failures.
-#![allow(clippy::print_stdout, clippy::use_debug, clippy::arithmetic_side_effects)]
+#![allow(
+    clippy::print_stdout,
+    clippy::use_debug,
+    clippy::arithmetic_side_effects
+)]
 
 use authority::{Action, HttpMethod, Plan, Sensitivity, Step, StepId, encode_plan};
 
@@ -75,7 +79,10 @@ fn main() {
     println!(" * framed for clearsign_review. Do not hand-edit. */");
     println!("#pragma once");
     println!("#include <stdint.h>");
-    println!("static const uint8_t REQUEST_INJECTED_PLAN[{}] = {{", request.len());
+    println!(
+        "static const uint8_t REQUEST_INJECTED_PLAN[{}] = {{",
+        request.len()
+    );
     for chunk in request.chunks(12) {
         let line: Vec<String> = chunk.iter().map(|b| format!("0x{b:02x}")).collect();
         println!("    {},", line.join(", "));

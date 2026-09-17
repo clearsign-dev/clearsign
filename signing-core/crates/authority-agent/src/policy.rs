@@ -25,10 +25,7 @@ impl Default for Policy {
                 String::from("/home/user/.config/keys"),
                 String::from("/home/user/wallet"),
             ],
-            personal_prefixes: vec![
-                String::from("/home/user"),
-                String::from("/Users"),
-            ],
+            personal_prefixes: vec![String::from("/home/user"), String::from("/Users")],
             allowed_roots: vec![String::from("/home/user"), String::from("/tmp")],
         }
     }

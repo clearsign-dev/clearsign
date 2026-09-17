@@ -23,7 +23,10 @@ impl Xoshiro256 {
         for (i, slot) in state.iter_mut().enumerate() {
             let mut v = 0u64;
             for n in 0..8 {
-                let byte = digest.get(i.saturating_mul(8).saturating_add(n)).copied().unwrap_or(0);
+                let byte = digest
+                    .get(i.saturating_mul(8).saturating_add(n))
+                    .copied()
+                    .unwrap_or(0);
                 v = (v << 8) | u64::from(byte);
             }
             *slot = v;

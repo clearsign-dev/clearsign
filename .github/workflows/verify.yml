@@ -24,6 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install the pinned toolchain
+        working-directory: signing-core
         run: rustup show          # rust-toolchain.toml pins the version
       - name: Tests
         working-directory: signing-core
@@ -40,7 +41,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: rustup target add aarch64-unknown-none thumbv7em-none-eabihf
+      # Run inside signing-core so rust-toolchain.toml applies: adding a target
+      # to the default toolchain does not add it to the pinned one.
+      - name: Add the bare-metal targets to the pinned toolchain
+        working-directory: signing-core
+        run: rustup target add aarch64-unknown-none thumbv7em-none-eabihf
       - name: Bare-metal targets
         working-directory: signing-core
         run: |

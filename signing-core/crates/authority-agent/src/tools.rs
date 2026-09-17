@@ -16,7 +16,10 @@ pub enum AdapterError {
     /// A tool this device does not have. Refused, never approximated.
     UnknownTool(String),
     /// A known tool, called with arguments that do not make sense for it.
-    BadArguments { tool: String, why: &'static str },
+    BadArguments {
+        tool: String,
+        why: &'static str,
+    },
     /// A step referred to an earlier step that was never proposed.
     UnknownStep(u16),
     /// The proposal is larger than this device will review.
@@ -36,7 +39,10 @@ impl core::fmt::Display for AdapterError {
                 write!(f, "tool {tool:?} was called with {why}")
             }
             AdapterError::UnknownStep(id) => {
-                write!(f, "a step uses the output of step {id}, which was never proposed")
+                write!(
+                    f,
+                    "a step uses the output of step {id}, which was never proposed"
+                )
             }
             AdapterError::TooLarge(w) => write!(f, "{w}"),
         }
@@ -47,18 +53,30 @@ impl std::error::Error for AdapterError {}
 
 /// Every tool an agent may call on this device, and what it becomes.
 pub const TOOLS: &[(&str, &str)] = &[
-    ("read_file", "reads a file; its sensitivity is decided here, not by the agent"),
+    (
+        "read_file",
+        "reads a file; its sensitivity is decided here, not by the agent",
+    ),
     ("write_file", "writes a file"),
     ("delete_file", "deletes a file — irreversible"),
     ("read_credential", "retrieves a stored credential"),
     ("http_request", "makes a web request"),
     ("send_message", "sends a message to someone"),
     ("payment", "moves money"),
-    ("sign_transaction", "signs a blockchain transaction, reviewed by clearsign"),
-    ("run_program", "runs a program — what it does cannot be read from the request"),
+    (
+        "sign_transaction",
+        "signs a blockchain transaction, reviewed by clearsign",
+    ),
+    (
+        "run_program",
+        "runs a program — what it does cannot be read from the request",
+    ),
     ("install_app", "installs software"),
     ("change_setting", "changes a system setting"),
-    ("transform", "computation over earlier outputs, with no side effects"),
+    (
+        "transform",
+        "computation over earlier outputs, with no side effects",
+    ),
 ];
 
 const MAX_STEPS_PROPOSED: usize = authority::MAX_STEPS;
@@ -72,7 +90,8 @@ const MAX_STEPS_PROPOSED: usize = authority::MAX_STEPS;
 ///                             "arguments": { "path": "…" }, "uses": [] } ] }
 /// ```
 pub fn plan_from_json(json: &str, policy: &Policy) -> Result<Plan, AdapterError> {
-    let root: Value = serde_json::from_str(json).map_err(|e| AdapterError::NotJson(e.to_string()))?;
+    let root: Value =
+        serde_json::from_str(json).map_err(|e| AdapterError::NotJson(e.to_string()))?;
     let goal = root
         .get("goal")
         .and_then(Value::as_str)
@@ -97,7 +116,8 @@ pub fn plan_from_json(json: &str, policy: &Policy) -> Result<Plan, AdapterError>
             .get("id")
             .and_then(Value::as_u64)
             .ok_or(AdapterError::Shape("a step has no id"))?;
-        let id = u16::try_from(id_raw).map_err(|_| AdapterError::Shape("a step id is too large"))?;
+        let id =
+            u16::try_from(id_raw).map_err(|_| AdapterError::Shape("a step id is too large"))?;
         let label = item.get("label").and_then(Value::as_str).unwrap_or("");
         let tool = item
             .get("tool")
@@ -112,10 +132,12 @@ pub fn plan_from_json(json: &str, policy: &Policy) -> Result<Plan, AdapterError>
                 .as_array()
                 .ok_or(AdapterError::Shape("uses is not an array"))?;
             for u in list {
-                let n = u
-                    .as_u64()
-                    .and_then(|n| u16::try_from(n).ok())
-                    .ok_or(AdapterError::Shape("uses contains something that is not a step id"))?;
+                let n =
+                    u.as_u64()
+                        .and_then(|n| u16::try_from(n).ok())
+                        .ok_or(AdapterError::Shape(
+                            "uses contains something that is not a step id",
+                        ))?;
                 // Only steps proposed earlier: a forward reference would be a
                 // cycle the engine would reject anyway, but this says why.
                 if !ids.contains(&n) {
@@ -138,7 +160,11 @@ pub fn plan_from_json(json: &str, policy: &Policy) -> Result<Plan, AdapterError>
     })
 }
 
-fn string_arg<'a>(args: &'a Value, name: &'static str, tool: &str) -> Result<&'a str, AdapterError> {
+fn string_arg<'a>(
+    args: &'a Value,
+    name: &'static str,
+    tool: &str,
+) -> Result<&'a str, AdapterError> {
     args.get(name)
         .and_then(Value::as_str)
         .ok_or_else(|| AdapterError::BadArguments {
@@ -169,7 +195,10 @@ fn action_for(tool: &str, args: &Value, policy: &Policy) -> Result<Action, Adapt
             name: String::from(string_arg(args, "name", tool)?),
         },
         "http_request" => {
-            let method = match string_arg(args, "method", tool)?.to_ascii_uppercase().as_str() {
+            let method = match string_arg(args, "method", tool)?
+                .to_ascii_uppercase()
+                .as_str()
+            {
                 "GET" => HttpMethod::Get,
                 "POST" => HttpMethod::Post,
                 "PUT" => HttpMethod::Put,
@@ -191,13 +220,12 @@ fn action_for(tool: &str, args: &Value, policy: &Policy) -> Result<Action, Adapt
             recipient: String::from(string_arg(args, "recipient", tool)?),
         },
         "payment" => {
-            let amount = args
-                .get("amount_minor")
-                .and_then(Value::as_u64)
-                .ok_or(AdapterError::BadArguments {
+            let amount = args.get("amount_minor").and_then(Value::as_u64).ok_or(
+                AdapterError::BadArguments {
                     tool: String::from(tool),
                     why: "an amount that is not a whole number of minor units",
-                })?;
+                },
+            )?;
             Action::Payment {
                 amount_minor: amount,
                 currency: String::from(string_arg(args, "currency", tool)?),

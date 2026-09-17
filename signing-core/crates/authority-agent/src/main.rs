@@ -14,8 +14,8 @@
 use std::process::ExitCode;
 
 use authority::{approve_plan, execute, fingerprint, review_plan};
-use clearsign::Severity;
 use authority_agent::{LocalRunner, Policy, RunnerLimits, plan_from_json};
+use clearsign::Severity;
 
 const USAGE: &str = "\
 authority — an agent proposes, you approve, then it runs.

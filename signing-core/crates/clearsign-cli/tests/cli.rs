@@ -42,12 +42,16 @@ fn run(args: &[&str], stdin: &str, guard: bool) -> Output {
         cmd.env(GUARD.0, GUARD.1);
     }
     let mut child = cmd.spawn().unwrap();
-    child
-        .stdin
-        .take()
-        .unwrap()
-        .write_all(stdin.as_bytes())
-        .unwrap();
+    // A broken pipe here is not a failure: it means the binary exited before it
+    // read standard input. That is exactly what should happen when signing is
+    // refused — the recovery phrase is never read at all.
+    if let Some(mut pipe) = child.stdin.take() {
+        match pipe.write_all(stdin.as_bytes()) {
+            Ok(()) => {}
+            Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {}
+            Err(e) => panic!("writing to the binary's stdin failed: {e}"),
+        }
+    }
     child.wait_with_output().unwrap()
 }
 
@@ -148,7 +152,10 @@ fn qr_review_reads_an_animated_request() {
     let out = run(&["qr-review", path.to_str().unwrap()], "", false);
     let stdout = text(&out.stdout);
     assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
-    assert!(stdout.contains("Requested by ..................... metamask"), "{stdout}");
+    assert!(
+        stdout.contains("Requested by ..................... metamask"),
+        "{stdout}"
+    );
     assert!(stdout.contains("m/44'/60'/0'/0/0"), "{stdout}");
     assert!(stdout.contains("ERC-20 transfer"), "{stdout}");
 }
@@ -159,7 +166,11 @@ fn qr_review_refuses_an_incomplete_request() {
     let path = write_codes(&QR_PARTS[..2]);
     let out = run(&["qr-review", path.to_str().unwrap()], "", false);
     assert_eq!(out.status.code(), Some(1));
-    assert!(text(&out.stderr).contains("incomplete"), "{}", text(&out.stderr));
+    assert!(
+        text(&out.stderr).contains("incomplete"),
+        "{}",
+        text(&out.stderr)
+    );
 }
 
 #[test]

@@ -149,8 +149,8 @@ impl Session {
         flush();
         let phrase = Zeroizing::new(read_line(input)?);
         let passphrase = Zeroizing::new(read_line(input)?);
-        let wallet = Wallet::from_mnemonic(phrase.trim(), passphrase.trim())
-            .map_err(|e| e.to_string())?;
+        let wallet =
+            Wallet::from_mnemonic(phrase.trim(), passphrase.trim()).map_err(|e| e.to_string())?;
         let account = wallet.ethereum_account(index).map_err(|e| e.to_string())?;
         if let Some(expected) = request.address {
             if expected != account.address() {
@@ -169,8 +169,14 @@ impl Session {
         );
         let response = encode_single("eth-signature", &body);
 
-        println!("\nSigned by {}", clearsign::address::checksummed(&account.address()));
-        println!("Digest    {}", clearsign::hex::encode_prefixed(&approval.digest()));
+        println!(
+            "\nSigned by {}",
+            clearsign::address::checksummed(&account.address())
+        );
+        println!(
+            "Digest    {}",
+            clearsign::hex::encode_prefixed(&approval.digest())
+        );
         println!("\nShow this to the wallet:\n{response}\n");
         match qr_text(&response) {
             Ok(code) => print!("{code}"),
@@ -217,11 +223,23 @@ fn account_index_for_path(request: &SignRequest) -> Result<u32, String> {
 
 fn print_request(request: &SignRequest) {
     println!("\n-- Signing request --");
-    println!("Requested by ..................... {}", request.origin.as_deref().unwrap_or("(not stated)"));
-    println!("Content .......................... {}", request.data_type.label());
-    println!("Key path ......................... {}", request.path_string());
+    println!(
+        "Requested by ..................... {}",
+        request.origin.as_deref().unwrap_or("(not stated)")
+    );
+    println!(
+        "Content .......................... {}",
+        request.data_type.label()
+    );
+    println!(
+        "Key path ......................... {}",
+        request.path_string()
+    );
     match request.address {
-        Some(a) => println!("Expected signer .................. {}", clearsign::address::display(&a)),
+        Some(a) => println!(
+            "Expected signer .................. {}",
+            clearsign::address::display(&a)
+        ),
         None => println!("Expected signer .................. (not stated)"),
     }
     match request.chain_id {
@@ -232,8 +250,8 @@ fn print_request(request: &SignRequest) {
 }
 
 fn qr_text(data: &str) -> Result<String, String> {
-    let qr = QrCode::encode_text(&data.to_uppercase(), QrCodeEcc::Low)
-        .map_err(|e| format!("{e}"))?;
+    let qr =
+        QrCode::encode_text(&data.to_uppercase(), QrCodeEcc::Low).map_err(|e| format!("{e}"))?;
     let size = qr.size();
     let quiet = 2;
     let mut out = String::new();
@@ -256,7 +274,9 @@ fn qr_text(data: &str) -> Result<String, String> {
 fn read_line(input: &mut impl BufRead) -> Result<String, String> {
     let mut line = String::new();
     match input.read_line(&mut line) {
-        Ok(0) => Err(String::from("the console closed before the phrase was entered")),
+        Ok(0) => Err(String::from(
+            "the console closed before the phrase was entered",
+        )),
         Ok(_) => Ok(line),
         Err(e) => Err(e.to_string()),
     }

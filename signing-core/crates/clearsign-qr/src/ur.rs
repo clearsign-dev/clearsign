@@ -7,11 +7,11 @@ use alloc::string::String;
 use alloc::vec;
 use alloc::vec::Vec;
 
+use crate::Error;
 use crate::bytewords;
 use crate::cbor;
 use crate::crc32::crc32;
 use crate::fountain::choose_fragments;
-use crate::Error;
 
 /// Largest message the decoder will reassemble. A signing request is a few
 /// hundred bytes; anything far larger is not something a person can review.

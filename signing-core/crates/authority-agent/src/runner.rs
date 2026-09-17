@@ -49,8 +49,7 @@ impl LocalRunner {
     }
 
     fn note(&mut self, step: &Step, what: String) {
-        self.transcript
-            .push(format!("#{} {}", step.id.0, what));
+        self.transcript.push(format!("#{} {}", step.id.0, what));
     }
 
     fn refuse(&mut self, step: &Step, why: &str) -> Result<Output, RunError> {
@@ -94,13 +93,15 @@ impl StepRunner for LocalRunner {
                     self.note(step, format!("would read {path}"));
                     return Ok(Output(Vec::new()));
                 }
-                let meta = fs::metadata(Path::new(path))
-                    .map_err(|e| RunError { message: format!("cannot read {path}: {e}") })?;
+                let meta = fs::metadata(Path::new(path)).map_err(|e| RunError {
+                    message: format!("cannot read {path}: {e}"),
+                })?;
                 if meta.len() > self.limits.max_file_bytes {
                     return self.refuse(step, "that file is larger than this device will read");
                 }
-                let bytes = fs::read(Path::new(path))
-                    .map_err(|e| RunError { message: format!("cannot read {path}: {e}") })?;
+                let bytes = fs::read(Path::new(path)).map_err(|e| RunError {
+                    message: format!("cannot read {path}: {e}"),
+                })?;
                 self.note(step, format!("read {} bytes from {path}", bytes.len()));
                 Ok(Output(bytes))
             }
@@ -113,29 +114,43 @@ impl StepRunner for LocalRunner {
                     self.note(step, format!("would write {} bytes to {path}", bytes.len()));
                     return Ok(Output(Vec::new()));
                 }
-                fs::write(Path::new(path), &bytes)
-                    .map_err(|e| RunError { message: format!("cannot write {path}: {e}") })?;
+                fs::write(Path::new(path), &bytes).map_err(|e| RunError {
+                    message: format!("cannot write {path}: {e}"),
+                })?;
                 self.note(step, format!("wrote {} bytes to {path}", bytes.len()));
                 Ok(Output(Vec::new()))
             }
             // Everything below needs a capability this device does not hand to an
             // agent. Each refusal names what is missing rather than failing vaguely.
-            Action::DeleteFile { .. } => self.refuse(step, "this device does not let an agent delete files"),
-            Action::ReadCredential { .. } => {
-                self.refuse(step, "credentials are not readable by an agent on this device")
+            Action::DeleteFile { .. } => {
+                self.refuse(step, "this device does not let an agent delete files")
             }
-            Action::HttpRequest { .. } => {
-                self.refuse(step, "this device has no network capability to give an agent")
+            Action::ReadCredential { .. } => self.refuse(
+                step,
+                "credentials are not readable by an agent on this device",
+            ),
+            Action::HttpRequest { .. } => self.refuse(
+                step,
+                "this device has no network capability to give an agent",
+            ),
+            Action::SendMessage { .. } => {
+                self.refuse(step, "no messaging capability is configured")
             }
-            Action::SendMessage { .. } => self.refuse(step, "no messaging capability is configured"),
             Action::Payment { .. } => self.refuse(step, "no payment capability is configured"),
             Action::SignTransaction { .. } => self.refuse(
                 step,
                 "signing happens on the signing device over QR, not in this process",
             ),
-            Action::RunProgram { .. } => self.refuse(step, "this device does not run arbitrary programs for an agent"),
-            Action::InstallApp { .. } => self.refuse(step, "installing software is not an agent action"),
-            Action::ChangeSetting { .. } => self.refuse(step, "system settings are not agent-writable"),
+            Action::RunProgram { .. } => self.refuse(
+                step,
+                "this device does not run arbitrary programs for an agent",
+            ),
+            Action::InstallApp { .. } => {
+                self.refuse(step, "installing software is not an agent action")
+            }
+            Action::ChangeSetting { .. } => {
+                self.refuse(step, "system settings are not agent-writable")
+            }
         }
     }
 }

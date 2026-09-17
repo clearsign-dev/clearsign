@@ -52,8 +52,14 @@ impl<'a> Reader<'a> {
     }
 
     fn take(&mut self, n: usize) -> Result<&'a [u8], Error> {
-        let end = self.pos.checked_add(n).ok_or(Error::Cbor("length overflow"))?;
-        let out = self.data.get(self.pos..end).ok_or(Error::Cbor("truncated"))?;
+        let end = self
+            .pos
+            .checked_add(n)
+            .ok_or(Error::Cbor("length overflow"))?;
+        let out = self
+            .data
+            .get(self.pos..end)
+            .ok_or(Error::Cbor("truncated"))?;
         self.pos = end;
         Ok(out)
     }
@@ -73,7 +79,10 @@ impl<'a> Reader<'a> {
                 v
             }
             25 => {
-                let b: [u8; 2] = self.take(2)?.try_into().map_err(|_| Error::Cbor("truncated"))?;
+                let b: [u8; 2] = self
+                    .take(2)?
+                    .try_into()
+                    .map_err(|_| Error::Cbor("truncated"))?;
                 let v = u64::from(u16::from_be_bytes(b));
                 if v <= u64::from(u8::MAX) {
                     return Err(Error::Cbor("integer not in shortest form"));
@@ -81,7 +90,10 @@ impl<'a> Reader<'a> {
                 v
             }
             26 => {
-                let b: [u8; 4] = self.take(4)?.try_into().map_err(|_| Error::Cbor("truncated"))?;
+                let b: [u8; 4] = self
+                    .take(4)?
+                    .try_into()
+                    .map_err(|_| Error::Cbor("truncated"))?;
                 let v = u64::from(u32::from_be_bytes(b));
                 if v <= u64::from(u16::MAX) {
                     return Err(Error::Cbor("integer not in shortest form"));
@@ -89,7 +101,10 @@ impl<'a> Reader<'a> {
                 v
             }
             27 => {
-                let b: [u8; 8] = self.take(8)?.try_into().map_err(|_| Error::Cbor("truncated"))?;
+                let b: [u8; 8] = self
+                    .take(8)?
+                    .try_into()
+                    .map_err(|_| Error::Cbor("truncated"))?;
                 let v = u64::from_be_bytes(b);
                 if v <= u64::from(u32::MAX) {
                     return Err(Error::Cbor("integer not in shortest form"));

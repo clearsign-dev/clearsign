@@ -6,8 +6,8 @@
 use alloc::string::String;
 use alloc::vec::Vec;
 
-use crate::cbor::{self, Kind};
 use crate::Error;
+use crate::cbor::{self, Kind};
 
 /// CBOR tag 37: a UUID byte string.
 const TAG_UUID: u64 = 37;
@@ -216,7 +216,8 @@ fn decode_keypath(r: &mut cbor::Reader<'_>) -> Result<(Vec<PathComponent>, Optio
                 if len % 2 != 0 {
                     return Err(Error::Eip4527("keypath components are not pairs"));
                 }
-                let steps = usize::try_from(len / 2).map_err(|_| Error::Eip4527("path too long"))?;
+                let steps =
+                    usize::try_from(len / 2).map_err(|_| Error::Eip4527("path too long"))?;
                 if steps > MAX_PATH_COMPONENTS {
                     return Err(Error::Eip4527("derivation path is too long"));
                 }

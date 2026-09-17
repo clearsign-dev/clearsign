@@ -66,7 +66,10 @@ pub fn encode_plan(plan: &Plan) -> Vec<u8> {
 /// Structural only: the returned plan still has to pass `review_plan`, which is
 /// what rejects cycles, unknown references and oversized graphs.
 pub fn decode_plan(bytes: &[u8]) -> Result<Plan, WireError> {
-    let mut r = Reader { data: bytes, pos: 0 };
+    let mut r = Reader {
+        data: bytes,
+        pos: 0,
+    };
     if r.bytes()? != fingerprint::DOMAIN {
         return Err(WireError::WrongDomain);
     }

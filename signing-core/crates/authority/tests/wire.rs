@@ -1,6 +1,11 @@
 //! The plan wire format: what an untrusted planner is allowed to say.
 
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::indexing_slicing)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing
+)]
 
 use authority::{
     Action, HttpMethod, MAX_STEPS, Plan, Sensitivity, Step, StepId, WireError, decode_plan,
@@ -52,23 +57,58 @@ fn a_plan_survives_the_round_trip_unchanged() {
 #[test]
 fn every_action_survives_the_round_trip() {
     let actions = [
-        Action::Transform { description: String::from("t") },
-        Action::ReadFile { path: String::from("p"), sensitivity: Sensitivity::Secret },
-        Action::WriteFile { path: String::from("p") },
-        Action::DeleteFile { path: String::from("p") },
-        Action::ReadCredential { name: String::from("api token") },
-        Action::HttpRequest { method: HttpMethod::Delete, host: String::from("h") },
-        Action::SendMessage { channel: String::from("c"), recipient: String::from("r") },
-        Action::Payment { amount_minor: u64::MAX, currency: String::from("EUR"), payee: String::from("p") },
-        Action::SignTransaction { unsigned_tx: vec![2, 3, 4] },
-        Action::RunProgram { program: String::from("prog") },
-        Action::InstallApp { package: String::from("pkg") },
-        Action::ChangeSetting { key: String::from("k"), value: String::from("v") },
+        Action::Transform {
+            description: String::from("t"),
+        },
+        Action::ReadFile {
+            path: String::from("p"),
+            sensitivity: Sensitivity::Secret,
+        },
+        Action::WriteFile {
+            path: String::from("p"),
+        },
+        Action::DeleteFile {
+            path: String::from("p"),
+        },
+        Action::ReadCredential {
+            name: String::from("api token"),
+        },
+        Action::HttpRequest {
+            method: HttpMethod::Delete,
+            host: String::from("h"),
+        },
+        Action::SendMessage {
+            channel: String::from("c"),
+            recipient: String::from("r"),
+        },
+        Action::Payment {
+            amount_minor: u64::MAX,
+            currency: String::from("EUR"),
+            payee: String::from("p"),
+        },
+        Action::SignTransaction {
+            unsigned_tx: vec![2, 3, 4],
+        },
+        Action::RunProgram {
+            program: String::from("prog"),
+        },
+        Action::InstallApp {
+            package: String::from("pkg"),
+        },
+        Action::ChangeSetting {
+            key: String::from("k"),
+            value: String::from("v"),
+        },
     ];
     for action in actions {
         let plan = Plan {
             goal: String::from("g"),
-            steps: vec![Step { id: StepId(1), title: String::from("s"), action, inputs: vec![] }],
+            steps: vec![Step {
+                id: StepId(1),
+                title: String::from("s"),
+                action,
+                inputs: vec![],
+            }],
         };
         let bytes = encode_plan(&plan);
         assert_eq!(decode_plan(&bytes).unwrap(), plan, "round trip");
@@ -119,7 +159,10 @@ fn trailing_bytes_are_refused() {
 fn a_truncated_plan_is_refused() {
     let bytes = encode_plan(&exfiltration_plan());
     for cut in 1..bytes.len() {
-        assert!(decode_plan(&bytes[..cut]).is_err(), "accepted a plan cut at {cut}");
+        assert!(
+            decode_plan(&bytes[..cut]).is_err(),
+            "accepted a plan cut at {cut}"
+        );
     }
 }
 
@@ -153,7 +196,9 @@ fn an_unknown_action_is_refused_rather_than_ignored() {
         steps: vec![Step {
             id: StepId(1),
             title: String::from("s"),
-            action: Action::RunProgram { program: String::from("p") },
+            action: Action::RunProgram {
+                program: String::from("p"),
+            },
             inputs: vec![],
         }],
     };
@@ -186,7 +231,9 @@ fn text_that_is_not_utf8_is_refused() {
         steps: vec![Step {
             id: StepId(1),
             title: String::from("title"),
-            action: Action::Transform { description: String::from("abcd") },
+            action: Action::Transform {
+                description: String::from("abcd"),
+            },
             inputs: vec![],
         }],
     };

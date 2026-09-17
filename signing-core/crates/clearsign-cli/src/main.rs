@@ -17,7 +17,9 @@ use clearsign::address::Address;
 use clearsign::{DomainVersion, Review, SafeTransaction, Severity, U256, hex};
 use clearsign_keys::{DiceRolls, Wallet, approve, mnemonic_from_dice};
 use clearsign_qr::ur::encode_single;
-use clearsign_qr::{DataType, Decoder as QrDecoder, SignRequest, decode_sign_request, encode_signature};
+use clearsign_qr::{
+    DataType, Decoder as QrDecoder, SignRequest, decode_sign_request, encode_signature,
+};
 use qrcodegen::{QrCode, QrCodeEcc};
 use zeroize::Zeroizing;
 
@@ -326,8 +328,9 @@ fn addr(flag: &str, v: &str) -> Result<Address, String> {
 fn read_sign_request(source: &Source) -> Result<(SignRequest, Vec<u8>), String> {
     let input = match source {
         Source::Stdin => read_stdin()?.as_str().to_owned(),
-        Source::File(path) => std::fs::read_to_string(path)
-            .map_err(|e| format!("cannot read {path}: {e}"))?,
+        Source::File(path) => {
+            std::fs::read_to_string(path).map_err(|e| format!("cannot read {path}: {e}"))?
+        }
     };
     let mut decoder = QrDecoder::new();
     let mut scanned = 0usize;
@@ -340,8 +343,8 @@ fn read_sign_request(source: &Source) -> Result<(SignRequest, Vec<u8>), String> 
         match decoder.receive(line) {
             Ok(Some(message)) => {
                 let message = message.to_vec();
-                let request = decode_sign_request(&message)
-                    .map_err(|e| format!("request {scanned}: {e}"))?;
+                let request =
+                    decode_sign_request(&message).map_err(|e| format!("request {scanned}: {e}"))?;
                 eprintln!("read {scanned} QR code(s)");
                 return Ok((request, message));
             }
@@ -361,11 +364,23 @@ fn read_sign_request(source: &Source) -> Result<(SignRequest, Vec<u8>), String> 
 /// Everything about the request except the transaction itself.
 fn print_request_context(request: &SignRequest) {
     println!("-- Signing request (from the QR codes) --");
-    println!("Requested by ..................... {}", request.origin.as_deref().unwrap_or("(not stated)"));
-    println!("Content .......................... {}", request.data_type.label());
-    println!("Key path ......................... {}", request.path_string());
+    println!(
+        "Requested by ..................... {}",
+        request.origin.as_deref().unwrap_or("(not stated)")
+    );
+    println!(
+        "Content .......................... {}",
+        request.data_type.label()
+    );
+    println!(
+        "Key path ......................... {}",
+        request.path_string()
+    );
     match request.address {
-        Some(a) => println!("Expected signer .................. {}", clearsign::address::display(&a)),
+        Some(a) => println!(
+            "Expected signer .................. {}",
+            clearsign::address::display(&a)
+        ),
         None => println!("Expected signer .................. (not stated)"),
     }
     match request.chain_id {
@@ -483,7 +498,11 @@ fn qr_sign(args: &[String]) -> Result<Outcome, String> {
     }
 
     let sig = account.sign(&approval).map_err(|e| e.to_string())?;
-    let body = encode_signature(request.request_id.as_deref(), &sig.to_rsv65(), Some("clearsign"));
+    let body = encode_signature(
+        request.request_id.as_deref(),
+        &sig.to_rsv65(),
+        Some("clearsign"),
+    );
     let response = encode_single("eth-signature", &body);
 
     println!("\n-- Signature --");

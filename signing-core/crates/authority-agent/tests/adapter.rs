@@ -1,6 +1,11 @@
 //! What an agent is and is not allowed to talk this device into.
 
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::indexing_slicing)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::indexing_slicing
+)]
 
 use authority::{Action, Sensitivity, fingerprint, review_plan};
 use authority_agent::{AdapterError, Policy, plan_from_json};
@@ -40,8 +45,14 @@ fn the_injected_plan_is_critical_and_names_the_destination() {
     assert!(text.contains("SECRET_EGRESS"), "{text}");
     assert!(text.contains("notes-backup.example"), "{text}");
     // The label the planner chose is shown, but never used to describe the step.
-    assert!(text.contains("\"Back up the summary\" (unverified)"), "{text}");
-    assert!(text.contains("Sends data to \"notes-backup.example\""), "{text}");
+    assert!(
+        text.contains("\"Back up the summary\" (unverified)"),
+        "{text}"
+    );
+    assert!(
+        text.contains("Sends data to \"notes-backup.example\""),
+        "{text}"
+    );
 }
 
 #[test]
@@ -73,9 +84,18 @@ fn a_step_that_uses_an_unproposed_step_is_refused() {
 
 #[test]
 fn a_proposal_that_is_not_a_plan_is_refused() {
-    assert!(matches!(plan("not json at all"), Err(AdapterError::NotJson(_))));
-    assert!(matches!(plan(r#"{"steps":[]}"#), Err(AdapterError::Shape(_))));
-    assert!(matches!(plan(r#"{"goal":"g","steps":[]}"#), Err(AdapterError::Shape(_))));
+    assert!(matches!(
+        plan("not json at all"),
+        Err(AdapterError::NotJson(_))
+    ));
+    assert!(matches!(
+        plan(r#"{"steps":[]}"#),
+        Err(AdapterError::Shape(_))
+    ));
+    assert!(matches!(
+        plan(r#"{"goal":"g","steps":[]}"#),
+        Err(AdapterError::Shape(_))
+    ));
 }
 
 #[test]
@@ -102,7 +122,10 @@ fn a_path_that_walks_upwards_is_outside_the_allowed_roots() {
         Sensitivity::Public,
         "a traversing path must not be classified by where it appears to end up"
     );
-    assert_eq!(policy.classify("/home/user/.ssh/id_ed25519"), Sensitivity::Secret);
+    assert_eq!(
+        policy.classify("/home/user/.ssh/id_ed25519"),
+        Sensitivity::Secret
+    );
 }
 
 #[test]
@@ -119,7 +142,7 @@ fn changing_the_proposal_changes_what_approval_would_cover() {
 
 #[test]
 fn the_runner_will_not_read_a_secret_file_for_an_agent() {
-    use authority::{StepRunner, Step, StepId, Action, Sensitivity};
+    use authority::{Action, Sensitivity, Step, StepId, StepRunner};
     use authority_agent::{LocalRunner, RunnerLimits};
 
     let mut runner = LocalRunner::new(Policy::default(), RunnerLimits::default());
