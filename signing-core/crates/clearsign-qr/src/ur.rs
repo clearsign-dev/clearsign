@@ -132,6 +132,14 @@ pub fn decode_part_cbor(bytes: &[u8]) -> Result<(PartHeader, Vec<u8>), Error> {
     if data.is_empty() {
         return Err(Error::Ur("empty fragment"));
     }
+    // A fragment cannot be bigger than the message it is a fragment of. Without
+    // this, a part could declare a one-byte message and carry megabytes, and the
+    // decoder would hold them until the checksum failed.
+    if data.len() > message_len {
+        return Err(Error::Ur(
+            "fragment is larger than the message it belongs to",
+        ));
+    }
     Ok((
         PartHeader {
             seq_num,

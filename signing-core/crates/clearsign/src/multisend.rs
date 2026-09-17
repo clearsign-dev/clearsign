@@ -47,6 +47,14 @@ pub const SEL_MULTI_SEND: [u8; 4] = [0x8d, 0x80, 0xff, 0x0a];
 /// summarised, because a person cannot review what they cannot see.
 pub const MAX_BATCH_CALLS: usize = 32;
 
+/// How many calls the decoder will *parse* to judge risk, as opposed to display.
+///
+/// Reading past the display limit costs little and answers the question that
+/// matters about an over-long batch: is there a DELEGATECALL in the part you are
+/// not being shown? Without this the person acknowledges "batch too long" and
+/// signs whatever is in it.
+pub const MAX_BATCH_CALLS_PARSED: usize = 1024;
+
 /// Packed header per call: operation(1) + to(20) + value(32) + dataLength(32).
 const HEADER: usize = 85;
 
@@ -2266,7 +2274,7 @@ pub fn decode_batch(packed: &[u8]) -> Result<Vec<BatchCall<'_>>, Error> {
     let mut calls = Vec::new();
     let mut pos = 0usize;
     while pos < packed.len() {
-        if calls.len() >= MAX_BATCH_CALLS {
+        if calls.len() >= MAX_BATCH_CALLS_PARSED {
             return Err(Error::TooDeep);
         }
         let header_end = pos.checked_add(HEADER).ok_or(Error::IntegerOverflow)?;

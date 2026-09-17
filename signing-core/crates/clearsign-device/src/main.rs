@@ -44,12 +44,12 @@ fn main() {
     let mut session = Session::new();
     loop {
         let mut line = String::new();
-        match input.read_line(&mut line) {
+        match read_line_capped(&mut input, &mut line, MAX_CONSOLE_LINE) {
             // A closed console must not end process 1.
             Ok(0) => park(),
             Ok(_) => session.handle(line.trim(), &mut input),
             Err(e) => {
-                println!("input error: {e}");
+                println!("REFUSED: {e}");
                 flush();
             }
         }
@@ -237,11 +237,19 @@ fn account_index_for_path(request: &SignRequest) -> Result<u32, String> {
     Ok(last.index)
 }
 
+/// Everything about the request except the transaction itself.
+///
+/// Every value here came from the wallet, not from the signed bytes, so every
+/// one of them is escaped before it reaches the screen. An unescaped `origin`
+/// can clear this console and draw a review that was never produced.
 fn print_request(request: &SignRequest) {
-    println!("\n-- Signing request --");
+    println!("\n-- Signing request (stated by the wallet, not signed) --");
     println!(
         "Requested by ..................... {}",
-        request.origin.as_deref().unwrap_or("(not stated)")
+        match request.origin.as_deref() {
+            Some(o) => clearsign::escape_untrusted(o),
+            None => String::from("(not stated)"),
+        }
     );
     println!(
         "Content .......................... {}",
@@ -259,8 +267,10 @@ fn print_request(request: &SignRequest) {
         None => println!("Expected signer .................. (not stated)"),
     }
     match request.chain_id {
-        Some(id) => println!("Chain ID stated by the wallet .... {id}"),
-        None => println!("Chain ID stated by the wallet .... (not stated)"),
+        Some(id) => println!(
+            "Chain ID claimed here ............ {id}  (the signed chain ID is in the review below)"
+        ),
+        None => println!("Chain ID claimed here ............ (not stated)"),
     }
     println!();
 }
@@ -296,14 +306,58 @@ fn qr_text(data: &str) -> Result<String, String> {
     Ok(out)
 }
 
+/// The longest line this device will read from its console.
+///
+/// A `ur:` frame is a few hundred characters; a recovery phrase with a
+/// passphrase is well under a kilobyte. Anything longer is not a person typing,
+/// and an unbounded read on process 1 is a way to stop the only program on the
+/// machine by feeding it characters.
+pub const MAX_CONSOLE_LINE: usize = 8 * 1024;
+
 fn read_line(input: &mut impl BufRead) -> Result<String, String> {
     let mut line = String::new();
-    match input.read_line(&mut line) {
+    match read_line_capped(input, &mut line, MAX_CONSOLE_LINE) {
         Ok(0) => Err(String::from(
             "the console closed before the phrase was entered",
         )),
         Ok(_) => Ok(line),
-        Err(e) => Err(e.to_string()),
+        Err(e) => Err(e),
+    }
+}
+
+/// Read one line, giving up at `limit` bytes instead of growing without bound.
+///
+/// The rest of the over-long line is drained so the next read starts on the next
+/// line rather than on the tail of this one — otherwise a single long paste
+/// would be read as several commands.
+fn read_line_capped(
+    input: &mut impl BufRead,
+    out: &mut String,
+    limit: usize,
+) -> Result<usize, String> {
+    let mut taken = 0usize;
+    let mut byte = [0u8; 1];
+    loop {
+        match input.read(&mut byte) {
+            Ok(0) => return Ok(taken),
+            Ok(_) => {
+                taken = taken.saturating_add(1);
+                let c = *byte.first().unwrap_or(&b'\n');
+                if c == b'\n' {
+                    if taken > limit {
+                        return Err(format!(
+                            "that line is longer than this device will read ({limit} bytes); nothing was acted on"
+                        ));
+                    }
+                    out.push('\n');
+                    return Ok(taken);
+                }
+                if taken <= limit {
+                    out.push(char::from(c));
+                }
+            }
+            Err(e) => return Err(e.to_string()),
+        }
     }
 }
 

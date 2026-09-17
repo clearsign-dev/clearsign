@@ -154,10 +154,14 @@ pub fn plan_from_json(json: &str, policy: &Policy) -> Result<Plan, AdapterError>
             inputs,
         });
     }
-    Ok(Plan {
+    let mut plan = Plan {
         goal: String::from(goal),
         steps,
-    })
+    };
+    // Tidy every path and set every sensitivity from local policy, so what is
+    // displayed, what is traced and what runs are the same strings.
+    authority::classify_plan(&mut plan, policy);
+    Ok(plan)
 }
 
 fn string_arg<'a>(
@@ -179,10 +183,11 @@ fn action_for(tool: &str, args: &Value, policy: &Policy) -> Result<Action, Adapt
             let path = string_arg(args, "path", tool)?;
             Action::ReadFile {
                 path: String::from(path),
-                // Local policy decides this. Anything the proposal says about
-                // sensitivity is ignored: an agent that could label a credential
-                // "public" could walk it straight past the flow tracing.
-                sensitivity: policy.classify(path),
+                // Local policy decides this, not the proposal. The path is
+                // tidied and classified again by `classify_plan` before review,
+                // so `/home/user/./.config/keys/seed` and the plain spelling of
+                // the same file are judged identically.
+                sensitivity: policy.sensitivity(path),
             }
         }
         "write_file" => Action::WriteFile {

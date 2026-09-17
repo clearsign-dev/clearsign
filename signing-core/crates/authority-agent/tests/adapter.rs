@@ -116,14 +116,15 @@ fn a_path_that_walks_upwards_is_outside_the_allowed_roots() {
     assert!(policy.allows("/home/user/notes/week"));
     assert!(!policy.allows("/home/user/../etc/shadow"));
     assert!(!policy.allows("/etc/shadow"));
-    // And a traversal cannot launder a secret path into a public one.
+    // A path that climbs is not guessed at: it is treated as secret and refused,
+    // rather than classified by where it appears to end up.
     assert_eq!(
-        policy.classify("/home/user/.ssh/../.ssh/id_ed25519"),
-        Sensitivity::Public,
-        "a traversing path must not be classified by where it appears to end up"
+        policy.sensitivity("/home/user/.ssh/../.ssh/id_ed25519"),
+        Sensitivity::Secret,
+        "an unresolvable path must be treated as the worst case, not the best"
     );
     assert_eq!(
-        policy.classify("/home/user/.ssh/id_ed25519"),
+        policy.sensitivity("/home/user/.ssh/id_ed25519"),
         Sensitivity::Secret
     );
 }
@@ -157,4 +158,45 @@ fn the_runner_will_not_read_a_secret_file_for_an_agent() {
     };
     let err = runner.run(&step, &[]).unwrap_err();
     assert!(err.message.contains("credential"), "{}", err.message);
+}
+
+#[test]
+fn audit_f3_tidy_spellings_of_a_secret_path_are_still_secret() {
+    // The finding: `.` and empty segments were not collapsed before
+    // classification, so /home/user/./.config/keys/seed came out Personal while
+    // the plain spelling of the same file came out Secret. The runner's refusal
+    // to read secret files could be walked around by typing the path differently.
+    let p = Policy::default();
+    for spelling in [
+        "/home/user/.config/keys/seed",
+        "/home/user/./.config/keys/seed",
+        "/home/user//.config/keys/seed",
+        "/home/user/.config/./keys/seed",
+        "/home/user/.config/keys//./seed",
+    ] {
+        assert_eq!(
+            p.sensitivity(spelling),
+            Sensitivity::Secret,
+            "{spelling} must be judged the same as the plain spelling"
+        );
+    }
+    // And a path that climbs is refused rather than resolved.
+    assert!(!p.allows("/home/user/../etc/shadow"));
+    assert_eq!(
+        p.sensitivity("/home/user/../etc/shadow"),
+        Sensitivity::Secret
+    );
+}
+
+#[test]
+fn audit_f3_the_plan_shows_the_path_it_will_actually_use() {
+    // Classification tidies the path in the plan itself, so the review, the
+    // fingerprint and the runner all refer to one string.
+    let json = r#"{"goal":"g","steps":[{"id":1,"label":"x","tool":"read_file",
+        "arguments":{"path":"/home/user/./notes//week"}}]}"#;
+    let p = plan(json).unwrap();
+    match &p.steps[0].action {
+        Action::ReadFile { path, .. } => assert_eq!(path, "/home/user/notes/week"),
+        other => panic!("expected a file read, got {other:?}"),
+    }
 }

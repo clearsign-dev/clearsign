@@ -9,6 +9,7 @@
 //! v1.1.1, v1.3.0 and v1.4.1. The hashes are computed from the type strings at
 //! run time, and tests pin them to the published constants.
 
+use alloc::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 
@@ -92,7 +93,17 @@ pub fn review_safe_transaction(tx: &SafeTransaction, version: DomainVersion) -> 
     let mut review = Review::new("Safe transaction (owner signature)");
 
     let mut s = Section::new("Safe");
-    s.field("Network chain ID", tx.chain_id.to_decimal());
+    match version {
+        // The chain ID is part of what is hashed, so it is part of what is signed.
+        DomainVersion::V1_3Plus => s.field("Network chain ID", tx.chain_id.to_decimal()),
+        // Under the v1.1.x domain it is not. Printing it next to fields that are
+        // signed would tell the reader this signature belongs to one chain, and
+        // it belongs to all of them.
+        DomainVersion::Legacy => s.field(
+            "Network chain ID",
+            format!("{} — NOT part of this signature", tx.chain_id.to_decimal()),
+        ),
+    }
     s.field("Safe", address::display(&tx.safe));
     s.field("Safe nonce", tx.nonce.to_decimal());
     s.field(
@@ -113,6 +124,18 @@ pub fn review_safe_transaction(tx: &SafeTransaction, version: DomainVersion) -> 
         s.field("refundReceiver", address::display(&tx.refund_receiver));
     }
     review.sections.push(s);
+
+    if matches!(version, DomainVersion::Legacy) {
+        review.find(
+            Severity::Critical,
+            "SIGNATURE_NOT_CHAIN_BOUND",
+            String::from(
+                "The v1.1.x Safe domain does not include the chain ID, so this signature is valid \
+                 for the same Safe address on every chain it exists on, not only this one. Anyone \
+                 holding it can replay it elsewhere while the nonce still matches.",
+            ),
+        );
+    }
 
     calls::refund_finding(&mut review, tx.gas_price, tx.gas_token, tx.refund_receiver);
 

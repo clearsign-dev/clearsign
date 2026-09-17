@@ -65,7 +65,7 @@ pub fn review_request(request: &[u8]) -> Option<(alloc::string::String, u8)> {
 /// refusal a person can read rather than a silent fallback.
 fn review_plan_request(body: &[u8]) -> Option<(alloc::string::String, u8)> {
     use alloc::format;
-    let plan = match authority::decode_plan(body) {
+    let mut plan = match authority::decode_plan(body) {
         Ok(plan) => plan,
         Err(e) => {
             return Some((
@@ -74,6 +74,12 @@ fn review_plan_request(body: &[u8]) -> Option<(alloc::string::String, u8)> {
             ));
         }
     };
+    // The planner does not get to say how sensitive its own inputs are. Whatever
+    // the wire claimed is thrown away and replaced by what this device believes
+    // about those paths, before anything is traced or shown.
+    let policy = authority::PathPolicy::default();
+    let unresolvable = authority::classify_plan(&mut plan, &policy);
+
     let review = match authority::review_plan(&plan) {
         Ok(review) => review,
         Err(e) => {
@@ -90,7 +96,21 @@ fn review_plan_request(body: &[u8]) -> Option<(alloc::string::String, u8)> {
         Some(Severity::Blind) => SEV_BLIND,
         Some(Severity::Critical) => SEV_CRITICAL,
     };
-    Some((review.render(), sev))
+    let mut text = review.render();
+    if !unresolvable.is_empty() {
+        // A path this device cannot resolve without guessing is treated as
+        // secret, and the person is told which one, because a plan that reads
+        // "somewhere under your home directory" is not a plan anyone approved.
+        text.push_str("\n-- Paths this device could not resolve --\n");
+        for path in &unresolvable {
+            text.push_str("  ");
+            text.push_str(&clearsign::escape_untrusted(path));
+            text.push('\n');
+        }
+        text.push_str("They are treated as secret, and this device will not act on them.\n");
+        return Some((text, SEV_CRITICAL));
+    }
+    Some((text, sev))
 }
 
 struct Reader<'a>(&'a [u8]);
