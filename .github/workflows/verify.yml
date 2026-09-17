@@ -10,7 +10,11 @@
 name: verify
 
 on:
+  # Branches are covered by the pull_request trigger. Without this, every push to
+  # a branch with an open PR runs the whole suite twice, and the reproducible
+  # build alone takes about twenty minutes a time.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
