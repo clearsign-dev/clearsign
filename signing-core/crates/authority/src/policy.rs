@@ -48,7 +48,7 @@ impl<'p> PlanReview<'p> {
     }
 
     pub fn has(&self, step: StepId, code: &str) -> bool {
-        self.findings
+        self.findings()
             .iter()
             .any(|f| f.step == step && f.code == code)
     }
@@ -217,7 +217,7 @@ pub fn review_plan(plan: &Plan) -> Result<PlanReview<'_>, PlanError> {
                 match clearsign::review_transaction_bytes(unsigned_tx) {
                     Ok(review) => {
                         for f in review
-                            .findings
+                            .findings()
                             .iter()
                             .filter(|f| f.severity >= Severity::Warning)
                         {

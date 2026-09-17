@@ -16,8 +16,11 @@ Spender .......................... 0x3333 3333 3333 3333 3333 3333 3333 3333 333
 Allowance ........................ UNLIMITED (2^256 - 1)
 
 -- Findings --
-[CRITICAL] UNLIMITED_APPROVAL: Grants 0x3333333333333333333333333333333333333333 permission to move ALL of this token, now and in the future, until revoked.
-[INFO] COMPARE_SAFE_TX_HASH: Before signing, confirm the Safe transaction hash matches what every other signer sees on their own device, over a channel the preparing computer does not control.
+[CRITICAL] 1:UNLIMITED_APPROVAL - Grants 0x3333333333333333333333333333333333333333 permission to move ALL of this token, now and in the future, until revoked.
+[INFO] 2:COMPARE_SAFE_TX_HASH - Before signing, confirm the Safe transaction hash matches what every other signer sees on their own device, over a channel the preparing computer does not control.
+
+-- Must be acknowledged, one by one --
+  1:UNLIMITED_APPROVAL
 
 -- Verify out of band --
 Safe transaction hash ............ 0x0f807a79c8c461f7327ab45ddd54c64e896ddfd5fe6ba815f32be7aabb1272c2

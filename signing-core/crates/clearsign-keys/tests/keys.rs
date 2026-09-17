@@ -199,7 +199,7 @@ fn eip1559_signature_matches_cast_mktx() {
         approve(&review, &[]).err(),
         Some(KeyError::UnacknowledgedFinding("UNLIMITED_APPROVAL"))
     );
-    let approval = approve(&review, &["UNLIMITED_APPROVAL"]).unwrap();
+    let approval = approve(&review, &[(1, "UNLIMITED_APPROVAL")]).unwrap();
     let account = Wallet::from_mnemonic(TEST_MNEMONIC, "")
         .unwrap()
         .ethereum_account(0)
@@ -247,21 +247,29 @@ fn approval_requires_exact_acknowledgements() {
     );
     // Extra, unrelated acknowledgements are refused: no blanket lists.
     assert_eq!(
-        approve(&review, &["SAFE_DELEGATECALL", "UNLIMITED_APPROVAL"]).err(),
+        approve(
+            &review,
+            &[(1, "SAFE_DELEGATECALL"), (2, "UNLIMITED_APPROVAL")]
+        )
+        .err(),
         Some(KeyError::UnexpectedAcknowledgement)
     );
     // Duplicates are refused too.
     assert_eq!(
-        approve(&review, &["SAFE_DELEGATECALL", "SAFE_DELEGATECALL"]).err(),
+        approve(
+            &review,
+            &[(1, "SAFE_DELEGATECALL"), (1, "SAFE_DELEGATECALL")]
+        )
+        .err(),
         Some(KeyError::UnexpectedAcknowledgement)
     );
     // Acknowledging something on a clean review is refused.
     let clean = clearsign::review_safe_transaction(&safe_vector_a(), DomainVersion::V1_3Plus);
     assert_eq!(
-        approve(&clean, &["SAFE_DELEGATECALL"]).err(),
+        approve(&clean, &[(1, "SAFE_DELEGATECALL")]).err(),
         Some(KeyError::UnexpectedAcknowledgement)
     );
-    assert!(approve(&review, &["SAFE_DELEGATECALL"]).is_ok());
+    assert!(approve(&review, &[(1, "SAFE_DELEGATECALL")]).is_ok());
 }
 
 #[test]
@@ -281,7 +289,7 @@ fn display_only_reviews_cannot_be_signed() {
     let parsed = clearsign::parse_unsigned_transaction(&bytes).unwrap();
     let display_only = clearsign::review_evm_transaction(&parsed);
     assert_eq!(
-        approve(&display_only, &["UNLIMITED_APPROVAL"]).err(),
+        approve(&display_only, &[(1, "UNLIMITED_APPROVAL")]).err(),
         Some(KeyError::NotSignable)
     );
 }

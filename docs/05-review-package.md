@@ -125,6 +125,26 @@ one transaction and sign another; a `Lines` iterator holding stdin so the signer
 hung forever at the phrase prompt; a build that was not reproducible because cpio
 recorded mtimes; three test-suite gaps where a planted bug went uncaught.
 
+## 6a. The first external review
+
+An external reviewer looked at commit `877caa5e` on 17 Sep 2026 and returned ten
+findings. All ten reproduced. They are being fixed in order of severity, one
+change at a time, each with a regression test that fails against the unfixed
+code. The list, and which are closed, is tracked in the repository's pull
+requests.
+
+Two are worth knowing before reading anything else here:
+
+- **The acknowledgement binding was weaker than this document claimed.** A
+  caller holding a `Review` could clear its findings and approve the same digest
+  with nothing acknowledged, and a single code covered every finding sharing it.
+  Both are fixed: findings are private, and each one is acknowledged by the
+  number shown beside it.
+- **Claim C4 was being asserted against the wrong output.** In the seL4 demo the
+  review text on the console is printed by the untrusted guest, not by the
+  signer. Memory isolation holds; display isolation was never demonstrated. The
+  phase-3 claim has been withdrawn in `04-platform-architecture.md`.
+
 ## 7. How to report
 
 Findings by whatever channel you and the maintainer agreed. Please include the

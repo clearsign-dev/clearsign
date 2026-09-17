@@ -52,12 +52,12 @@ fn batch_tx(to: &str, data: &str) -> SafeTransaction {
 }
 
 fn codes(review: &clearsign::Review) -> Vec<&'static str> {
-    review.findings.iter().map(|f| f.code).collect()
+    review.findings().iter().map(|f| f.code).collect()
 }
 
 fn max_severity(review: &clearsign::Review) -> Severity {
     review
-        .findings
+        .findings()
         .iter()
         .map(|f| f.severity)
         .max()
