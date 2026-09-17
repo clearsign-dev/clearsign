@@ -253,20 +253,29 @@ fn qr_text(data: &str) -> Result<String, String> {
     let qr =
         QrCode::encode_text(&data.to_uppercase(), QrCodeEcc::Low).map_err(|e| format!("{e}"))?;
     let size = qr.size();
-    let quiet = 2;
+    let quiet: i32 = 2;
+    // Saturating throughout. These values cannot overflow in practice — a QR
+    // code is at most 177 modules across — but this program is process 1, so an
+    // arithmetic panic here is a kernel panic. Nothing in it may rely on
+    // "cannot happen".
+    let first = quiet.saturating_neg();
+    let last = size.saturating_add(quiet);
     let mut out = String::new();
-    let mut y = -quiet;
-    while y < size + quiet {
-        for x in -quiet..size + quiet {
-            out.push(match (qr.get_module(x, y), qr.get_module(x, y + 1)) {
+    let mut y = first;
+    while y < last {
+        let mut x = first;
+        while x < last {
+            let lower = y.saturating_add(1);
+            out.push(match (qr.get_module(x, y), qr.get_module(x, lower)) {
                 (true, true) => '\u{2588}',
                 (true, false) => '\u{2580}',
                 (false, true) => '\u{2584}',
                 (false, false) => ' ',
             });
+            x = x.saturating_add(1);
         }
         out.push('\n');
-        y += 2;
+        y = y.saturating_add(2);
     }
     Ok(out)
 }

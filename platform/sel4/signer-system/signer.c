@@ -42,21 +42,36 @@ void notified(microkit_channel ch)
     if (ch != CH_WALLET_UI) {
         return;
     }
-    const uint8_t *req = (const uint8_t *)request_vaddr;
-    uint8_t *rev = (uint8_t *)review_vaddr;
+    /* Both regions are written by another protection domain, so every access
+     * must actually happen rather than be cached or elided by the compiler. */
+    volatile const uint8_t *req = (volatile const uint8_t *)request_vaddr;
+    volatile uint8_t *rev = (volatile uint8_t *)review_vaddr;
+
+    /* Everything the wallet UI wrote before notifying must be visible first. */
+    __atomic_thread_fence(__ATOMIC_ACQUIRE);
 
     uint32_t len = ((uint32_t)req[0] << 24) | ((uint32_t)req[1] << 16) | ((uint32_t)req[2] << 8) | req[3];
     if (len > REGION_SIZE - REQ_HEADER) {
         microkit_dbg_puts("SIGNER|refused: request length exceeds region\n");
+        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
         microkit_notify(CH_WALLET_UI);
         return;
     }
 
+    /* Copy the request into private memory before decoding. Reviewing bytes in
+     * place would let the untrusted UI change them between checks, so the review
+     * could describe something other than what was decoded (a TOCTOU attack). */
+    static uint8_t private_copy[REGION_SIZE];
+    for (uint32_t i = 0; i < len; i++) {
+        private_copy[i] = req[REQ_HEADER + i];
+    }
+
     uint8_t severity = 0xff;
-    long n = clearsign_review(req + REQ_HEADER, len, rev + REV_HEADER, REGION_SIZE - REV_HEADER, &severity);
+    long n = clearsign_review(private_copy, len, (uint8_t *)(rev + REV_HEADER), REGION_SIZE - REV_HEADER, &severity);
     if (n < 0) {
         microkit_dbg_puts("SIGNER|refused: request could not be decoded\n");
+        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
         microkit_notify(CH_WALLET_UI);
         return;
@@ -66,6 +81,8 @@ void notified(microkit_channel ch)
     for (int i = 0; i < 8; i++) {
         rev[8 + i] = (uint8_t)((uint64_t)n >> (56 - 8 * i));
     }
+    /* Publish last, after everything it refers to is visible. */
+    __atomic_thread_fence(__ATOMIC_RELEASE);
     rev[0] = 'R';
 
     microkit_dbg_puts("SIGNER|review computed inside the signer compartment:\n");

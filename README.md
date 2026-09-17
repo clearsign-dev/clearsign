@@ -24,6 +24,7 @@ Working project for a privacy and security focused operating system, narrowed by
 | [docs/02-v1-scope.md](docs/02-v1-scope.md) | Frozen version-1 scope, progress, and a proposed change |
 | [docs/03-verification-status.md](docs/03-verification-status.md) | What has been proven, how, and what has not |
 | [docs/04-platform-architecture.md](docs/04-platform-architecture.md) | The full platform: an intelligent OS where AI proposes and a person approves exactly what happens |
+| [docs/05-review-package.md](docs/05-review-package.md) | For a security reviewer: the claims worth attacking, the trust boundaries, and what is already known to be missing |
 | [research/](research/) | Feasibility study and the analysis of 143 failed operating systems |
 
 ## Layout

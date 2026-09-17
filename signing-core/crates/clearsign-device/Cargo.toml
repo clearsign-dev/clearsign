@@ -22,6 +22,10 @@ zeroize = { version = "1", default-features = false, features = ["alloc"] }
 unsafe_code = "forbid"
 
 [lints.clippy]
+# This program is process 1 of the signer image: if it panics, the kernel panics.
+# It carries the same no-panic lints as the decoder itself.
+indexing_slicing = "deny"
+arithmetic_side_effects = "deny"
 unwrap_used = "deny"
 expect_used = "deny"
 panic = "deny"

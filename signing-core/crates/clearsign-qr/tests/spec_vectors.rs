@@ -338,3 +338,72 @@ fn parts_from_a_different_message_are_refused() {
         .unwrap_err();
     assert!(matches!(err, clearsign_qr::Error::Ur(_)), "{err}");
 }
+
+/// Build a valid multipart UR fragment: `[seqNum, seqLen, messageLen, checksum, data]`.
+fn put_uint(out: &mut Vec<u8>, major: u8, v: u64) {
+    // Shortest form only: the decoder refuses anything else, correctly.
+    let m = major << 5;
+    match v {
+        0..=23 => out.push(m | v as u8),
+        24..=0xff => {
+            out.push(m | 24);
+            out.push(v as u8);
+        }
+        0x100..=0xffff => {
+            out.push(m | 25);
+            out.extend_from_slice(&(v as u16).to_be_bytes());
+        }
+        _ => {
+            out.push(m | 26);
+            out.extend_from_slice(&(v as u32).to_be_bytes());
+        }
+    }
+}
+
+fn make_part(
+    seq_num: u32,
+    seq_len: usize,
+    message_len: usize,
+    checksum: u32,
+    data: &[u8],
+) -> String {
+    let mut cbor = Vec::new();
+    put_uint(&mut cbor, 4, 5); // array of 5
+    put_uint(&mut cbor, 0, u64::from(seq_num));
+    put_uint(&mut cbor, 0, seq_len as u64);
+    put_uint(&mut cbor, 0, message_len as u64);
+    put_uint(&mut cbor, 0, u64::from(checksum));
+    put_uint(&mut cbor, 2, data.len() as u64); // byte string
+    cbor.extend_from_slice(data);
+    format!("ur:bytes/{seq_num}-{seq_len}/{}", bytewords::encode(&cbor))
+}
+
+#[test]
+fn a_hostile_stream_of_mixtures_cannot_grow_the_decoder_without_limit() {
+    // Every part here is valid and accepted; each mixes two or more fragments,
+    // so none of them ever resolves anything on its own. What the decoder holds
+    // must stay bounded by the size of the message, not by how many QR codes
+    // someone is willing to wave at the camera.
+    const SEQ_LEN: usize = 9;
+    const MESSAGE_LEN: usize = 256;
+    const CHECKSUM: u32 = 0x0167_aa07;
+    let mut decoder = clearsign_qr::Decoder::new();
+    let mut fed = 0usize;
+    let mut seq = 10u32;
+    while fed < 400 {
+        seq += 1;
+        if clearsign_qr::fountain::choose_fragments(seq, SEQ_LEN, CHECKSUM).len() < 2 {
+            continue; // skip the ones that would resolve a fragment
+        }
+        let data = vec![(seq % 251) as u8; 29];
+        let ur = make_part(seq, SEQ_LEN, MESSAGE_LEN, CHECKSUM, &data);
+        decoder.receive(&ur).expect("a valid part must be accepted");
+        fed += 1;
+        assert!(
+            decoder.buffered_parts() <= SEQ_LEN,
+            "after {fed} mixed parts the decoder holds {} of them for a {SEQ_LEN}-fragment message",
+            decoder.buffered_parts()
+        );
+    }
+    assert!(decoder.message().is_none(), "nothing should have completed");
+}

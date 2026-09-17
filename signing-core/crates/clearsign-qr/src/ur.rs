@@ -154,6 +154,13 @@ pub struct Decoder {
     /// Fragments recovered so far, indexed by fragment number.
     fragments: Vec<Option<Vec<u8>>>,
     /// Parts still mixing more than one unknown fragment.
+    ///
+    /// Bounded by the number of fragments in the message: solving for `seq_len`
+    /// unknowns never needs more than `seq_len` independent equations, so a
+    /// scanner fed an endless stream of crafted mixtures cannot make this grow
+    /// without limit. Without the bound, a message split into about a dozen
+    /// fragments could be used to hold tens of megabytes here, which is nothing
+    /// on a laptop and fatal on the device this code is written for.
     mixed: Vec<(Vec<usize>, Vec<u8>)>,
     processed: usize,
     result: Option<Vec<u8>>,
@@ -180,6 +187,12 @@ impl Decoder {
     /// The UR type seen so far, once any part has been accepted.
     pub fn ur_type(&self) -> Option<&str> {
         self.ur_type.as_deref()
+    }
+
+    /// How many mixed parts are being held while waiting to be solved. Bounded
+    /// by the number of fragments in the message.
+    pub fn buffered_parts(&self) -> usize {
+        self.mixed.len()
     }
 
     /// How many of the message's fragments are known, and how many there are.
@@ -287,7 +300,9 @@ impl Decoder {
                     }
                 }
                 _ => {
-                    if !self.mixed.iter().any(|(i, _)| *i == indexes) {
+                    let already_held = self.mixed.iter().any(|(i, _)| *i == indexes);
+                    let room = self.mixed.len() < self.fragments.len();
+                    if !already_held && room {
                         self.mixed.push((indexes, data));
                     }
                 }

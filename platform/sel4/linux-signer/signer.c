@@ -33,8 +33,14 @@ void notified(microkit_channel ch)
     if (ch != CH_VMM) {
         return;
     }
-    const uint8_t *req = (const uint8_t *)request_vaddr;
-    uint8_t *rev = (uint8_t *)review_vaddr;
+    /* Both regions are written by another protection domain, so every access
+     * must actually happen rather than be cached or elided by the compiler. */
+    volatile const uint8_t *req = (volatile const uint8_t *)request_vaddr;
+    volatile uint8_t *rev = (volatile uint8_t *)review_vaddr;
+
+    /* Everything the other domain wrote before ringing the doorbell must be
+     * visible before this domain reads any of it. */
+    __atomic_thread_fence(__ATOMIC_ACQUIRE);
 
     /* Snapshot the header once: the guest can keep writing to the shared region. */
     uint32_t len = ((uint32_t)req[0] << 24) | ((uint32_t)req[1] << 16) | ((uint32_t)req[2] << 8) | req[3];
@@ -46,6 +52,7 @@ void notified(microkit_channel ch)
     }
     if (len > REGION_SIZE - REQ_HEADER) {
         microkit_dbg_puts("SIGNER|refused: request length exceeds region\n");
+        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
         microkit_notify(CH_VMM);
         return;
@@ -62,6 +69,7 @@ void notified(microkit_channel ch)
     long n = clearsign_review(private_copy, len, rev + REV_HEADER, REGION_SIZE - REV_HEADER, &severity);
     if (n < 0) {
         microkit_dbg_puts("SIGNER|refused: request could not be decoded\n");
+        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
         microkit_notify(CH_VMM);
         return;
@@ -70,6 +78,10 @@ void notified(microkit_channel ch)
     for (int i = 0; i < 8; i++) {
         rev[8 + i] = (uint8_t)((uint64_t)n >> (56 - 8 * i));
     }
+    /* Publish last, and only after everything it refers to is visible. On a
+     * weakly ordered machine the reader could otherwise see the ready flag
+     * before the text and length it promises. */
+    __atomic_thread_fence(__ATOMIC_RELEASE);
     rev[0] = 'R';
     microkit_dbg_puts("SIGNER|review written for the Linux compartment (severity code ");
     char code[2] = { (char)('0' + (severity & 7)), 0 };
