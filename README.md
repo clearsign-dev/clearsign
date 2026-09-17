@@ -1,6 +1,6 @@
 # Signing OS project
 
-Working project for a privacy- and security-focused operating system, narrowed by research to its most defensible job: **letting people see exactly what they are about to sign, on a machine nothing else can reach.**
+Working project for a privacy and security focused operating system, narrowed by research to its most defensible job: **letting people see exactly what they are about to sign, on a machine nothing else can reach.**
 
 > **Status: early development. Unaudited. Not for real funds.**
 >
