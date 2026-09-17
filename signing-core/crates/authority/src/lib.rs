@@ -25,6 +25,7 @@
 extern crate alloc;
 
 mod approval;
+pub mod classify;
 mod error;
 mod execute;
 mod fingerprint;
@@ -36,6 +37,7 @@ mod text;
 mod wire;
 
 pub use approval::{ApprovedPlan, approve_plan};
+pub use classify::{PathPolicy, Resolved, classify_plan};
 pub use error::{ApprovalError, ExecError, PlanError};
 pub use execute::{Output, RunError, StepRunner, execute};
 pub use fingerprint::fingerprint;

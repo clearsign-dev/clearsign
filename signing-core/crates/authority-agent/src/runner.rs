@@ -83,7 +83,7 @@ impl StepRunner for LocalRunner {
                 // Classification is not only for the review. A file this device
                 // considers secret is not handed to an agent because the agent
                 // asked politely for it.
-                if self.policy.classify(path) == authority::Sensitivity::Secret {
+                if self.policy.sensitivity(path) == authority::Sensitivity::Secret {
                     return self.refuse(
                         step,
                         "this device does not read credential or key files on an agent's behalf",

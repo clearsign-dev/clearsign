@@ -165,7 +165,8 @@ fn qr_review_reads_an_animated_request() {
     let stdout = text(&out.stdout);
     assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
     assert!(
-        stdout.contains("Requested by ..................... metamask"),
+        // The wallet's own label is shown quoted, because it is the wallet talking.
+        stdout.contains(r#"Requested by ..................... "metamask""#),
         "{stdout}"
     );
     assert!(stdout.contains("m/44'/60'/0'/0/0"), "{stdout}");

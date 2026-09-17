@@ -102,6 +102,9 @@ pub fn review_plan(plan: &Plan) -> Result<PlanReview<'_>, PlanError> {
         match &step.action {
             Action::Transform { .. } | Action::ReadFile { .. } => {}
             Action::WriteFile { path } => {
+                // Writing secret data somewhere is a way off the device too: the
+                // file is then read by whatever else can reach that path.
+                egress(&mut add, flow, &format!("a write to {}", display(path)));
                 if is_system_path(path) {
                     add(
                         Severity::Critical,
@@ -205,6 +208,7 @@ pub fn review_plan(plan: &Plan) -> Result<PlanReview<'_>, PlanError> {
                         display(payee)
                     ),
                 );
+                egress(&mut add, flow, &format!("a payment to {}", display(payee)));
             }
             Action::SignTransaction { unsigned_tx } => {
                 add(
@@ -274,6 +278,14 @@ pub fn review_plan(plan: &Plan) -> Result<PlanReview<'_>, PlanError> {
                     Severity::Warning,
                     "APP_INSTALL",
                     format!("Installs the app {}.", display(package)),
+                );
+                egress(
+                    &mut add,
+                    flow,
+                    &format!(
+                        "installing {}, which then runs with its own reach",
+                        display(package)
+                    ),
                 );
             }
             Action::ChangeSetting { key, value } => {

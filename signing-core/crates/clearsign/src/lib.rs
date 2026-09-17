@@ -32,6 +32,7 @@ pub mod multisend;
 pub mod review;
 pub mod rlp;
 pub mod safe;
+pub mod text;
 pub mod u256;
 
 pub use error::Error;
@@ -41,4 +42,5 @@ pub use evm::{
 };
 pub use review::{Finding, Review, Section, Severity, SigningTarget, TargetKind};
 pub use safe::{DomainVersion, SafeTransaction, review_safe_transaction, safe_transaction_hash};
+pub use text::escape_untrusted;
 pub use u256::U256;

@@ -237,11 +237,19 @@ fn account_index_for_path(request: &SignRequest) -> Result<u32, String> {
     Ok(last.index)
 }
 
+/// Everything about the request except the transaction itself.
+///
+/// Every value here came from the wallet, not from the signed bytes, so every
+/// one of them is escaped before it reaches the screen. An unescaped `origin`
+/// can clear this console and draw a review that was never produced.
 fn print_request(request: &SignRequest) {
-    println!("\n-- Signing request --");
+    println!("\n-- Signing request (stated by the wallet, not signed) --");
     println!(
         "Requested by ..................... {}",
-        request.origin.as_deref().unwrap_or("(not stated)")
+        match request.origin.as_deref() {
+            Some(o) => clearsign::escape_untrusted(o),
+            None => String::from("(not stated)"),
+        }
     );
     println!(
         "Content .......................... {}",
@@ -259,8 +267,10 @@ fn print_request(request: &SignRequest) {
         None => println!("Expected signer .................. (not stated)"),
     }
     match request.chain_id {
-        Some(id) => println!("Chain ID stated by the wallet .... {id}"),
-        None => println!("Chain ID stated by the wallet .... (not stated)"),
+        Some(id) => println!(
+            "Chain ID claimed here ............ {id}  (the signed chain ID is in the review below)"
+        ),
+        None => println!("Chain ID claimed here ............ (not stated)"),
     }
     println!();
 }
