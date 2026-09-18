@@ -99,7 +99,7 @@ The signer copies the request into private memory before decoding, so a guest th
 
 ## Known gaps
 
-- The seL4 Linux compartment's console is a root shell reachable through seL4's debug serial port. That compartment is for running ordinary Linux software, not for custody; the signer-only image above is the one with no shell in it.
+- The seL4 Linux compartment has no shell and no way in: it has no serial device, runs a fixed script, and its output is relayed by the VMM. That replaced the debug root shell, which shared a console with the signer.
 - The seL4 SDK signing key is pinned on first use; seL4 publishes no second channel to confirm it. Building the SDK from source would remove this dependency.
 - Android does not yet run as a compartment. GrapheneOS is pinned and verified at source level, and its allocator runs in the Linux compartment.
 - Everything runs in QEMU with emulated virtualization. No hardware, no hardware root of trust, no verified boot of this image.

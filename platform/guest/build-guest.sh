@@ -73,14 +73,19 @@ echo "Linux compartment ready (kernel $(uname -r), userland: Debian BusyBox)"
 exec /sbin/init
 INIT
 chmod 0755 "$R/init"
-# The console is reachable only through seL4's debug serial port, so it runs a root shell
-# directly rather than a password login (Debian's BusyBox login also expects /usr/sbin/nologin
-# and NSS configuration this minimal rootfs does not carry).
+# The console used to run a root shell here. It no longer does: the guest has no
+# serial device, its output is relayed by the VMM, and there is no input path.
+# No interactive shell on the console. The compartment runs whatever demo script
+# was added to the image and then stops; there is nothing to type into, which is
+# what the audit asked for — the console is for reading, not for driving.
 cat > "$R/etc/inittab" <<'TAB'
-ttyAMA0::respawn:-/bin/sh
+::sysinit:/bin/sh -c '[ -x /usr/bin/compartment-demo ] && /usr/bin/compartment-demo'
 ::ctrlaltdel:/sbin/reboot
 TAB
-printf 'export PS1="compartment# "\n' > "$R/etc/profile"
+# The prompt ends with a newline on purpose. The guest has no serial device: its
+# output is relayed line by line by the VMM, behind a prefix it cannot forge, and
+# a prompt with no newline would sit in that buffer forever.
+printf 'export PS1="compartment#\\n"\n' > "$R/etc/profile"
 printf 'root::0:0:root:/root:/bin/sh\n' > "$R/etc/passwd"
 printf 'root:x:0:\n' > "$R/etc/group"
 echo compartment > "$R/etc/hostname"

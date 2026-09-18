@@ -33,6 +33,7 @@ FFI="$ROOT/signing-core/target/aarch64-unknown-none/release/libclearsign_ffi.a"
   -fuse-ld=lld -B"$LLD" -Wl,-e,_start -Wl,--build-id=none -o "$HERE/guest/signer-request" "$HERE/guest/signer_request.c"
 STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
 mkdir -p "$STAGE/usr/bin" && cp "$HERE/guest/signer-request" "$STAGE/usr/bin/" && chmod 0755 "$STAGE/usr/bin/signer-request"
+cp "$HERE/guest/compartment-demo.sh" "$STAGE/usr/bin/compartment-demo" && chmod 0755 "$STAGE/usr/bin/compartment-demo"
 # GrapheneOS hardened_malloc as the system-wide allocator (built by platform/grapheneos/build-hardened-malloc.sh)
 GOS="$HERE/../../grapheneos/out"
 if [[ -f "$GOS/libhardened_malloc.so" ]]; then
@@ -87,6 +88,16 @@ mkdir -p "$EX/board/qemu_virt_aarch64"
 cp "$HERE/vmm.c" "$HERE/signer.c" "$EX/"
 cp "$HERE/integrated.system" "$EX/board/qemu_virt_aarch64/linux_signer.system"
 cp "$W/$LV/examples/simple/board/qemu_virt_aarch64/"*.dts "$EX/board/qemu_virt_aarch64/"
+# The guest's console is ours to decide, not the example's. Name the PL011 as the
+# real console, not only the early one: without this Linux hands the console to a
+# dummy device after early boot and everything the guest prints disappears. The
+# PL011 it talks to is emulated by the VMM (see vmm.c) — the guest has no serial
+# device of its own, so what it prints is relayed rather than written to the
+# screen the signer reports on.
+sed -i.bak 's|bootargs = "earlycon=pl011,0x9000000 earlyprintk=serial debug loglevel=8"|bootargs = "earlycon=pl011,0x9000000 console=ttyAMA0 earlyprintk=serial debug loglevel=8"|' \
+    "$EX/board/qemu_virt_aarch64/overlay.dts"
+grep -q "console=ttyAMA0" "$EX/board/qemu_virt_aarch64/overlay.dts" \
+    || { echo "failed to set the guest console in overlay.dts" >&2; exit 1; }
 sed -e 's|^SYSTEM_FILE := .*|SYSTEM_FILE := $(SYSTEM_DIR)/linux_signer.system|' \
     -e 's|^IMAGES := vmm.elf|IMAGES := vmm.elf signer.elf|' \
     "$W/$LV/examples/simple/simple.mk" > "$EX/linux_signer.mk"
