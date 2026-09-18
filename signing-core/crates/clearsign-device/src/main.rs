@@ -85,15 +85,23 @@ impl Session {
             "sign" => self.sign(input),
             _ if line.starts_with("ack ") => {
                 let spec = line.get(4..).unwrap_or("").trim();
-                match parse_ack(spec) {
-                    Some((n, code)) => {
-                        self.acks.push((n, String::from(code)));
-                        println!("acknowledged {n}:{code}");
-                        Ok(())
+                if self.review.is_none() {
+                    // Acknowledging something nobody has shown you is not a
+                    // ritual, it is typing.
+                    Err(String::from(
+                        "there is nothing under review yet; scan a request before acknowledging anything",
+                    ))
+                } else {
+                    match parse_ack(spec) {
+                        Some((n, code)) => {
+                            self.acks.push((n, String::from(code)));
+                            println!("acknowledged {n}:{code}");
+                            Ok(())
+                        }
+                        None => Err(String::from(
+                            "acknowledge a finding by the number and code printed beside it, like: ack 2:UNLIMITED_APPROVAL",
+                        )),
                     }
-                    None => Err(String::from(
-                        "acknowledge a finding by the number and code printed beside it, like: ack 2:UNLIMITED_APPROVAL",
-                    )),
                 }
             }
             _ if line.starts_with("ur:") || line.starts_with("UR:") => self.scan(line),
@@ -113,7 +121,13 @@ impl Session {
         }
         match self.decoder.receive(line) {
             Ok(Some(message)) => {
-                let request = decode_sign_request(message).map_err(|e| e.to_string())?;
+                // Whatever happens next, this request is finished with: a decoder
+                // holding a completed message would answer every later scan with
+                // the same one, so a request this device refuses would be
+                // re-offered until someone typed `reset`.
+                let message = message.to_vec();
+                self.decoder = Decoder::new();
+                let request = decode_sign_request(&message).map_err(|e| e.to_string())?;
                 let review = review_request(&request)?;
                 print_request(&request);
                 print!("{}", review.render());
@@ -152,19 +166,60 @@ impl Session {
         println!("then a blank line. NEVER a phrase holding real funds.");
         flush();
         let phrase = Zeroizing::new(read_line(input)?);
+        // Anything already queued on the console when `sign` was typed would be
+        // read here as a recovery phrase. A line that is plainly something else
+        // is refused rather than fed to the key derivation, so a pasted stream of
+        // QR codes cannot end with the device asking a wallet to sign with a
+        // phrase made of scanner output.
+        let looks_like_input_not_a_phrase = {
+            let t = phrase.trim();
+            t.is_empty()
+                || t.starts_with("ur:")
+                || t.starts_with("UR:")
+                || t == "sign"
+                || t == "reset"
+                || t.starts_with("ack ")
+        };
+        if looks_like_input_not_a_phrase {
+            return Err(String::from(
+                "that line was not a recovery phrase; nothing was signed. Type `sign` again when \
+                 the console is quiet",
+            ));
+        }
         let passphrase = Zeroizing::new(read_line(input)?);
         let wallet =
             Wallet::from_mnemonic(phrase.trim(), passphrase.trim()).map_err(|e| e.to_string())?;
         let account = wallet.ethereum_account(index).map_err(|e| e.to_string())?;
-        if let Some(expected) = request.address {
-            if expected != account.address() {
-                return Err(format!(
-                    "the request expects signer {}, this phrase and path give {}",
-                    clearsign::address::checksummed(&expected),
-                    clearsign::address::checksummed(&account.address())
-                ));
+        // Everything the wallet claimed about this request, checked against the bytes
+        // that will actually be signed and against this device. A mismatch refuses;
+        // a missing claim is reported, because a claim nobody made is a check nobody
+        // passed.
+        let signed_chain_id = match review.signing_target().map(|t| t.kind) {
+            Some(clearsign::TargetKind::EvmTransaction { chain_id, .. }) => {
+                chain_id.and_then(|c| c.to_u64())
+            }
+            _ => None,
+        };
+        let concerns = clearsign_qr::check_request(
+            request,
+            signed_chain_id,
+            wallet.master_fingerprint().ok(),
+            Some(account.address()),
+        );
+        if !concerns.is_empty() {
+            println!("\n-- What the wallet claimed --");
+            for c in &concerns {
+                println!(
+                    "  [{}] {}",
+                    if c.refuse { "REFUSED" } else { "NOTE" },
+                    c.message
+                );
             }
         }
+        if let Some(stop) = concerns.iter().find(|c| c.refuse) {
+            return Err(format!("{}: {}", stop.code, stop.message));
+        }
+
         let signature = account.sign(&approval).map_err(|e| e.to_string())?;
         let body = encode_signature(
             request.request_id.as_deref(),

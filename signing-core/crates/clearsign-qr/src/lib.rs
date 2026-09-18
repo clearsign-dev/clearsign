@@ -28,9 +28,11 @@ pub mod cbor;
 pub mod crc32;
 pub mod eth;
 pub mod fountain;
+pub mod request_checks;
 pub mod ur;
 
 pub use eth::{DataType, PathComponent, SignRequest, decode_sign_request, encode_signature};
+pub use request_checks::{RequestConcern, check_request};
 pub use ur::{Decoder, Part, PartHeader};
 
 use core::fmt;

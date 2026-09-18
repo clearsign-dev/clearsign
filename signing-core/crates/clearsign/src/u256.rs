@@ -46,6 +46,34 @@ impl U256 {
         self.0.iter().all(|b| *b == 0)
     }
 
+    /// Add, refusing to wrap. A total that silently wrapped would understate what
+    /// a batch moves, which is the one number a person is most likely to check.
+    pub fn checked_add(&self, other: &U256) -> Option<U256> {
+        let mut out = [0u8; 32];
+        let mut carry = 0u16;
+        for i in (0..32).rev() {
+            let a = u16::from(*self.0.get(i)?);
+            let b = u16::from(*other.0.get(i)?);
+            // Each term is at most 255 and the carry at most 1, so this cannot
+            // exceed a u16 — but the decoder is linted to never rely on that
+            // kind of reasoning being right.
+            let sum = a.saturating_add(b).saturating_add(carry);
+            *out.get_mut(i)? = (sum & 0xff) as u8;
+            carry = sum >> 8;
+        }
+        if carry != 0 { None } else { Some(U256(out)) }
+    }
+
+    /// Whether this is so large that no real token supply could reach it, and
+    /// an allowance of this size is unlimited in every practical sense.
+    ///
+    /// The threshold is 2^192. The largest plausible supply — a trillion trillion
+    /// tokens with 18 decimals — is about 2^159, so anything above this is not a
+    /// number anyone chose for its value.
+    pub fn is_effectively_unlimited(&self) -> bool {
+        self.0.iter().take(8).any(|b| *b != 0)
+    }
+
     pub fn is_max(&self) -> bool {
         self.0.iter().all(|b| *b == 0xff)
     }

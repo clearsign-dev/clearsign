@@ -43,6 +43,18 @@ impl Wallet {
         })
     }
 
+    /// The fingerprint of the master key: the first four bytes of the RIPEMD-160
+    /// of the SHA-256 of the master public key, as BIP-32 defines it.
+    ///
+    /// A signing request can name the wallet it expects. Comparing that here is
+    /// how a device answers "is this request even for me" before it derives
+    /// anything, rather than producing a valid signature from the wrong seed and
+    /// leaving the wallet to discover it.
+    pub fn master_fingerprint(&self) -> Result<[u8; 4], KeyError> {
+        let key = XPrv::new(self.seed.as_slice()).map_err(|_| KeyError::Derivation)?;
+        Ok(key.public_key().fingerprint())
+    }
+
     /// The account at m/44'/60'/0'/0/`index`, the path MetaMask and Foundry use for
     /// successive accounts. Ledger Live instead varies the third component
     /// (m/44'/60'/`index`'/0/0), so accounts created there appear under different indexes.

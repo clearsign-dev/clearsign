@@ -7,6 +7,11 @@
 # which is produced by scripts/reproducible-cross-check.sh and committed.
 #
 # Nothing here publishes anything. It builds, tests and compares.
+#
+# Actions are pinned to commit hashes, not tags. A tag is a name its owner can
+# move, and these actions run with the repository checked out — the threat model
+# lists the supply chain as an adversary, and a mutable reference in the one place
+# that verifies everything else would be an odd thing to leave.
 name: verify
 
 on:
@@ -27,7 +32,7 @@ jobs:
     name: tests, lints and formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Install the pinned toolchain
         working-directory: signing-core
         run: rustup show          # rust-toolchain.toml pins the version
@@ -45,7 +50,7 @@ jobs:
     name: builds without an operating system
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       # Run inside signing-core so rust-toolchain.toml applies: adding a target
       # to the default toolchain does not add it to the pinned one.
       - name: Add the bare-metal targets to the pinned toolchain
@@ -65,9 +70,9 @@ jobs:
     name: same source, same bytes, another machine
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Allow the arm64 canonical image to run here
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
         with:
           platforms: arm64
       - name: Fetch the crate sources named by Cargo.lock
@@ -113,7 +118,7 @@ jobs:
     name: short fuzzing run
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - run: rustup toolchain install nightly --profile minimal
       - run: cargo +nightly install cargo-fuzz --locked
       - name: Fuzz every parser briefly

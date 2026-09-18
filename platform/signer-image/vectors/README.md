@@ -7,7 +7,8 @@ Foundry's `cast to-rlp`. The commands are in
 `signing-core/crates/clearsign-qr/tests/vectors/README.md`.
 
 The request names account 0 of Foundry's public Anvil test phrase as its expected
-signer, so the image can be driven end to end without any real key:
+signer, and carries that wallet's BIP-32 master fingerprint (`16a93ed0`), so the
+device can check the request was built for the wallet it holds:
 
     0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
