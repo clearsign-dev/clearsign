@@ -128,22 +128,29 @@ recorded mtimes; three test-suite gaps where a planted bug went uncaught.
 ## 6a. The first external review
 
 An external reviewer looked at commit `877caa5e` on 17 Sep 2026 and returned ten
-findings. All ten reproduced. They are being fixed in order of severity, one
-change at a time, each with a regression test that fails against the unfixed
-code. The list, and which are closed, is tracked in the repository's pull
-requests.
+findings. All ten reproduced, and all ten are closed as of 18 Sep 2026, each with
+a regression test that fails against the unfixed code. The work is in pull
+requests 2, 3, 5 and 6.
 
-Two are worth knowing before reading anything else here:
+| # | What it was | Now |
+|---|---|---|
+| 1 | A caller holding a `Review` could clear its findings and approve the same digest with nothing acknowledged | `findings` is private; a copy demands what the original demanded |
+| 2 | The engine believed the planner about how sensitive its own data was | The wire's tag is discarded and replaced by local policy, on the compartment path as well as the adapter |
+| 3 | `.` and empty path segments bypassed the secret prefixes | Paths are tidied before classification and the tidy form is written back into the plan; `..` is refused, not resolved |
+| 4 | A wallet's `origin` reached the console unescaped | Every wallet-supplied string is escaped, and labelled as stated rather than signed |
+| 5 | The operator read the review from a console the untrusted guest could write | The guest has no serial device; the VMM relays its output behind a prefix it cannot forge, and there is no input path at all |
+| 6 | One acknowledgement code covered every finding sharing it | Each finding is numbered and acknowledged individually |
+| 7 | A batch past the display limit hid an inner DELEGATECALL behind a length complaint | Judging and displaying are separate; a delegatecall among calls that cannot be shown is still named |
+| 8 | Unbounded fragment and console reads on the device | A fragment may not exceed its own message; console lines are capped |
+| 9 | Install, write and payment never ran the egress tracer | All three are egress |
+| 10 | A v1.1.x Safe signature is not chain-bound, and the review printed a chain ID as though it were | The chain ID is marked as not part of the signature, and replayability is a CRITICAL finding |
 
-- **The acknowledgement binding was weaker than this document claimed.** A
-  caller holding a `Review` could clear its findings and approve the same digest
-  with nothing acknowledged, and a single code covered every finding sharing it.
-  Both are fixed: findings are private, and each one is acknowledged by the
-  number shown beside it.
-- **Claim C4 was being asserted against the wrong output.** In the seL4 demo the
-  review text on the console is printed by the untrusted guest, not by the
-  signer. Memory isolation holds; display isolation was never demonstrated. The
-  phase-3 claim has been withdrawn in `04-platform-architecture.md`.
+The claim in §1 that a review is the security boundary was the thing most of
+these broke, in one way or another. Worth reading them as a set rather than
+individually.
+
+What the same reviewer listed as *leads* rather than findings is still open, and
+still the best place for a second pass to start.
 
 ## 7. How to report
 
