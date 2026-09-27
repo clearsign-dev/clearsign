@@ -154,3 +154,79 @@ fn audit_f10_a_legacy_safe_signature_says_it_is_not_chain_bound() {
     assert!(!modern.render().contains("NOT part of this signature"));
     assert!(!modern.has("SIGNATURE_NOT_CHAIN_BOUND"));
 }
+
+// ---------------------------------------------------------------------------
+// Leads from the same review: not exploits, but checks nobody was performing.
+// ---------------------------------------------------------------------------
+
+#[test]
+fn lead_an_allowance_just_below_the_maximum_is_still_unlimited() {
+    // 2^256-1 was CRITICAL and 2^256-2 was an ordinary WARNING, a difference no
+    // person reading a screen could be expected to notice — and both spend the
+    // same, since no token supply comes near either.
+    let mut near_max = [0xffu8; 32];
+    near_max[31] = 0xfe;
+    let mut data = hex::decode("095ea7b3").unwrap();
+    data.extend_from_slice(&[0u8; 12]);
+    data.extend_from_slice(&addr("1111111111111111111111111111111111111111"));
+    data.extend_from_slice(&near_max);
+
+    let mut tx = batch(0);
+    tx.operation = 0;
+    tx.to = addr("A0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48");
+    tx.data = data;
+    let review = review_safe_transaction(&tx, DomainVersion::V1_3Plus);
+    assert!(review.has("UNLIMITED_APPROVAL"), "{}", review.render());
+    assert_eq!(review.highest_severity(), Some(Severity::Critical));
+    assert!(
+        review.render().contains("EFFECTIVELY UNLIMITED"),
+        "{}",
+        review.render()
+    );
+
+    // An allowance someone could plausibly have meant is still a warning.
+    let mut ordinary = [0u8; 32];
+    ordinary[24..].copy_from_slice(&1_000_000_000_000_000_000u64.to_be_bytes());
+    let mut data = hex::decode("095ea7b3").unwrap();
+    data.extend_from_slice(&[0u8; 12]);
+    data.extend_from_slice(&addr("1111111111111111111111111111111111111111"));
+    data.extend_from_slice(&ordinary);
+    tx.data = data;
+    let modest = review_safe_transaction(&tx, DomainVersion::V1_3Plus);
+    assert!(!modest.has("UNLIMITED_APPROVAL"), "{}", modest.render());
+}
+
+#[test]
+fn lead_a_batch_shows_what_it_moves_in_total() {
+    // Each inner call showed its own value and nothing added them up, so the one
+    // number a person is most likely to want was the one they had to compute.
+    let mut packed = Vec::new();
+    for _ in 0..3 {
+        let mut el = vec![0u8];
+        el.extend_from_slice(&addr("1111111111111111111111111111111111111111"));
+        let mut value = [0u8; 32];
+        value[24..].copy_from_slice(&1_000_000_000_000_000_000u64.to_be_bytes()); // 1 ETH
+        el.extend_from_slice(&value);
+        el.extend_from_slice(&[0u8; 32]);
+        packed.extend_from_slice(&el);
+    }
+    let mut calldata = hex::decode("8d80ff0a").unwrap();
+    let mut off = [0u8; 32];
+    off[31] = 32;
+    calldata.extend_from_slice(&off);
+    let mut blen = [0u8; 32];
+    blen[28..].copy_from_slice(&(packed.len() as u32).to_be_bytes());
+    calldata.extend_from_slice(&blen);
+    calldata.extend_from_slice(&packed);
+    while calldata.len() % 32 != 4 {
+        calldata.push(0);
+    }
+    let mut tx = batch(0);
+    tx.data = calldata;
+    let text = review_safe_transaction(&tx, DomainVersion::V1_3Plus).render();
+    assert!(
+        text.contains("Native value, whole batch (wei) . 3_000_000_000_000_000_000")
+            || text.contains("3_000_000_000_000_000_000"),
+        "the batch total must be shown:\n{text}"
+    );
+}

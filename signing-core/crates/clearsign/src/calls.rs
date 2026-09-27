@@ -341,6 +341,25 @@ fn review_batch(
     };
 
     s.field("Calls in batch", format!("{}", calls.len()));
+    // What the batch moves in total, so nobody has to add up 32 lines by eye.
+    let mut total = U256::ZERO;
+    let mut total_known = true;
+    for call in &calls {
+        match total.checked_add(&call.value) {
+            Some(sum) => total = sum,
+            None => total_known = false,
+        }
+    }
+    if !total.is_zero() || !total_known {
+        s.field(
+            "Native value, whole batch (wei)",
+            if total_known {
+                total.to_grouped_decimal()
+            } else {
+                String::from("more than 2^256 - 1: the batch does not add up")
+            },
+        );
+    }
     let shown = calls.len().min(multisend::MAX_BATCH_CALLS);
     if calls.len() > shown {
         s.field(
@@ -493,8 +512,18 @@ fn decode_known<'a>(
             s.field("Action", String::from("ERC-20 approve"));
             s.field("Token contract", address::display(&to));
             s.field("Spender", address::display(&spender));
-            if amount.is_max() {
-                s.field("Allowance", String::from("UNLIMITED (2^256 - 1)"));
+            if amount.is_max() || amount.is_effectively_unlimited() {
+                // A number just below 2^256-1 spends exactly like 2^256-1 and
+                // used to read as an ordinary WARNING, which is a difference no
+                // person could be expected to notice on screen.
+                s.field(
+                    "Allowance",
+                    if amount.is_max() {
+                        String::from("UNLIMITED (2^256 - 1)")
+                    } else {
+                        format!("EFFECTIVELY UNLIMITED ({})", amount.to_grouped_decimal())
+                    },
+                );
                 review.find(
                     Severity::Critical,
                     "UNLIMITED_APPROVAL",

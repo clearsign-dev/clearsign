@@ -20,24 +20,24 @@
 use clearsign_qr::{DataType, Decoder, decode_sign_request, encode_signature};
 
 /// `eth-sign-request` as one QR code.
-const SINGLE: &str = "ur:eth-sign-request/osadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaocywzfhnetdamghcarhdmdmwmspvtrtkpnbdnwdgaoemuhpsndpztwkatisjnihjyhsjnhsjkjettbgvlzm";
+const SINGLE: &str = "ur:eth-sign-request/osadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaocycmptfmtiamghwfnetbvwcypmloynwktoimrolfjpkktkzmrhcpiyatisjnihjyhsjnhsjkjewtgucnuy";
 
 /// The same request as an animated sequence of 14 QR codes.
 const PARTS: [&str; 14] = [
-    "ur:eth-sign-request/1-5/lpadahcsskcyttbgvlzmhddeosadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaejziabelp",
-    "ur:eth-sign-request/2-5/lpaoahcsskcyttbgvlzmhddelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaemhzsihzs",
-    "ur:eth-sign-request/3-5/lpaxahcsskcyttbgvlzmhddeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaebycfsffp",
-    "ur:eth-sign-request/4-5/lpaaahcsskcyttbgvlzmhddeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaokkpmbelo",
-    "ur:eth-sign-request/5-5/lpahahcsskcyttbgvlzmhddecywzfhnetdamghcarhdmdmwmspvtrtkpnbdnwdgaoemuhpsndpztwkatisjnihjyhsjnhsjkjeaeaeaenlflfrmh",
-    "ur:eth-sign-request/6-5/lpamahcsskcyttbgvlzmhddefhoywsdmcpdacxioeyeetpmtpyvsrttylasgiamugywtamskbtryhgrljelazctdhyjnbykpiacnhdaocmfpfwce",
-    "ur:eth-sign-request/7-5/lpatahcsskcyttbgvlzmhddefhoywsdmcpdacxioeyeetpmtpyvsrttylasgiamugywtamskbtryhgrljelazctdhyjnbykpiacnhdaouolbpamy",
-    "ur:eth-sign-request/8-5/lpayahcsskcyttbgvlzmhddemknbembdjprnfslklbbsonutamjkcazmlgpahylnmegsparebsfeftrpfpaaswfdmwjnmwjkneaewkaobghnursb",
-    "ur:eth-sign-request/9-5/lpasahcsskcyttbgvlzmhddecywzfhnetdamghcarhdmdmwmspvtrtkpnbdnwdgaoemuhpsndpztwkatisjnihjyhsjnhsjkjeaeaeaevtceknls",
-    "ur:eth-sign-request/10-5/lpbkahcsskcyttbgvlzmhddelfgmaymwnbroinmeswclluensettntgedmnnpfbendroaafdlarofyptahnsrkaeaeaeaeaeaeaeaeaeimvsemsa",
-    "ur:eth-sign-request/11-5/lpbdahcsskcyttbgvlzmhddeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaolpssfxjl",
-    "ur:eth-sign-request/12-5/lpbnahcsskcyttbgvlzmhddeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaewejoneol",
-    "ur:eth-sign-request/13-5/lpbtahcsskcyttbgvlzmhdderywfvdrdlfntgaynwkbzgunbimeshlnnplghtelssgfdaolglgahbwckjtcefgtdhyjnbykpiacnhdaofhwpldca",
-    "ur:eth-sign-request/14-5/lpbaahcsskcyttbgvlzmhddeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaottvljpey",
+    "ur:eth-sign-request/1-5/lpadahcsskcywtgucnuyhddeosadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaeoedeaemk",
+    "ur:eth-sign-request/2-5/lpaoahcsskcywtgucnuyhddelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaehypakpvd",
+    "ur:eth-sign-request/3-5/lpaxahcsskcywtgucnuyhddeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeurgmuohh",
+    "ur:eth-sign-request/4-5/lpaaahcsskcywtgucnuyhddeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaorlvaaemd",
+    "ur:eth-sign-request/5-5/lpahahcsskcywtgucnuyhddecycmptfmtiamghwfnetbvwcypmloynwktoimrolfjpkktkzmrhcpiyatisjnihjyhsjnhsjkjeaeaeaeoeiniatp",
+    "ur:eth-sign-request/6-5/lpamahcsskcywtgucnuyhddelfgmaymwnbroinmeswclluentomuutledpnyqzbynnhsahkscprhtopadtinotfnykaeykaewkaewkaoqdemrktn",
+    "ur:eth-sign-request/7-5/lpatahcsskcywtgucnuyhddemkfyoypkjornfsidhkyljtdwiacwdnkbvlwtbngtfpoldaltndndpdrpfpaaswfdmwjnmwjkneaewkaotldityie",
+    "ur:eth-sign-request/8-5/lpayahcsskcywtgucnuyhddelfgmaymwnbroinmeswclluentomuutledpnyqzbynnhsahkscprhtopadtinotfnykaeykaewkaewkaolphncwpl",
+    "ur:eth-sign-request/9-5/lpasahcsskcywtgucnuyhddemkfyoypkjornfsidhkyljtdwiacwdnkbvlwtbngtfpoldaltndndpdrpfpaaswfdmwjnmwjkneaewkaovljojybe",
+    "ur:eth-sign-request/10-5/lpbkahcsskcywtgucnuyhddelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaerhwfynft",
+    "ur:eth-sign-request/11-5/lpbdahcsskcywtgucnuyhddefhfekkmycxdacxldbbsfbwiotolayngowyluehhdlycymoylnliaskrljelazctdhyjnbykpiacnhdaonnbkpdty",
+    "ur:eth-sign-request/12-5/lpbnahcsskcywtgucnuyhddedagutipawtcnjyknlucyynkiiaayaeoycxvyldtnwfiahlaycxfpotpfaxwemkolfhaejoamaycnhdaoeeheecds",
+    "ur:eth-sign-request/13-5/lpbtahcsskcywtgucnuyhdderychjscwlantgacstdwemkgybsgyjectrtbzlymtrlcekkrscfuylyckjtcefgtdhyjnbykpiacnhdaocfmoaepf",
+    "ur:eth-sign-request/14-5/lpbaahcsskcywtgucnuyhddelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaediwdeewk",
 ];
 
 /// The unsigned EIP-1559 transaction inside the request, from `cast to-rlp`.
@@ -72,10 +72,12 @@ fn reads_a_single_part_request_from_the_reference_implementation() {
     assert_eq!(hex(&request.sign_data), UNSIGNED_TX);
     assert_eq!(request.chain_id, Some(1));
     assert_eq!(request.path_string(), "m/44'/60'/0'/0/0");
-    assert_eq!(request.source_fingerprint, Some(0xf23f_9fd2));
+    // The wallet this request was built for: the master fingerprint of the
+    // public test phrase, checked independently against BIP-32.
+    assert_eq!(request.source_fingerprint, Some(0x16a9_3ed0));
     assert_eq!(
         hex(&request.address.unwrap()),
-        "0x1db92e2eebc8e0c075a02bea49a2935bcd2dfcf4"
+        "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"
     );
     assert_eq!(request.origin.as_deref(), Some("metamask"));
     assert_eq!(

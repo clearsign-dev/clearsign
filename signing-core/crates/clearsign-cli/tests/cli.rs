@@ -130,15 +130,15 @@ fn seed_from_dice_matches_cast() {
 // ---------------------------------------------------------------------------
 
 /// The whole request in one QR code, for account 0 of the test phrase.
-const QR_SINGLE: &str = "ur:eth-sign-request/osadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaocywzfhnetdamghwfnetbvwcypmloynwktoimrolfjpkktkzmrhcpiyatisjnihjyhsjnhsjkjevtkbpttk";
+const QR_SINGLE: &str = "ur:eth-sign-request/osadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaocycmptfmtiamghwfnetbvwcypmloynwktoimrolfjpkktkzmrhcpiyatisjnihjyhsjnhsjkjewtgucnuy";
 
 /// The same request animated across five QR codes.
 const QR_PARTS: [&str; 5] = [
-    "ur:eth-sign-request/1-5/lpadahcsskcyvtkbpttkhddeosadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaehsclhykg",
-    "ur:eth-sign-request/2-5/lpaoahcsskcyvtkbpttkhddelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaentrodnaa",
-    "ur:eth-sign-request/3-5/lpaxahcsskcyvtkbpttkhddeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaecehplfrs",
-    "ur:eth-sign-request/4-5/lpaaahcsskcyvtkbpttkhddeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaojywshyko",
-    "ur:eth-sign-request/5-5/lpahahcsskcyvtkbpttkhddecywzfhnetdamghwfnetbvwcypmloynwktoimrolfjpkktkzmrhcpiyatisjnihjyhsjnhsjkjeaeaeaezeztcyeo",
+    "ur:eth-sign-request/1-5/lpadahcsskcywtgucnuyhddeosadtpdagdndcawmgtfrkigrpmndutdnbtkgfssbjnaohdjoaoyajnaddrlrfrnysgaelpamztcnpsaeoedeaemk",
+    "ur:eth-sign-request/2-5/lpaoahcsskcywtgucnuyhddelfgmaymwnbroinmeswclluensettntgedmnnpftoenamwmfdlarofyptahnsrkaeaeaeaeaeaeaeaeaehypakpvd",
+    "ur:eth-sign-request/3-5/lpaxahcsskcywtgucnuyhddeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeuepmrnwsaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeurgmuohh",
+    "ur:eth-sign-request/4-5/lpaaahcsskcywtgucnuyhddeaeaeaeaeaeaeaeaeaeaeaeaebsfwfzrtaxaaaaadahtaaddyoeadlecsdwykcsfnykaeykaewkaewkaorlvaaemd",
+    "ur:eth-sign-request/5-5/lpahahcsskcywtgucnuyhddecycmptfmtiamghwfnetbvwcypmloynwktoimrolfjpkktkzmrhcpiyatisjnihjyhsjnhsjkjeaeaeaeoeiniatp",
 ];
 
 /// `cast wallet sign --no-hash` over the transaction's signing hash.
@@ -215,7 +215,7 @@ fn qr_sign_refuses_when_the_request_names_a_different_signer() {
     let out = run(&["qr-sign", path.to_str().unwrap()], other, true);
     assert_eq!(out.status.code(), Some(1));
     assert!(
-        text(&out.stderr).contains("expects signer"),
+        text(&out.stderr).contains("QR_WRONG_SIGNER"),
         "{}",
         text(&out.stderr)
     );

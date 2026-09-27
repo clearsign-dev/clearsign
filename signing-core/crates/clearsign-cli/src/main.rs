@@ -513,17 +513,34 @@ fn qr_sign(args: &[String]) -> Result<Outcome, String> {
     let wallet = Wallet::from_mnemonic(phrase, passphrase).map_err(|e| e.to_string())?;
     let account = wallet.ethereum_account(index).map_err(|e| e.to_string())?;
 
-    // If the wallet said which address it expects, the key that signs must be
-    // that address. Otherwise the signature is unusable and the mismatch is
-    // discovered by the wallet, not by the person holding the device.
-    if let Some(expected) = request.address {
-        if expected != account.address() {
-            return Err(format!(
-                "the request expects signer {}, but this recovery phrase and path give {}",
-                clearsign::address::checksummed(&expected),
-                clearsign::address::checksummed(&account.address())
-            ));
+    // Everything the wallet claimed about this request, checked against the bytes
+    // that will actually be signed and against this device. A mismatch refuses;
+    // a missing claim is reported, because a claim nobody made is a check nobody
+    // passed.
+    let signed_chain_id = match review.signing_target().map(|t| t.kind) {
+        Some(clearsign::TargetKind::EvmTransaction { chain_id, .. }) => {
+            chain_id.and_then(|c| c.to_u64())
         }
+        _ => None,
+    };
+    let concerns = clearsign_qr::check_request(
+        &request,
+        signed_chain_id,
+        wallet.master_fingerprint().ok(),
+        Some(account.address()),
+    );
+    if !concerns.is_empty() {
+        println!("\n-- What the wallet claimed --");
+        for c in &concerns {
+            println!(
+                "  [{}] {}",
+                if c.refuse { "REFUSED" } else { "NOTE" },
+                c.message
+            );
+        }
+    }
+    if let Some(stop) = concerns.iter().find(|c| c.refuse) {
+        return Err(format!("{}: {}", stop.code, stop.message));
     }
 
     let sig = account.sign(&approval).map_err(|e| e.to_string())?;
