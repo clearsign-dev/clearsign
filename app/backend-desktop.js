@@ -15,3 +15,15 @@ async function review(json, chainId, version) {
     return { ok: false, message: String(e) };
   }
 }
+
+/** What this build is, taken from the application rather than typed here. */
+async function describeBuild() {
+  const line = document.getElementById("version-line");
+  if (!line) return;
+  try {
+    const info = await invoke("build_info");
+    line.textContent = `${info.name} ${info.version} — the review is made by this application, in Rust, not by this window.`;
+  } catch {
+    line.textContent = "The review is made by this application, in Rust, not by this window.";
+  }
+}

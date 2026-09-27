@@ -26,3 +26,9 @@ async function review(json, chainId, version) {
   cs_free(out, len + 4);
   return JSON.parse(text);
 }
+
+/** What this build is, for the line at the foot of the window. */
+function describeBuild() {
+  const line = document.getElementById("version-line");
+  if (line) line.textContent = "Standalone page — the reviewer travels with it, compiled to WebAssembly from the same Rust the application runs.";
+}
