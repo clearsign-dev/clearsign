@@ -87,7 +87,7 @@ def main():
     con = Console(proc)
     try:
         con.expect("clearsign signer", timeout=180)
-        con.expect("ack <CODE>")
+        con.expect("ack <N:CODE>")
         results["boots into the signer"] = True
 
         # There is no shell: the signer is the only thing listening.
@@ -98,9 +98,12 @@ def main():
         # A request from another wallet's implementation, one QR code at a time.
         for line in (VECTORS / "request-animated.ur").read_text().split():
             con.send(line)
-        con.expect("-- Signing request --")
+        con.expect("-- Signing request")  # the rest of the line names where the values came from
         seen = con.expect("-- Verdict --", timeout=60)
-        results["reads an animated request"] = "Requested by ..................... metamask" in seen
+        # Matched loosely on purpose: the wallet's own label is untrusted text and is
+        # printed quoted and escaped, and this assertion has already broken twice on
+        # the exact spelling of a line rather than on anything being wrong.
+        results["reads an animated request"] = "Requested by" in seen and "metamask" in seen
         results["decodes the transaction"] = "ERC-20 transfer" in seen and "1_000_000" in seen
         results["names the expected signer"] = EXPECTED_SIGNER[:10] in seen.replace(" ", "")[:100000] or "f39F" in seen
 

@@ -23,7 +23,7 @@ clearsign signer
 ================
 This image contains one program: this one. No shell, no network, no storage.
 
-  ur:…            paste one scanned QR code per line; repeat until complete
+  ur:...          paste one scanned QR code per line; repeat until complete
   ack <N:CODE>    acknowledge one BLIND or CRITICAL finding, by the number and
                   code printed beside it. Each one is acknowledged separately
   sign            enter the recovery phrase and sign what was reviewed
