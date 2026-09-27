@@ -28,3 +28,5 @@ platform/grapheneos/demo/write_after_free
 platform/grapheneos/demo/write_after_free_static
 # packaged releases built locally
 signing-core/dist/
+# built application bundle
+app/dist/

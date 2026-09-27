@@ -917,6 +917,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "clearsign-safe-json"
+version = "0.1.0"
+dependencies = [
+ "clearsign",
+ "serde_json",
+]
+
+[[package]]
+name = "clearsign-wasm"
+version = "0.1.0"
+dependencies = [
+ "clearsign",
+ "clearsign-safe-json",
+ "serde_json",
+]
+
+[[package]]
 name = "const-hex"
 version = "1.19.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
