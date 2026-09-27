@@ -3,5 +3,5 @@
 # Environment: debian:trixie@sha256:f324c7ff54321e8d9c588493a20244965938ce0aa50bbd1022d38010e9ffc4b1, Rust 1.98.1, target aarch64-unknown-linux-musl, offline.
 # Anything built elsewhere, including on the maintainer's own machine, may
 # differ: rustc does not promise identical output across compiler hosts.
-01b2d3c376aeb09f0fd8275f4b8fc807dcfcc4e19f6be715c84542944b41b336  clearsign
-c0d71bb044b36b71b8b8fe4bf0db10956c488864e79049a66369953c83d08be6  clearsign-device
+44ee5be40980a4cc8e88f8e097842235a00b6bd6c1fcb95c931bb4ca3cf34af6  clearsign
+79cfdce7b8a401facb7b60cabae5421751b41b06482c90bd5790ccf9ebf3d863  clearsign-device

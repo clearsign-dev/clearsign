@@ -1,4 +1,4 @@
-# Using this before you sign
+# Using ClearSign before you sign
 
 **Who this is for:** anyone who approves transactions on a shared Safe — a fund,
 a DAO treasury, a protocol multisig. You do not need any hardware, and you do not

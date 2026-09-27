@@ -1,10 +1,10 @@
-# The window
+# ClearSign — the window
 
 The same reviewer the command-line tool runs, with a face on it.
 
 ```sh
 ./build.sh
-open dist/before-you-sign.html
+open dist/clearsign.html
 ```
 
 That produces one HTML file. Send it to someone, or open it from a folder —
