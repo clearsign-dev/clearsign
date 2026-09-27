@@ -1,4 +1,4 @@
-<title>Before You Sign</title>
+<title>ClearSign</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -79,8 +79,13 @@
   h1, h2, h3 { text-wrap: balance; margin: 0; }
 
   header.top { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: baseline; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-  .brand { display: flex; align-items: baseline; gap: 12px; }
-  .brand h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand { display: flex; align-items: center; gap: 13px; }
+  .brand-text { display: flex; flex-direction: column; gap: 1px; }
+  .brand h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.1; }
+  .brand .tag { font-size: 12.5px; color: var(--ink-faint); }
+  /* The mark takes its colours from the page, so it belongs in either theme
+     rather than being a picture pasted onto one. */
+  .mark { width: 34px; height: 34px; flex: none; --mark-c: var(--accent); --mark-s: var(--ink); --mark-gap: var(--paper); }
   .brand .ver { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-faint); }
   .local { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-soft); }
   .local .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--clear); flex: none; }
@@ -120,7 +125,7 @@
   .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
   .verdict { border-radius: 10px; padding: 18px 20px; display: flex; gap: 16px; align-items: flex-start; border: 1px solid; }
-  .verdict .mark { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 12px; letter-spacing: .08em; padding: 4px 9px; border-radius: 5px; flex: none; }
+  .verdict .mark { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 12px; letter-spacing: .08em; padding: 4px 9px; border-radius: 5px; flex: none; white-space: nowrap; align-self: flex-start; }
   .verdict h3 { font-size: 17px; font-weight: 600; }
   .verdict p { margin: 5px 0 0; font-size: 14px; color: var(--ink-soft); }
   .v-critical { background: var(--critical-soft); border-color: var(--critical); }
@@ -203,8 +208,15 @@
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1>Before you sign</h1>
-      <span class="ver" id="build">clearsign</span>
+      <svg class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="ClearSign">
+  <path d="M 683.6 275.8 A 292 292 0 1 0 683.6 748.2" fill="none" stroke="var(--mark-c, #2d6a8a)" stroke-width="132" stroke-linecap="butt"/>
+  <path d="M 635.8 328.0 A 118 118 0 1 0 538.0 512.0 A 118 118 0 1 1 440.2 696.0" fill="none" stroke="var(--mark-gap, #0d1217)" stroke-width="134" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 635.8 328.0 A 118 118 0 1 0 538.0 512.0 A 118 118 0 1 1 440.2 696.0" fill="none" stroke="var(--mark-s, #e8ecef)" stroke-width="104" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+      <div class="brand-text">
+        <h1>ClearSign</h1>
+        <span class="tag">See what you are signing</span>
+      </div>
     </div>
     <div class="top-right">
       <span class="local"><span class="dot"></span> <span id="net-state">Reviews run on this machine. Nothing is sent anywhere.</span></span>

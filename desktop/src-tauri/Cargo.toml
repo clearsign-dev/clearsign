@@ -1,6 +1,6 @@
 [package]
 name = "clearsign-desktop"
-description = "Before you sign — a desktop window onto what a transaction actually does."
+description = "ClearSign — see what a transaction really does before you approve it."
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"

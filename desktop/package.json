@@ -2,7 +2,7 @@
   "name": "clearsign-desktop",
   "private": true,
   "version": "0.1.0",
-  "description": "Before you sign — a desktop window onto what a transaction actually does.",
+  "description": "ClearSign — see what a transaction really does before you approve it.",
   "scripts": {
     "dev": "tauri dev",
     "build": "tauri build",

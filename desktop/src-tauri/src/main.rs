@@ -1,4 +1,4 @@
-//! Before you sign — the desktop application.
+//! ClearSign — the desktop application.
 //!
 //! The window is a window. Every decision about what a transaction does is made
 //! here, in Rust, by the same crates the command-line tool uses and the same

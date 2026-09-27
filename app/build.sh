@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the window, in both the forms it takes.
 #
-#   dist/before-you-sign.html   one file, nothing to install, opens from a folder
+#   dist/clearsign.html   one file, nothing to install, opens from a folder
 #   ../desktop/src/index.html   the front end of the desktop application
 #
 # Both are generated from one template, so the two cannot drift apart. They
@@ -23,7 +23,7 @@ WASM="$ROOT/signing-core/target/$WASM_TARGET/release/clearsign_wasm.wasm"
 [[ -f "$WASM" ]] || { echo "the WebAssembly module was not built" >&2; exit 1; }
 
 mkdir -p "$OUT" "$DESKTOP_SRC"
-python3 - "$HERE" "$WASM" "$EXAMPLE" "$OUT/before-you-sign.html" "$DESKTOP_SRC/index.html" <<'PY'
+python3 - "$HERE" "$WASM" "$EXAMPLE" "$OUT/clearsign.html" "$DESKTOP_SRC/index.html" <<'PY'
 import base64, json, pathlib, sys
 
 here, wasm, example, standalone_out, desktop_out = (pathlib.Path(p) for p in sys.argv[1:6])
@@ -47,5 +47,5 @@ build((here / "backend-desktop.js").read_text(), desktop_out, "  — front end o
 PY
 
 echo
-echo "The single file:   open $OUT/before-you-sign.html"
+echo "The single file:   open $OUT/clearsign.html"
 echo "The application:   cd $ROOT/desktop && npm run build"

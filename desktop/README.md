@@ -1,4 +1,4 @@
-# Before You Sign — the application
+# ClearSign — the application
 
 A real desktop application: a window, an installer, an entry in your
 Applications folder. Not a file someone emails you.
@@ -9,7 +9,7 @@ npm install
 npm run build
 ```
 
-That produces, on macOS, `Before You Sign.app` and a `.dmg` to install it from;
+That produces, on macOS, `ClearSign.app` and a `.dmg` to install it from;
 on Windows an `.msi` and an installer `.exe`; on Linux a `.deb` and an AppImage.
 The release workflow builds all three on a tag.
 
