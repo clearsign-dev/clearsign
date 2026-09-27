@@ -861,6 +861,7 @@ dependencies = [
  "clearsign-keys",
  "clearsign-qr",
  "qrcodegen",
+ "serde_json",
  "zeroize",
 ]
 

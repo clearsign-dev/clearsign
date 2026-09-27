@@ -11,6 +11,8 @@
 //! | 3 | review contains a CRITICAL finding |
 
 use std::io::Read;
+
+mod safe_json;
 use std::process::ExitCode;
 
 use clearsign::address::Address;
@@ -36,6 +38,12 @@ REVIEW (safe on any computer):
 
   clearsign tx <HEX | ->
       Review an unsigned EVM transaction (EIP-1559 or legacy). Use - to read hex from stdin.
+
+  clearsign safe-json <FILE | -> [--chain-id <N>] [--safe-version <1.1.x|1.3.0+>]
+      Review a Safe transaction from the JSON you already have: the record from
+      Safe's Transaction Service, or the transaction details copied out of
+      Safe{Wallet}. Only the fields that are signed are read, and the
+      safeTxHash in the file is recomputed rather than believed.
 
   clearsign safe-tx --chain-id <N> --safe <ADDR> --to <ADDR> --nonce <N>
                     [--value <N>] [--data <HEX>] [--operation <0|1>]
@@ -72,6 +80,7 @@ fn main() -> ExitCode {
     let rest = args.get(1..).unwrap_or(&[]);
     let outcome = match args.first().map(String::as_str) {
         Some("tx") => review_tx(rest).map(Outcome::Review),
+        Some("safe-json") => review_safe_json(rest).map(Outcome::Review),
         Some("safe-tx") => parse_safe_tx(rest)
             .map(|(tx, v)| Outcome::Review(clearsign::review_safe_transaction(&tx, v))),
         Some("sign-tx") => dev_guard().and_then(|()| sign_tx(rest)),
@@ -120,6 +129,139 @@ fn dev_guard() -> Result<(), String> {
             "signing and seed commands are development-only. Set {DEV_GUARD_VAR}={DEV_GUARD_VALUE} to proceed."
         )),
     }
+}
+
+/// Review a Safe transaction from the JSON a signer already has in front of them.
+fn review_safe_json(args: &[String]) -> Result<Review, String> {
+    let mut path = None;
+    let mut chain_id = None;
+    let mut safe_version = None;
+    let mut it = args.iter();
+    while let Some(a) = it.next() {
+        match a.as_str() {
+            "--chain-id" => {
+                let v = it.next().ok_or("--chain-id needs a number")?;
+                chain_id = Some(
+                    v.parse::<u64>()
+                        .map_err(|_| "--chain-id: expected a whole number")?,
+                );
+            }
+            "--safe-version" => {
+                let v = it.next().ok_or("--safe-version needs 1.1.x or 1.3.0+")?;
+                safe_version = Some(match v.as_str() {
+                    "1.1.x" | "1.1.1" | "1.1" | "legacy" => DomainVersion::Legacy,
+                    "1.3.0+" | "1.3.0" | "1.3" | "1.4.1" | "1.4" => DomainVersion::V1_3Plus,
+                    other => {
+                        return Err(format!("--safe-version {other}: expected 1.1.x or 1.3.0+"));
+                    }
+                });
+            }
+            other if path.is_none() => path = Some(String::from(other)),
+            other => return Err(format!("unexpected argument {other}")),
+        }
+    }
+    let path = path.ok_or("name the JSON file to read, or - for standard input")?;
+    let json = if path == "-" {
+        read_stdin()?.as_str().to_owned()
+    } else {
+        std::fs::read_to_string(&path).map_err(|e| format!("cannot read {path}: {e}"))?
+    };
+
+    let parsed = safe_json::parse(&json, chain_id)?;
+
+    // Which domain a Safe uses changes the hash, and therefore changes what is
+    // signed. Older Safes (v1.1.x) do not include the chain ID; v1.3.0 and later
+    // do. Getting this wrong produces a confident review of a hash nobody will
+    // ever see, so it is never guessed.
+    //
+    // Bybit's Safe was on the older domain. A tool that assumed the newer one
+    // would have shown its signers a hash that matched nothing.
+    let (version, how) = match (safe_version, parsed.claimed_hash) {
+        (Some(v), _) => (v, "you said so"),
+        (None, Some(claimed)) => {
+            let modern = clearsign::safe_transaction_hash(&parsed.tx, DomainVersion::V1_3Plus);
+            let legacy = clearsign::safe_transaction_hash(&parsed.tx, DomainVersion::Legacy);
+            if claimed == modern {
+                (
+                    DomainVersion::V1_3Plus,
+                    "the hash in the file matches this domain",
+                )
+            } else if claimed == legacy {
+                (
+                    DomainVersion::Legacy,
+                    "the hash in the file matches this domain",
+                )
+            } else {
+                println!("-- Where this came from --");
+                println!(
+                    "Hash in the file ................. {}",
+                    hex::encode_prefixed(&claimed)
+                );
+                println!(
+                    "If this Safe is v1.3.0 or later .. {}",
+                    hex::encode_prefixed(&modern)
+                );
+                println!(
+                    "If this Safe is v1.1.x ........... {}",
+                    hex::encode_prefixed(&legacy)
+                );
+                println!();
+                return Err(String::from(
+                    "the hash in this file is not the hash of the fields in it, under either Safe \
+                     domain. Do not sign anything from this file: either it was altered after it \
+                     was prepared, or whatever produced it is not telling you the truth about what \
+                     it contains",
+                ));
+            }
+        }
+        (None, None) => {
+            return Err(String::from(
+                "this file carries no safeTxHash, so there is nothing to tell which Safe contract \
+                 version it is for — and that changes the hash you would be signing. Pass \
+                 --safe-version 1.1.x or --safe-version 1.3.0+ (your Safe's version is shown in \
+                 Safe{Wallet} under Settings)",
+            ));
+        }
+    };
+
+    let review = clearsign::review_safe_transaction(&parsed.tx, version);
+    let computed = clearsign::safe_transaction_hash(&parsed.tx, version);
+
+    println!("-- Where this came from --");
+    println!(
+        "Chain ID taken from .............. {}",
+        parsed.chain_id_source
+    );
+    println!(
+        "Safe contract domain ............. {} ({how})",
+        match version {
+            DomainVersion::V1_3Plus => "v1.3.0 or later",
+            DomainVersion::Legacy => "v1.1.x",
+        }
+    );
+    match parsed.claimed_hash {
+        Some(claimed) if claimed == computed => println!(
+            "Hash in the file ................. matches the one computed here, {}",
+            hex::encode_prefixed(&computed)
+        ),
+        Some(_) => {
+            return Err(String::from(
+                "the hash in this file does not match the fields in it under the version you gave. \
+                 Check --safe-version, and do not sign until they agree",
+            ));
+        }
+        None => println!(
+            "Hash computed from the fields .... {}",
+            hex::encode_prefixed(&computed)
+        ),
+    }
+    println!();
+    println!("Confirm that domain is right for your Safe before you rely on any of this:");
+    println!("the version is shown in Safe{{Wallet}} under Settings. Compare the hash above");
+    println!("with what your hardware wallet shows, and with what the other signers see");
+    println!("on their own machines.");
+    println!();
+    Ok(review)
 }
 
 fn review_tx(args: &[String]) -> Result<Review, String> {
