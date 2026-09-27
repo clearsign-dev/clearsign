@@ -1,0 +1,413 @@
+<title>Before You Sign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f5f6f7;
+    --surface: #ffffff;
+    --surface-sunk: #eceef0;
+    --ink: #12161b;
+    --ink-soft: #4a545e;
+    --ink-faint: #78838d;
+    --line: #d9dde1;
+    --line-strong: #b9c0c7;
+    --accent: #2d6a8a;
+    --accent-soft: #e4eef3;
+    --critical: #b3261e;
+    --critical-soft: #fbe9e7;
+    --caution: #8a5a00;
+    --caution-soft: #fdf1dc;
+    --clear: #1f6b43;
+    --clear-soft: #e3f2e9;
+    --shadow: 0 1px 2px rgba(18, 22, 27, .06), 0 8px 24px rgba(18, 22, 27, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #0e1216;
+      --surface: #161b21;
+      --surface-sunk: #10151a;
+      --ink: #e8ecef;
+      --ink-soft: #a8b3bd;
+      --ink-faint: #76838f;
+      --line: #262e36;
+      --line-strong: #3a444e;
+      --accent: #74b4d4;
+      --accent-soft: #15242d;
+      --critical: #f2938c;
+      --critical-soft: #2b1512;
+      --caution: #e0b562;
+      --caution-soft: #2a2009;
+      --clear: #7fc79d;
+      --clear-soft: #10251a;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #0e1216;
+    --surface: #161b21;
+    --surface-sunk: #10151a;
+    --ink: #e8ecef;
+    --ink-soft: #a8b3bd;
+    --ink-faint: #76838f;
+    --line: #262e36;
+    --line-strong: #3a444e;
+    --accent: #74b4d4;
+    --accent-soft: #15242d;
+    --critical: #f2938c;
+    --critical-soft: #2b1512;
+    --caution: #e0b562;
+    --caution-soft: #2a2009;
+    --clear: #7fc79d;
+    --clear-soft: #10251a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; padding-block: 28px 56px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+
+  header.top { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: baseline; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand .ver { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-faint); }
+  .local { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-soft); }
+  .local .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--clear); flex: none; }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 24px; }
+  /* The transaction stays put while its review scrolls: on a long review you
+     are still deciding about the thing on the left. */
+  @media (min-width: 861px) { .grid > section:first-child { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 20px); } }
+  @media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  .panel > .head { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .panel > .head h2 { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+  .panel > .body { padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+
+  label.field { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; color: var(--ink-soft); }
+  textarea, input[type="text"], select {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px; color: var(--ink); background: var(--surface-sunk);
+    border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; width: 100%; box-sizing: border-box;
+  }
+  textarea { min-height: 190px; resize: vertical; line-height: 1.5; }
+  textarea:focus-visible, input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dropping { border-color: var(--accent); background: var(--accent-soft); }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 150px; min-width: 0; }
+  /* The version labels are longer than the field; let them shrink rather than clip. */
+  select { font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif; font-size: 13px; text-overflow: ellipsis; }
+
+  button { font: inherit; font-size: 14px; font-weight: 500; border-radius: 7px; padding: 9px 16px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); cursor: pointer; }
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  :root[data-theme="dark"] button.primary, :root:not([data-theme="light"]) button.primary { color: #08121a; }
+  button.primary:hover { filter: brightness(1.06); color: #fff; }
+  :root[data-theme="dark"] button.primary:hover, :root:not([data-theme="light"]) button.primary:hover { color: #08121a; }
+  button.quiet { border-color: transparent; background: none; color: var(--ink-soft); padding-inline: 8px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .verdict { border-radius: 10px; padding: 18px 20px; display: flex; gap: 16px; align-items: flex-start; border: 1px solid; }
+  .verdict .mark { font-family: "IBM Plex Mono", monospace; font-weight: 600; font-size: 12px; letter-spacing: .08em; padding: 4px 9px; border-radius: 5px; flex: none; }
+  .verdict h3 { font-size: 17px; font-weight: 600; }
+  .verdict p { margin: 5px 0 0; font-size: 14px; color: var(--ink-soft); }
+  .v-critical { background: var(--critical-soft); border-color: var(--critical); }
+  .v-critical .mark { background: var(--critical); color: var(--surface); }
+  .v-critical h3 { color: var(--critical); }
+  .v-caution { background: var(--caution-soft); border-color: var(--caution); }
+  .v-caution .mark { background: var(--caution); color: var(--surface); }
+  .v-caution h3 { color: var(--caution); }
+  .v-clear { background: var(--clear-soft); border-color: var(--clear); }
+  .v-clear .mark { background: var(--clear); color: var(--surface); }
+  .v-clear h3 { color: var(--clear); }
+
+  .hashbox { background: var(--surface-sunk); border: 1px solid var(--line); border-radius: 9px; padding: 16px 18px; }
+  .hashbox .cap { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-faint); }
+  .hash { font-family: "IBM Plex Mono", monospace; font-size: 16px; font-weight: 500; line-height: 1.8; word-break: break-all; margin-top: 8px; letter-spacing: .02em; }
+  .hash .g { padding-inline: 1px; }
+  .hash .g:nth-child(even) { color: var(--accent); }
+  .compare { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
+  .compare input { flex: 1 1 260px; }
+  .cmp-note { font-size: 13px; font-weight: 500; }
+  .cmp-ok { color: var(--clear); }
+  .cmp-bad { color: var(--critical); }
+
+  table.fields { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.fields td { padding: 6px 0; vertical-align: top; border-bottom: 1px solid var(--line); }
+  table.fields td:first-child { color: var(--ink-soft); width: 42%; padding-right: 14px; }
+  table.fields td:last-child { font-family: "IBM Plex Mono", monospace; word-break: break-word; font-variant-numeric: tabular-nums; }
+  table.fields tr:last-child td { border-bottom: none; }
+  .sect { margin-bottom: 18px; }
+  .sect h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
+
+  ul.findings { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  ul.findings li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-sunk); }
+  .chip { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; font-weight: 600; letter-spacing: .07em; padding: 3px 7px; border-radius: 4px; white-space: nowrap; }
+  .chip-CRITICAL { background: var(--critical); color: var(--surface); }
+  .chip-BLIND { background: var(--caution); color: var(--surface); }
+  .chip-WARNING { background: var(--caution-soft); color: var(--caution); border: 1px solid var(--caution); }
+  .chip-INFO { background: var(--surface); color: var(--ink-faint); border: 1px solid var(--line-strong); }
+  .findings .code { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; font-weight: 600; }
+  .findings .msg { margin: 3px 0 0; font-size: 13.5px; color: var(--ink-soft); }
+
+  .ackbox { border: 1px dashed var(--line-strong); border-radius: 8px; padding: 14px 16px; }
+  .ackbox .cap { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-faint); }
+  .ackbox ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .ackbox li { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; background: var(--surface-sunk); border: 1px solid var(--line); border-radius: 5px; padding: 4px 9px; }
+
+  .note { font-size: 13px; color: var(--ink-soft); }
+  .example-flag { display: flex; gap: 10px; align-items: baseline; font-size: 13px; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 10px 14px; color: var(--ink); }
+  .example-flag strong { color: var(--accent); }
+  .refused { border: 1px solid var(--critical); background: var(--critical-soft); border-radius: 9px; padding: 16px 18px; }
+  .refused h3 { color: var(--critical); font-size: 15px; }
+  .refused pre { margin: 8px 0 0; white-space: pre-wrap; font-family: "IBM Plex Mono", monospace; font-size: 12.5px; color: var(--ink-soft); }
+
+  footer { margin-top: 34px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-faint); display: flex; flex-direction: column; gap: 6px; }
+  footer b { color: var(--ink-soft); font-weight: 600; }
+  @media (prefers-reduced-motion: no-preference) { .panel, .verdict { transition: border-color .15s ease; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Before you sign</h1>
+      <span class="ver" id="build">clearsign</span>
+    </div>
+    <span class="local"><span class="dot"></span> Runs entirely on this machine. No network, no keys, nothing sent anywhere.</span>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="head"><h2>The transaction</h2><button class="quiet" id="load-example" type="button">Load example</button></div>
+      <div class="body">
+        <label class="field" for="json">
+          Paste the JSON from Safe{Wallet}, or drop the file here
+          <textarea id="json" spellcheck="false" placeholder='{ "safe": "0x…", "to": "0x…", "value": "0", "data": "0x…", "operation": 0, "nonce": 12, "safeTxHash": "0x…" }'></textarea>
+        </label>
+        <div class="row">
+          <label class="field" for="chain">
+            Chain ID
+            <input type="text" id="chain" inputmode="numeric" value="1" placeholder="1">
+          </label>
+          <label class="field" for="version">
+            Safe version
+            <select id="version">
+              <option value="0">Work it out from the hash</option>
+              <option value="3">v1.3.0 or later</option>
+              <option value="1">v1.1.x</option>
+            </select>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="primary" id="review" type="button">Review it</button>
+          <button id="clear" type="button">Clear</button>
+        </div>
+        <p class="note">Only the fields that are signed are read. Anything else in the file, including the service's own description of the calldata, is ignored.</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="head"><h2>What it actually does</h2><span class="ver" id="domain-note"></span></div>
+      <div class="body" id="out"></div>
+    </section>
+  </div>
+
+  <footer>
+    <span><b>This is a second opinion, not a secure device.</b> It reads and reports; your hardware wallet still signs. Running it on an everyday computer means trusting that computer.</span>
+    <span>One external security review so far: ten findings, all fixed. The fixes have not been reviewed by anyone outside the project. Never give this a recovery phrase.</span>
+  </footer>
+</div>
+
+<script type="module">
+const WASM_BASE64 = "__WASM_BASE64__";
+
+function bytesFromBase64(b64) {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+const { instance } = await WebAssembly.instantiate(bytesFromBase64(WASM_BASE64), {});
+const { cs_alloc, cs_free, cs_review, memory } = instance.exports;
+
+/** Hand the reviewer a file and get back its finished verdict. */
+function review(json, chainId, version) {
+  const bytes = new TextEncoder().encode(json);
+  const ptr = cs_alloc(bytes.length);
+  if (!ptr) return { ok: false, message: "out of memory" };
+  new Uint8Array(memory.buffer, ptr, bytes.length).set(bytes);
+  const out = cs_review(ptr, bytes.length, BigInt(chainId || 0), version);
+  cs_free(ptr, bytes.length);
+  if (!out) return { ok: false, message: "the reviewer could not answer" };
+  const len = new DataView(memory.buffer).getUint32(out, true);
+  const text = new TextDecoder().decode(new Uint8Array(memory.buffer, out + 4, len));
+  cs_free(out, len + 4);
+  return JSON.parse(text);
+}
+
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, text) => {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
+};
+
+/** Hashes are read four characters at a time, because they are compared by eye. */
+function groupedHash(hex) {
+  const box = el("div", "hash");
+  const body = hex.startsWith("0x") ? hex.slice(2) : hex;
+  box.append(el("span", "g", "0x"));
+  for (let i = 0; i < body.length; i += 4) box.append(el("span", "g", body.slice(i, i + 4) + " "));
+  return box;
+}
+
+const VERDICTS = {
+  critical: ["v-critical", "DO NOT SIGN", "Do not sign this", "Something here gives away control, moves funds, or cannot be undone. Read every CRITICAL item and be certain you meant it."],
+  blind: ["v-caution", "CANNOT READ", "Part of this could not be read", "Some of this transaction is not in the set of things this tool understands, so nobody can tell you what it does from these bytes alone."],
+  warning: ["v-caution", "READ FIRST", "Read the warnings first", "Nothing here is irreversible on its face, but something wants your attention before you approve."],
+  clear: ["v-clear", "NOTHING FLAGGED", "Nothing alarming in the decoded content", "Confirm the details are what you intended, and compare the hash with your co-signers."],
+};
+
+function render(result, { example } = {}) {
+  const out = $("out");
+  out.replaceChildren();
+  $("domain-note").textContent = "";
+
+  if (!result.ok) {
+    const box = el("div", "refused");
+    box.append(el("h3", null, "This file was refused"));
+    box.append(el("pre", null, result.message));
+    out.append(box);
+    return;
+  }
+
+  if (example) {
+    const flag = el("div", "example-flag");
+    flag.append(el("strong", null, "Example."));
+    flag.append(el("span", null, "The real transaction that took about $1.5 billion out of Bybit on 21 February 2025, fetched from Safe's own service. Replace it with yours."));
+    out.append(flag);
+  }
+
+  const [cls, mark, title, sub] = VERDICTS[result.severity] || VERDICTS.warning;
+  const verdict = el("div", "verdict " + cls);
+  verdict.append(el("span", "mark", mark));
+  const vtext = el("div");
+  vtext.append(el("h3", null, title));
+  vtext.append(el("p", null, sub));
+  verdict.append(vtext);
+  out.append(verdict);
+
+  const hb = el("div", "hashbox");
+  hb.append(el("div", "cap", "Safe transaction hash — compare this with your hardware wallet"));
+  hb.append(groupedHash(result.hash));
+  const cmp = el("div", "compare");
+  const input = el("input");
+  input.type = "text";
+  input.id = "compare-hash";
+  input.placeholder = "Paste what your wallet shows";
+  const verdictNote = el("span", "cmp-note");
+  input.addEventListener("input", () => {
+    const typed = input.value.trim().toLowerCase().replace(/^0x/, "");
+    if (!typed) { verdictNote.textContent = ""; verdictNote.className = "cmp-note"; return; }
+    const ours = result.hash.slice(2).toLowerCase();
+    const same = typed === ours;
+    verdictNote.textContent = same ? "Identical" : "These are not the same hash";
+    verdictNote.className = "cmp-note " + (same ? "cmp-ok" : "cmp-bad");
+  });
+  const copy = el("button", null, "Copy");
+  copy.type = "button";
+  copy.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(result.hash); copy.textContent = "Copied"; }
+    catch { const r = document.createRange(); r.selectNodeContents(hb.querySelector(".hash")); getSelection().removeAllRanges(); getSelection().addRange(r); copy.textContent = "Selected"; }
+    setTimeout(() => { copy.textContent = "Copy"; }, 1600);
+  });
+  cmp.append(input, copy, verdictNote);
+  hb.append(cmp);
+  if (result.hashConfirmed) hb.append(el("p", "note", "The hash in the file matches the one computed here from its fields."));
+  if (!result.chainBound) hb.append(el("p", "note", "This Safe's domain does not include the chain ID, so this signature is valid on every chain this Safe exists on."));
+  out.append(hb);
+
+  $("domain-note").textContent = result.domain + " · " + result.domainSource;
+
+  for (const section of result.sections) {
+    const s = el("div", "sect");
+    s.append(el("h4", null, section.title));
+    const t = el("table", "fields");
+    for (const [k, v] of section.fields) {
+      const tr = el("tr");
+      tr.append(el("td", null, k));
+      tr.append(el("td", null, v));
+      t.append(tr);
+    }
+    s.append(t);
+    out.append(s);
+  }
+
+  if (result.findings.length) {
+    const s = el("div", "sect");
+    s.append(el("h4", null, "Findings"));
+    const list = el("ul", "findings");
+    for (const f of result.findings) {
+      const li = el("li");
+      li.append(el("span", "chip chip-" + f.severity, f.severity));
+      const body = el("div");
+      body.append(el("div", "code", f.code));
+      body.append(el("p", "msg", f.message));
+      li.append(body);
+      list.append(li);
+    }
+    s.append(list);
+    out.append(s);
+  }
+
+  if (result.mustAcknowledge.length) {
+    const box = el("div", "ackbox");
+    box.append(el("div", "cap", "Each of these has to be confirmed separately before a signing device will proceed"));
+    const ul = el("ul");
+    for (const a of result.mustAcknowledge) ul.append(el("li", null, a.number + ":" + a.code));
+    box.append(ul);
+    out.append(box);
+  }
+}
+
+const EXAMPLE = __EXAMPLE_JSON__;
+
+function run(opts) {
+  const json = $("json").value.trim();
+  if (!json) { render({ ok: false, message: "Paste a transaction first, or load the example." }); return; }
+  render(review(json, Number($("chain").value) || 0, Number($("version").value)), opts);
+}
+
+$("review").addEventListener("click", () => run());
+$("clear").addEventListener("click", () => { $("json").value = ""; $("out").replaceChildren(); $("domain-note").textContent = ""; $("json").focus(); });
+$("load-example").addEventListener("click", () => { $("json").value = EXAMPLE; $("chain").value = "1"; $("version").value = "0"; run({ example: true }); });
+
+const area = $("json");
+["dragenter", "dragover"].forEach((e) => area.addEventListener(e, (ev) => { ev.preventDefault(); area.classList.add("dropping"); }));
+["dragleave", "drop"].forEach((e) => area.addEventListener(e, () => area.classList.remove("dropping")));
+area.addEventListener("drop", async (ev) => {
+  ev.preventDefault();
+  const file = ev.dataTransfer?.files?.[0];
+  if (!file) return;
+  area.value = await file.text();
+  run();
+});
+
+// Open showing what the tool does, rather than an empty box.
+$("json").value = EXAMPLE;
+run({ example: true });
+</script>

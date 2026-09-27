@@ -4,6 +4,8 @@ members = [
     "crates/clearsign",
     "crates/clearsign-keys",
     "crates/clearsign-cli",
+    "crates/clearsign-safe-json",
+    "crates/clearsign-wasm",
     "crates/clearsign-difftest",
     "crates/authority",
     "crates/authority-agent",
