@@ -231,32 +231,7 @@
 </div>
 
 <script type="module">
-const WASM_BASE64 = "__WASM_BASE64__";
-
-function bytesFromBase64(b64) {
-  const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-  return out;
-}
-
-const { instance } = await WebAssembly.instantiate(bytesFromBase64(WASM_BASE64), {});
-const { cs_alloc, cs_free, cs_review, memory } = instance.exports;
-
-/** Hand the reviewer a file and get back its finished verdict. */
-function review(json, chainId, version) {
-  const bytes = new TextEncoder().encode(json);
-  const ptr = cs_alloc(bytes.length);
-  if (!ptr) return { ok: false, message: "out of memory" };
-  new Uint8Array(memory.buffer, ptr, bytes.length).set(bytes);
-  const out = cs_review(ptr, bytes.length, BigInt(chainId || 0), version);
-  cs_free(ptr, bytes.length);
-  if (!out) return { ok: false, message: "the reviewer could not answer" };
-  const len = new DataView(memory.buffer).getUint32(out, true);
-  const text = new TextDecoder().decode(new Uint8Array(memory.buffer, out + 4, len));
-  cs_free(out, len + 4);
-  return JSON.parse(text);
-}
+__REVIEW_BACKEND__
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -386,13 +361,13 @@ function render(result, { example } = {}) {
 
 const EXAMPLE = __EXAMPLE_JSON__;
 
-function run(opts) {
+async function run(opts) {
   const json = $("json").value.trim();
   if (!json) { render({ ok: false, message: "Paste a transaction first, or load the example." }); return; }
-  render(review(json, Number($("chain").value) || 0, Number($("version").value)), opts);
+  render(await review(json, Number($("chain").value) || 0, Number($("version").value)), opts);
 }
 
-$("review").addEventListener("click", () => run());
+$("review").addEventListener("click", () => { run(); });
 $("clear").addEventListener("click", () => { $("json").value = ""; $("out").replaceChildren(); $("domain-note").textContent = ""; $("json").focus(); });
 $("load-example").addEventListener("click", () => { $("json").value = EXAMPLE; $("chain").value = "1"; $("version").value = "0"; run({ example: true }); });
 
@@ -404,7 +379,7 @@ area.addEventListener("drop", async (ev) => {
   const file = ev.dataTransfer?.files?.[0];
   if (!file) return;
   area.value = await file.text();
-  run();
+  await run();
 });
 
 // Open showing what the tool does, rather than an empty box.

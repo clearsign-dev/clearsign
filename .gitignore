@@ -30,3 +30,9 @@ platform/grapheneos/demo/write_after_free_static
 signing-core/dist/
 # built application bundle
 app/dist/
+
+# desktop application build output
+desktop/src-tauri/target/
+desktop/src/index.html
+desktop/node_modules/
+desktop/src-tauri/gen/
