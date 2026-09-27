@@ -18,6 +18,8 @@ clearsign-qr = { path = "../clearsign-qr", features = ["std"] }
 zeroize = { version = "1", default-features = false, features = ["alloc"] }
 # Borrowed QR encoder: Nayuki's reference implementation, widely reviewed.
 qrcodegen = "1.8"
+# Reading the JSON a signer already has, rather than asking them to retype it.
+serde_json = "1"
 
 [dev-dependencies]
 clearsign-qr = { path = "../clearsign-qr", features = ["std"] }

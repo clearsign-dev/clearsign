@@ -26,3 +26,5 @@ platform/logs/
 # compiled demo binaries (built by platform/grapheneos/build-hardened-malloc.sh)
 platform/grapheneos/demo/write_after_free
 platform/grapheneos/demo/write_after_free_static
+# packaged releases built locally
+signing-core/dist/
