@@ -99,6 +99,32 @@ A phase starts only when the previous gate is met. This is the defence against t
 | **4** | Reference device and the everyday experience layer | External security audit passed; funding secured for a team |
 | **5** | Android compatibility compartment, on-device models, developer platform | Independent developers shipping on it |
 
+## 5a. A note on where the chain is going, 27 Sep 2026
+
+Source: Vitalik Buterin, "The cryptographic world computer", 27 Sep 2026: https://vitalik.eth.limo/general/2026/09/27/the_cryptographic_world_computer.html. It does not discuss wallets, signing devices,
+trusted displays or operating systems — nothing in it validates this design, and
+it should not be cited as though it did. Three things in it bear on decisions
+already made here:
+
+- **What authorises a transaction is not fixed.** The 2030 column reads
+  "sometimes quantum-safe signature (or several), sometimes zero-knowledge
+  proof". L0 and the key handling are specific to ECDSA; L4 and L6 — the
+  authority engine and the review — are not, and that separation is worth
+  keeping deliberately rather than by accident.
+- **Work moves off-chain before it reaches a block.** "The same amount of
+  computation will cost you much more if you shove it all into one inscrutable
+  serially-executed transaction." As applications follow those incentives, a
+  signature increasingly authorises an intent rather than a call, and the
+  distance between what a person approved and what eventually happens grows.
+  That is an argument for this architecture and against the current v1 scope,
+  which decodes calls and refuses typed data.
+- **Nodes get lighter.** SNARK-verified blocks and "requirements are much
+  lighter" make an on-device verifier of chain state imaginable, which is the
+  one thing that would close the standing caveat that this signer confirms a
+  pinned address but not the code deployed at it.
+
+None of this changes the phased plan. It changes what phase 5 should assume.
+
 ## 6. What this does not claim
 
 - It is not a promise that one person can ship a general-audience OS. Phases 4 and 5 require a funded team, which the research says realistically comes from grants, a foundation with large donors, or hardware-backed venture funding.

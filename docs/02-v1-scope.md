@@ -45,7 +45,7 @@ The history study found that scope creep and stacked research risks killed Copla
 ## Explicitly out of scope for v1
 
 - Bitcoin and PSBT. The design keeps room for it, but it is not in v1.
-- EIP-712 typed data other than the Safe transaction type
+- EIP-712 typed data other than the Safe transaction type. **Noted 27 Sep 2026: this is the exclusion most likely to age badly, and it should be the first thing considered for v2.** The reasoning for leaving it out has not changed — typed data is an open-ended schema, and displaying a structure this device does not understand is exactly what it refuses to do. What has changed is the direction of travel: Ethereum's roadmap has work aggregated off-chain before it reaches a block, so what a person signs drifts from a concrete call toward an intent that something else expands later. The further that goes, the more of what happens is *not* in the bytes being signed, and the wider the gap this project exists to close. Today the device refuses typed data, which is honest and increasingly limiting
 - Permit2, Uniswap, bridges and other protocol decoders
 - Token names, symbols, decimals and address books
 - Any network connectivity, updates over the air, or companion cloud service
