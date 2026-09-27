@@ -70,7 +70,13 @@ ICON = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {S} {S}">
   </g>
 </svg>'''
 
-WORDMARK = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 {S}" role="img" aria-label="ClearSign">
+# "ClearSign" set at 300 with -8 tracking measures about 1269 units wide in IBM
+# Plex Sans, so it runs from x=900 to roughly x=2169. The box is cut wider than
+# that on purpose: a viewer without Plex installed falls back to a face that may
+# set wider, and a clipped wordmark is worse than a little trailing air.
+WORDMARK_W = 2260
+
+WORDMARK = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {WORDMARK_W} {S}" role="img" aria-label="ClearSign">
   <path d="{aperture()}" fill="none" stroke="var(--mark-c, #2d6a8a)" stroke-width="{W_C}" stroke-linecap="butt"/>
   <path d="{signature()}" fill="none" stroke="var(--mark-gap, #0d1217)" stroke-width="{W_S + KNOCKOUT}" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="{signature()}" fill="none" stroke="var(--mark-s, #e8ecef)" stroke-width="{W_S}" stroke-linecap="round" stroke-linejoin="round"/>
