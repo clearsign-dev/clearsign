@@ -16,6 +16,11 @@ DESKTOP_SRC="$ROOT/desktop/src"
 WASM_TARGET=wasm32-unknown-unknown
 EXAMPLE="$ROOT/signing-core/crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json"
 
+# Windows has Python but not always under the name `python3`.
+PY=python3
+command -v "$PY" >/dev/null 2>&1 || PY=python
+command -v "$PY" >/dev/null 2>&1 || { echo "no python found" >&2; exit 1; }
+
 cd "$ROOT/signing-core"
 rustup target add "$WASM_TARGET" >/dev/null 2>&1 || true
 SOURCE_DATE_EPOCH=0 cargo build -q -p clearsign-wasm --release --locked --target "$WASM_TARGET"
@@ -23,7 +28,7 @@ WASM="$ROOT/signing-core/target/$WASM_TARGET/release/clearsign_wasm.wasm"
 [[ -f "$WASM" ]] || { echo "the WebAssembly module was not built" >&2; exit 1; }
 
 mkdir -p "$OUT" "$DESKTOP_SRC"
-python3 - "$HERE" "$WASM" "$EXAMPLE" "$OUT/clearsign.html" "$DESKTOP_SRC/index.html" <<'PY'
+"$PY" - "$HERE" "$WASM" "$EXAMPLE" "$OUT/clearsign.html" "$DESKTOP_SRC/index.html" <<'PY'
 import base64, json, pathlib, sys
 
 here, wasm, example, standalone_out, desktop_out = (pathlib.Path(p) for p in sys.argv[1:6])
