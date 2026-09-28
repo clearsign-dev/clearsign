@@ -1,90 +1,110 @@
-# Signing OS project
+# ClearSign
 
-Working project for a privacy and security focused operating system, narrowed by research to its most defensible job: **letting people see exactly what they are about to sign, on a machine nothing else can reach.**
+**Read what you are about to sign, from the bytes alone.**
 
-> **Status: early development. Unaudited. Not for real funds.**
+Your hardware wallet shows you a hash. Your multisig interface shows you a
+summary produced by a service. Neither of those is the transaction — they are
+descriptions of it, and a description can be wrong.
+
+On 21 February 2025 that gap cost Bybit about $1.5 billion. Every signer saw
+what looked like an ordinary token transfer. What they approved was a
+`DELEGATECALL` that ran someone else's code with the Safe's own storage and
+balance.
+
+ClearSign decodes the transaction in front of you from the bytes themselves,
+with no network access, no knowledge of your wallet, and no input from any
+service — including the one that showed it to you. It holds no keys and signs
+nothing. Your hardware wallet still does that.
+
+> **Early development. Unaudited beyond one review. Not for real funds.**
 >
-> No part of this has been reviewed by anyone outside the project. It runs under
-> emulation, with no hardware root of trust and no verified boot. The signing and
-> seed commands are locked behind an environment variable for that reason. Never
-> give it a recovery phrase that holds anything, and never use it to sign a
-> transaction you care about.
->
-> What *is* checked is written down in
-> [docs/03-verification-status.md](docs/03-verification-status.md), including the
-> things that are not: it is meant to be read by someone deciding whether to
-> trust this, and it names the gaps rather than only the passes.
-
-## Start here
-
-| Read | Why |
-|---|---|
-| [docs/00-why-a-dedicated-os.md](docs/00-why-a-dedicated-os.md) | Who this is for, the guarantee, and decisions awaiting sign-off |
-| [docs/01-threat-model.md](docs/01-threat-model.md) | Adversaries, trust boundary, and invariants INV-1 to INV-12 |
-| [docs/02-v1-scope.md](docs/02-v1-scope.md) | Frozen version-1 scope, progress, and a proposed change |
-| [docs/03-verification-status.md](docs/03-verification-status.md) | What has been proven, how, and what has not |
-| [docs/04-platform-architecture.md](docs/04-platform-architecture.md) | The full platform: an intelligent OS where AI proposes and a person approves exactly what happens |
-| [docs/05-review-package.md](docs/05-review-package.md) | For a security reviewer: the claims worth attacking, the trust boundaries, and what is already known to be missing |
-| [docs/08-what-was-checked.md](docs/08-what-was-checked.md) | The last full verification pass: what was run, what it found |
-| [docs/07-timeline.md](docs/07-timeline.md) | What happens next, when, and what it costs |
-| [docs/06-using-it-before-you-sign.md](docs/06-using-it-before-you-sign.md) | **Start here if you sign transactions on a Safe.** What to run before you approve, and what to look for |
-| [research/](research/) | Feasibility study and the analysis of 143 failed operating systems |
-
-## Layout
-
-```
-docs/                     decision record, threat model, scope, verification status
-research/                 research reports and evidence
-signing-core/             Rust workspace, toolchain pinned
-  crates/clearsign/           no_std decoder: shows what a transaction really does
-  crates/clearsign-keys/      no_std seeds, derivation, review-bound signing
-  crates/clearsign-cli/       command-line front end
-  crates/clearsign-difftest/  test-only differential tests against alloy
-  crates/authority/           no_std authority engine: plans, data-flow tracing, approval-bound execution
-  crates/clearsign-ffi/       C interface so seL4 compartments can call the decoder
-  fuzz/                       cargo-fuzz targets with security-property assertions
-  scripts/reproducible-build.sh
-platform/                 borrowed layers: seL4 compartments, Linux inside seL4, GrapheneOS (see platform/README.md)
-  sel4/signer-system/         seL4 + untrusted wallet UI + bare-metal signer
-  sel4/linux-signer/          seL4 + Linux guest + signer, with GrapheneOS hardened_malloc
-  grapheneos/                 hardened_malloc build pinned to the verified GrapheneOS manifest
-  android/build-host/         verified GrapheneOS sync and build pipeline for x86_64 Linux
-vm/                       verified, no-network development VM (Alpine)
-```
+> Reviewing a transaction is safe on any computer. The signing and seed commands
+> are locked behind an environment variable, because a recovery phrase typed into
+> an everyday machine must be treated as exposed.
 
 ## Try it
 
 ```sh
 cd signing-core
-cargo test --workspace --release
-
-# Review: safe on any computer. Exit code 3 means a CRITICAL finding.
-cargo run -q -p clearsign-cli -- safe-tx --chain-id 1 \
-  --safe 0x1Db92e2EeBC8E0c075a02BeA49a2935BcD2dFCF4 \
-  --to 0x00000000000000000000000000000000DeaDBeef --nonce 71 --operation 1 \
-  --data 0xa9059cbb000000000000000000000000000000000000000000000000000000000000dead0000000000000000000000000000000000000000000000000000000000000000
+cargo build --release -p clearsign-cli
 ```
 
-Read a signing request the way a real air-gapped device would, from QR codes a
-wallet displays (MetaMask and Keystone speak this format):
+Then read the transaction that took $1.5 billion out of Bybit. The record is
+Safe's own, fetched from their production service and kept here as a fixture:
 
 ```sh
-# each line is one scanned ur: string, as many as the animation has
-cargo run -q -p clearsign-cli -- qr-review scanned-codes.txt
+./target/release/clearsign safe-json \
+  crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json --chain-id 1
 ```
 
-Review what an AI agent wants to do before it does it:
+```
+Operation ........................ DELEGATECALL
+Code that will run as the Safe ... 0x9622 1423 681A 6d52 E184 D440 a8eF CEbB 105C 7242
+Calldata selector ................ 0xa9059cbb
 
-```sh
-cargo run -q -p authority-agent -- review crates/authority-agent/examples/injected-proposal.json
+[CRITICAL] 2:SAFE_DELEGATECALL — DELEGATECALL runs the code at 0x9622…7242 with
+full control over this Safe's storage, owners, modules and funds.
+
+DO NOT SIGN
 ```
 
-That proposal is an ordinary "summarise my notes" task with two injected steps.
-Every step looks routine; the plan does not. Exit code 3, and the reason is
-named: secret data would leave the device through a web request.
+Exit code `0` means nothing alarming, `2` means something could not be decoded,
+`3` means something critical. [Using it before you sign](docs/06-using-it-before-you-sign.md)
+is the guide for anyone who approves transactions on a Safe.
 
-Signing commands exist for development and are locked behind an environment variable, because a recovery phrase typed into an everyday computer must be treated as exposed. Run `clearsign --help` for details.
+## What it reads
+
+Safe multisig transactions, including the inner call and its operation type, with
+the Safe transaction hash recomputed locally so you can hold it against your
+hardware wallet's screen. MultiSend batches, unpacked, showing every inner call.
+ERC-20 transfers and approvals, with unlimited approvals named rather than
+rendered as a number nobody counts. Air-gapped signing requests over QR codes, in
+the format MetaMask and Keystone already speak. And plans an AI agent proposes,
+traced for where data would flow before a person approves them.
+
+Anything it does not fully understand is reported as BLIND rather than guessed
+at. A reviewer that answers every question is not a reviewer.
+
+## How it ships
+
+The same Rust core in three shapes: a **desktop application** for macOS, Windows
+and Linux; a **command-line tool** for people who already live there and for
+anything that needs an exit code; and a **signer-only operating system image**
+containing exactly one program, on a kernel built without a network stack.
+
+## Where it stands
+
+Run against 238 real Safe transactions pulled from Safe's own service, the hash
+it computed agreed with the hash Safe published **238 times out of 238**. There
+is exactly one `DELEGATECALL` in that set, and it is the Bybit one.
+
+170 tests, seven fuzz targets, differential testing against a second
+implementation, and builds that reproduce byte-for-byte on a machine that is not
+the maintainer's.
+
+And the part most projects leave out:
+
+- **No users yet.** That is the number that matters.
+- One external review, September 2026: ten findings, all closed. Nine of those
+  fixes changed signing-critical code that nobody outside has read since.
+- No hardware root of trust, no verified boot, no secure element. Everything runs
+  under emulation.
+- EIP-712 typed data is not covered. The reviewer refuses it rather than guessing.
+- The binaries are not code-signed.
+
+[What has been checked](docs/03-verification-status.md) sets out the evidence for
+each of those, including the gaps.
+
+## Documentation
+
+Start with [using it before you sign](docs/06-using-it-before-you-sign.md) if you
+approve transactions on a Safe, or with [the review package](docs/05-review-package.md)
+if you are here to attack it. [docs/](docs/) has the rest: the threat model, the
+verification record, the platform architecture and the decisions behind them.
+
+Security reports go through GitHub's private advisory form — see
+[SECURITY.md](SECURITY.md).
 
 ## Licence
 
-MIT OR Apache-2.0, pending sign-off in `docs/00`.
+MIT OR Apache-2.0.
