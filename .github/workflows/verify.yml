@@ -46,27 +46,6 @@ jobs:
         working-directory: signing-core
         run: cargo fmt --all --check
 
-  website:
-    name: the site still builds
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version-file: website/.nvmrc
-          cache: npm
-          cache-dependency-path: website/package-lock.json
-      - name: Install exactly what the lockfile names
-        working-directory: website
-        run: npm ci
-      - name: Lints
-        working-directory: website
-        run: npm run lint
-      - name: Build
-        # `next build` type-checks as it goes, so this covers TypeScript too.
-        working-directory: website
-        run: npm run build
-
   no-std:
     name: builds without an operating system
     runs-on: ubuntu-latest

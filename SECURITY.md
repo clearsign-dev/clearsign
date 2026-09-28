@@ -82,10 +82,11 @@ In scope: everything in this repository — the Rust workspace under
 `signing-core/`, the seL4 and image work under `platform/`, the desktop
 application under `desktop/`, and the build and release workflows.
 
-Out of scope: the website under `website/`, unless you can reach something with
-it — it is a static export with no server and no analytics. Also out of scope:
-findings that require an already-compromised machine to reach the signer, since
-that is the threat model's starting assumption rather than a bug.
+Out of scope: the website, which lives in its own repository and is a static
+export with no server and no analytics — report anything there against
+[clearsign.dev](https://github.com/clearsign-dev/clearsign.dev) instead. Also
+out of scope: findings that require an already-compromised machine to reach the
+signer, since that is the threat model's starting assumption rather than a bug.
 
 ## Please don't
 
