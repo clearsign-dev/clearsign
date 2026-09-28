@@ -35,7 +35,6 @@ jobs:
           # neither macOS build was ever reproducible, so nothing is lost.
           - { os: macos-latest,  target: x86_64-apple-darwin }
           - { os: ubuntu-latest, target: x86_64-unknown-linux-musl }
-          - { os: ubuntu-latest, target: aarch64-unknown-linux-musl }
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Add the target to the pinned toolchain
@@ -64,8 +63,54 @@ jobs:
           name: ${{ matrix.target }}
           path: signing-core/dist/*.tar.gz*
 
+  reproducible:
+    # aarch64-unknown-linux-musl is the one artifact the release notes ask people
+    # to verify, so it has to be built the way the verification instructions say:
+    # in the canonical container, offline, with the paths remapped out. Built on
+    # a bare runner instead it is a different binary, and the instructions fail
+    # for everyone who follows them.
+    name: aarch64-unknown-linux-musl (canonical)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Allow the arm64 canonical image to run here
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        with:
+          platforms: arm64
+      - name: Fetch the crate sources named by Cargo.lock
+        working-directory: signing-core
+        run: cargo fetch --locked
+      - name: Build in the canonical environment
+        run: SKIP_HOST_BUILD=1 ARTIFACTS=/tmp/repro signing-core/scripts/reproducible-cross-check.sh
+      - name: Package the canonical binary
+        run: |
+          set -euo pipefail
+          name=clearsign-aarch64-unknown-linux-musl
+          mkdir -p "signing-core/dist/$name"
+          cp /tmp/repro/one-clearsign "signing-core/dist/$name/clearsign"
+          chmod +x "signing-core/dist/$name/clearsign"
+          cp docs/06-using-it-before-you-sign.md "signing-core/dist/$name/README.md"
+          cp LICENSE-MIT LICENSE-APACHE "signing-core/dist/$name/"
+          tar -C signing-core/dist -czf "signing-core/dist/$name.tar.gz" "$name"
+          shasum -a 256 "signing-core/dist/$name.tar.gz" > "signing-core/dist/$name.tar.gz.sha256"
+          # The hash people actually compare against EXPECTED-HASHES.txt is the
+          # binary's, not the archive's. Publish both and say which is which.
+          ( cd "signing-core/dist/$name" && shasum -a 256 clearsign ) \
+            | sed 's|$| (binary, compare with signing-core/EXPECTED-HASHES.txt)|' \
+            > signing-core/dist/BINARY-SHA256
+          cat signing-core/dist/BINARY-SHA256
+          diff <(awk '{print $1}' signing-core/dist/BINARY-SHA256) \
+               <(awk '/  clearsign$/{print $1}' signing-core/EXPECTED-HASHES.txt) \
+            || { echo "::error::the packaged binary is not the one EXPECTED-HASHES.txt describes" >&2; exit 1; }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: aarch64-unknown-linux-musl
+          path: |
+            signing-core/dist/*.tar.gz*
+            signing-core/dist/BINARY-SHA256
+
   publish:
-    needs: [build, desktop]
+    needs: [build, reproducible, desktop]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -99,11 +144,19 @@ jobs:
           is proven and what is not, including the gaps.
 
           **Reproducibility.** The `aarch64-unknown-linux-musl` build is the one
-          you can check: rebuild it with `signing-core/scripts/reproducible-cross-check.sh`
-          and compare against `signing-core/EXPECTED-HASHES.txt`. The macOS and
-          x86_64 builds are produced by GitHub's runners and are not reproducible
-          in that sense — rustc does not promise identical output across compiler
-          hosts, and this project would rather say so than imply otherwise.
+          you can check, and it is built here the same way you would rebuild it:
+          in the canonical container, offline, with build paths remapped out.
+          Rebuild it with `signing-core/scripts/reproducible-cross-check.sh` and
+          compare against `signing-core/EXPECTED-HASHES.txt`.
+
+          Compare the **binary**, not the archive. `BINARY-SHA256` attached here
+          is the binary's hash; `SHA256SUMS` covers the archives, which include a
+          README and the licences and so hash differently.
+
+          The macOS and x86_64 builds are produced by GitHub's runners and are
+          not reproducible in that sense — rustc does not promise identical
+          output across compiler hosts, and this project would rather say so than
+          imply otherwise.
 
           **The application is not signed yet.** macOS and Windows will warn that
           it comes from an unidentified developer, because it does: signing
@@ -114,10 +167,13 @@ jobs:
           development guard. Anything typed into an everyday computer should be
           treated as exposed.
           NOTES
+          # The installers were being built for three platforms and then thrown
+          # away: only the tarballs were ever attached.
           gh release create "${GITHUB_REF_NAME}" \
             --title "${GITHUB_REF_NAME}" \
             --notes-file notes.md \
-            dist/*.tar.gz dist/SHA256SUMS
+            dist/*.tar.gz dist/SHA256SUMS dist/BINARY-SHA256 \
+            $(ls dist/*.dmg dist/*.msi dist/*.exe dist/*.deb dist/*.AppImage 2>/dev/null || true)
 
   # The installers. One job per platform, because each one is built by the
   # operating system it installs onto.
