@@ -1,0 +1,37 @@
+name: Something else is broken
+description: It crashed, would not build, or did something other than misread a transaction.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If it misread a transaction, the other form asks better questions.
+
+        If it is a security problem, use
+        [Report a vulnerability](https://github.com/clearsign-dev/clearsign/security/advisories/new).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you ran
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: "macOS 15 on Apple Silicon / Windows 11 / Ubuntu 24.04"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Which build
+    validations:
+      required: true
