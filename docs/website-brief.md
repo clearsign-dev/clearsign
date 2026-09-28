@@ -352,6 +352,10 @@ buried. That is the tone the whole site should have.
   file's mtime, so the same content hashed differently every build. Fixed by
   zeroing mtimes before archiving
 - The Linux guest kernel reproduces bit-for-bit in a brand-new build volume
+- **A second machine reproduced it exactly.** A GitHub `ubuntu-latest` runner
+  built the same source in the canonical environment and produced binaries
+  byte-identical to the recorded hashes, on 28 September 2026. This was a v1
+  exit criterion and it is now met
 - **Across compiler hosts it does not reproduce, and this was measured rather
   than assumed.** The same source and the same Rust 1.98.1, hosted on macOS
   instead of Linux, produces identical `.rodata`, `.data`, `.got`,
@@ -394,7 +398,7 @@ competitor does.
 | **Hardware** | None. No hardware root of trust, no verified boot, no secure element |
 | **Emulation** | Everything runs under QEMU. An emulator has no secure element and no verified boot |
 | **Code signing** | The application is unsigned and un-notarised on every platform |
-| **Reproducibility** | Proven on one machine and in one canonical environment. A second physical machine has not run it |
+| **Reproducibility** | Proven in the canonical environment and, since 28 Sep 2026, reproduced byte-for-byte on a second machine (a GitHub runner). Across *compiler hosts* it still does not reproduce, and the project says so |
 | **EIP-712 typed data** | **Not covered**, beyond the Safe transaction type itself. The reviewer refuses it, which is honest and increasingly limiting. It is the first thing on the v2 list |
 | **Chains** | EVM only. No Bitcoin, no PSBT |
 | **Protocols** | No Permit2, no Uniswap, no bridges, no token metadata, no address books. The v1 selector set is deliberately **closed** |

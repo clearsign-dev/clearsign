@@ -47,7 +47,7 @@
 | GrapheneOS hardened_malloc | Built at the manifest-pinned commit; full upstream suite passes; deployment variant runs as the system allocator in the seL4 Linux compartment and aborts a write-after-free that glibc misses | Demonstrated |
 | Reproducible build, canonical environment | Two builds in the pinned Debian image, differing in build path, locale, timezone, umask, hostname and container instance, produce identical `aarch64-unknown-linux-musl` binaries (`66a86f32…` and `c3d968df…`, recorded in `signing-core/EXPECTED-HASHES.txt`). The signer image embeds that exact binary and the build refuses any other | Reproducible in the canonical environment (`scripts/reproducible-cross-check.sh`) |
 | Reproducibility across compiler hosts | **Not achieved, and measured rather than assumed.** The same source and the same Rust 1.98.1, hosted on macOS instead of Linux, produces identical `.rodata`, `.data`, `.got`, `.gcc_except_table` and `.init_array`, and a different `.text` and `.comment`. rustc makes no cross-host determinism promise, so, as GrapheneOS, Tor Browser and Debian do, the project names one canonical environment instead of claiming more | Documented, with the evidence |
-| Reproducible on a second machine | Still open. Everything above ran on one computer. `.github/workflows/verify.yml` performs exactly this check on GitHub's runners the first time the repository is pushed | v1 exit criterion, not yet met |
+| Reproducible on a second machine | **Met, 28 Sep 2026.** `.github/workflows/verify.yml` built twice in the canonical environment on a GitHub `ubuntu-latest` runner — different machine, different architecture underneath, arm64 through QEMU — and the result was byte-identical to the hashes recorded on the maintainer's machine. The job printed `This machine reproduced the recorded binaries exactly` (run 36451047609). The job is written so that agreeing with itself is not enough: it keeps the recorded hashes aside first and compares against them afterwards | v1 exit criterion met |
 
 ## Fuzzing run, 16 Sep 2026
 
@@ -65,7 +65,6 @@ Five minutes per target, run in parallel on Apple Silicon.
 - **No external security review.** Nothing here substitutes for one. Do not use with real funds.
 - **Android is not running as a compartment.** GrapheneOS is verified at source level and its allocator runs in the Linux compartment; building Android needs an x86_64 Linux host.
 - **No hardware.** Every result is from software on a general-purpose computer. Side channels, fault injection and physical attacks are untested.
-- **Reproducibility on a second machine.**
 - **Long fuzzing campaigns.** Five minutes per target is a baseline, not assurance.
 - **The Safe versions covered are v1.1.x and v1.3.0 and later.** Safe v1.0.0 uses a different struct and is unsupported.
 - **The `bip39` crate's internal word indices are not zeroised.**

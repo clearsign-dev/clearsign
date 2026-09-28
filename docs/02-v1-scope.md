@@ -39,7 +39,7 @@ The history study found that scope creep and stacked research risks killed Copla
 - Every invariant in the threat model has a named test.
 - Differential test against an independent reference, currently Foundry's `cast`.
 - Fuzzing of every parser with no crashes over an agreed run length.
-- Reproducible build demonstrated on two machines. *(Half met, 17 Sep 2026: reproducible in a named canonical environment, twice, varying everything that must not matter. A second physical machine has not run it; the CI workflow does exactly that on first push. Cross-compiler-host reproducibility was tested and does not hold — see `03-verification-status.md`.)*
+- Reproducible build demonstrated on two machines. *(**Met, 28 Sep 2026.** Reproducible in a named canonical environment, twice, varying everything that must not matter — and then reproduced byte-for-byte on a GitHub runner, which is the second machine. Cross-compiler-host reproducibility was tested separately and does not hold, which is a different claim the project does not make — see `03-verification-status.md`.)*
 - External security review completed before any use with real funds.
 
 ## Explicitly out of scope for v1
