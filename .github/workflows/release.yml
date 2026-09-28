@@ -28,7 +28,12 @@ jobs:
       matrix:
         include:
           - { os: macos-latest,  target: aarch64-apple-darwin }
-          - { os: macos-13,      target: x86_64-apple-darwin }
+          # Also built on Apple Silicon. macos-13 was GitHub's Intel image and
+          # has been retired, so a job asking for it waits for a runner that no
+          # longer exists — it queued for 42 minutes and would have queued for
+          # ever. Rust cross-compiles this target from arm64 without help, and
+          # neither macOS build was ever reproducible, so nothing is lost.
+          - { os: macos-latest,  target: x86_64-apple-darwin }
           - { os: ubuntu-latest, target: x86_64-unknown-linux-musl }
           - { os: ubuntu-latest, target: aarch64-unknown-linux-musl }
     steps:
