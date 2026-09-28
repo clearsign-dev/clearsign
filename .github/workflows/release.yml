@@ -134,7 +134,22 @@ jobs:
         working-directory: signing-core
         run: rustup target add wasm32-unknown-unknown
       - name: Build the front end from the shared template
+        # Windows runners default to PowerShell, which ran this without running
+        # it: the step passed in a second, built nothing, and Tauri then failed
+        # looking for a front end that was never generated. Git Bash is present
+        # on all three runners, so say which shell rather than take the default.
+        shell: bash
         run: app/build.sh
+      - name: Check the front end is actually there
+        # The failure above was not that a step errored; it was that a step
+        # passed without doing anything, and the error surfaced two steps later
+        # as a confusing message from Tauri. Assert the artifact exists.
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s desktop/src/index.html \
+            || { echo "app/build.sh did not produce desktop/src/index.html" >&2; exit 1; }
+          echo "front end: $(wc -c < desktop/src/index.html) bytes"
       - name: Build the application
         working-directory: desktop
         run: |
