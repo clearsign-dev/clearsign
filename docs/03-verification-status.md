@@ -1,6 +1,9 @@
 # 03 — Verification status
 
-**What has been demonstrated, how, and what has not.** Updated 17 Sep 2026. Everything here is reproducible from the repository.
+**Recorded checks, their scope and remaining limitations.** Updated 29 Sep 2026.
+The rows below include historical runs and counts, not a fresh certification of
+the current release. See the generated [support matrix](10-what-is-supported.md)
+and CI for current workspace results. Reproduction requirements vary by check.
 
 ## Summary
 
@@ -64,7 +67,9 @@ Five minutes per target, run in parallel on Apple Silicon.
 
 ## What has NOT been verified
 
-- **No external security review.** Nothing here substitutes for one. Do not use with real funds.
+- **Independent re-review is outstanding.** The reported September human review
+  predates the subsequent fixes. AI-assisted checks are not a replacement for
+  independent human assessment. Do not use development signing tools with real funds.
 - **Android is not running as a compartment.** GrapheneOS is verified at source level and its allocator runs in the Linux compartment; building Android needs an x86_64 Linux host.
 - **No hardware.** Every result is from software on a general-purpose computer. Side channels, fault injection and physical attacks are untested.
 - **Long fuzzing campaigns.** Five minutes per target is a baseline, not assurance.

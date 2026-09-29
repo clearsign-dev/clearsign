@@ -9,7 +9,7 @@
 # It distinguishes three things a support table usually runs together:
 #   listed    the code will act on it
 #   tested    a fixture or test exercises it
-#   proven    checked against something that is not this project
+#   externally checked    compared with an external implementation or record
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -60,21 +60,21 @@ apart here:
 |---|---|
 | **Listed** | The code will act on it |
 | **Tested** | A fixture or test in this repository exercises it |
-| **Proven** | Checked against something that is not this project |
+| **Externally checked** | Compared with an external implementation or record; not a proof of correctness |
 
 ## Chain family
 
 | | |
 |---|---|
-| EVM | Listed, tested, proven |
+| Selected EVM formats | Listed, tested, externally checked |
 | Bitcoin, Solana, Cosmos, anything non-EVM | **Not supported.** Different transaction models, parsers and signing flows |
 
 ## Transaction formats
 
 | Type | | |
 |---|---|---|
-| \`0x02\` EIP-1559 | Listed, tested, proven against \`cast\` and \`alloy\` | |
-| Legacy | Listed, tested, proven against \`cast\` and \`alloy\` | |
+| \`0x02\` EIP-1559 | Listed, tested, compared with \`cast\` and \`alloy\` | |
+| Legacy | Listed, tested, compared with \`cast\` and \`alloy\` | |
 | \`0x01\` EIP-2930 | **Refused** | Access-list transactions |
 | \`0x03\` EIP-4844 | **Refused** | Blob transactions |
 | \`0x04\` EIP-7702 | **Refused** | Account-delegation authorizations |
@@ -101,11 +101,10 @@ The review says so, as \`SELECTOR_IS_NOT_BEHAVIOUR\`.
 | MultiSend deployments | **$deployments**, from \`safe-global/safe-deployments\` |
 | Address-chain pairs listed | **$pairs**, across **$chains** distinct chain IDs |
 | Pairs tested | The ones the batch tests exercise, not all $pairs |
-| Pairs proven live | **Ethereum mainnet only.** See [09-against-real-transactions.md](09-against-real-transactions.md) |
+| Live-record comparisons | **Ethereum mainnet only.** See [09-against-real-transactions.md](09-against-real-transactions.md) |
 
-The gap between $pairs listed and one chain proven is the honest shape of this:
-the allowlist says which addresses the code will decode a batch at, and that is
-not the same as having watched it work on each of those chains.
+The allowlist determines where batch decoding is enabled. It does not establish
+that every deployment, network or wallet integration has been tested.
 
 ## Networks offered in the application
 
