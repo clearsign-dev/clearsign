@@ -1,7 +1,7 @@
 {
   "name": "clearsign-desktop",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ClearSign — see what a transaction really does before you approve it.",
   "scripts": {
     "dev": "tauri dev",

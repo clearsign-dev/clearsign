@@ -55,6 +55,15 @@ impl Section {
     }
 }
 
+/// More findings than this and the review cannot be approved at all.
+///
+/// Two reasons. A person acknowledging risks one at a time stopped reading long
+/// before this many, and an approval nobody read is the thing acknowledgement
+/// exists to prevent. And it keeps the identifier below any width it is stored
+/// in: a number that saturates is a number two findings can share, and an
+/// authorization identifier that two things can share authorizes the wrong one.
+pub const MAX_ACKNOWLEDGEABLE_FINDINGS: usize = 4096;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Review {
     pub title: String,
@@ -119,7 +128,7 @@ impl Review {
     /// Two findings with the same code are two separate requirements: a review
     /// showing unlimited approvals to two different spenders must be confirmed
     /// twice, not once.
-    pub fn required_acknowledgements(&self) -> Vec<(u16, &'static str)> {
+    pub fn required_acknowledgements(&self) -> Vec<(u32, &'static str)> {
         self.numbered()
             .into_iter()
             .filter(|(_, f)| f.severity >= Severity::Blind)
@@ -127,15 +136,29 @@ impl Review {
             .collect()
     }
 
+    /// True when there are more findings than can be acknowledged one by one.
+    /// Approval refuses outright rather than accepting a partial list.
+    pub fn too_many_to_acknowledge(&self) -> bool {
+        self.findings.len() > MAX_ACKNOWLEDGEABLE_FINDINGS
+    }
+
     /// Findings in display order, each with the number shown beside it.
-    fn numbered(&self) -> Vec<(u16, &Finding)> {
+    ///
+    /// The number is `u32` and is never saturated. It used to be a `u16` that
+    /// clamped at 65,535, so the 65,536th finding and every one after it shared
+    /// an identifier — and two findings sharing an identifier means confirming
+    /// one confirms the others.
+    fn numbered(&self) -> Vec<(u32, &Finding)> {
         let mut findings: Vec<&Finding> = self.findings.iter().collect();
         // Most serious first; stable within a severity.
         findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
         findings
             .into_iter()
             .enumerate()
-            .map(|(i, f)| (u16::try_from(i.saturating_add(1)).unwrap_or(u16::MAX), f))
+            // A list long enough to exhaust u32 cannot be allocated, and
+            // approval has already refused far below it. Dropping rather than
+            // clamping keeps the rule absolute: no two findings share a number.
+            .filter_map(|(i, f)| u32::try_from(i.saturating_add(1)).ok().map(|n| (n, f)))
             .collect()
     }
 

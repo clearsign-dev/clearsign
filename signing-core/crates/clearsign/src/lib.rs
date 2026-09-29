@@ -40,7 +40,9 @@ pub use evm::{
     EvmTransaction, TxType, parse_unsigned_transaction, review_evm_transaction,
     review_transaction_bytes,
 };
-pub use review::{Finding, Review, Section, Severity, SigningTarget, TargetKind};
+pub use review::{
+    Finding, MAX_ACKNOWLEDGEABLE_FINDINGS, Review, Section, Severity, SigningTarget, TargetKind,
+};
 pub use safe::{DomainVersion, SafeTransaction, review_safe_transaction, safe_transaction_hash};
 pub use text::escape_untrusted;
 pub use u256::U256;

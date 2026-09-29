@@ -46,7 +46,7 @@ impl<'p> PlanReview<'p> {
     /// approvals to two different spenders must be confirmed twice, not once.
     /// `clearsign` makes the same distinction for a single transaction, and a
     /// plan that merges them would quietly undo it.
-    pub fn required_acknowledgements(&self) -> Vec<(u16, &'static str)> {
+    pub fn required_acknowledgements(&self) -> Vec<(u32, &'static str)> {
         self.numbered()
             .into_iter()
             .filter(|(_, f)| f.severity >= Severity::Blind)
@@ -55,13 +55,27 @@ impl<'p> PlanReview<'p> {
     }
 
     /// Findings in display order, each with the number shown beside it.
-    pub(crate) fn numbered(&self) -> Vec<(u16, &PlanFinding)> {
+    /// True when there are more findings than can be acknowledged one by one.
+    /// Approval refuses outright rather than accepting a partial list.
+    pub fn too_many_to_acknowledge(&self) -> bool {
+        self.findings.len() > clearsign::MAX_ACKNOWLEDGEABLE_FINDINGS
+    }
+
+    /// Findings in display order, each with the number shown beside it.
+    ///
+    /// The number is `u32` and is never saturated. It used to be a `u16` that
+    /// clamped at 65,535, so every finding past that shared an identifier — and
+    /// with requirements held in a set, the duplicates merged and confirming one
+    /// confirmed the rest.
+    pub(crate) fn numbered(&self) -> Vec<(u32, &PlanFinding)> {
         let mut findings: Vec<&PlanFinding> = self.findings.iter().collect();
         findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
         findings
             .into_iter()
             .enumerate()
-            .map(|(i, f)| (u16::try_from(i.saturating_add(1)).unwrap_or(u16::MAX), f))
+            // Dropping rather than clamping keeps the rule absolute: no two
+            // findings share a number. Approval has refused long before here.
+            .filter_map(|(i, f)| u32::try_from(i.saturating_add(1)).ok().map(|n| (n, f)))
             .collect()
     }
 

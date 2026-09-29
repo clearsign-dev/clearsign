@@ -18,6 +18,15 @@
 //!    the two would differ is that something in between is not telling the truth.
 
 use clearsign::{DomainVersion, Review, SafeTransaction, U256, hex};
+
+/// The largest record this will look at, checked before anything is parsed.
+///
+/// A Safe transaction record is a few kilobytes; a very large batch is tens.
+/// The cap is far above anything real and far below anything that could exhaust
+/// memory — and it is applied to the *text*, before `serde_json` builds a value
+/// out of it, because a limit enforced after the allocation it is meant to
+/// prevent is not a limit.
+pub const MAX_RECORD_BYTES: usize = 1024 * 1024;
 use serde_json::Value;
 
 pub struct FromJson {
@@ -34,6 +43,13 @@ pub struct FromJson {
 /// `chain_id_flag` is used when the JSON does not carry one. The chain ID is
 /// part of what gets signed, so it is never guessed: with neither, this fails.
 pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String> {
+    if json.len() > MAX_RECORD_BYTES {
+        return Err(format!(
+            "this record is {} bytes; the limit is {MAX_RECORD_BYTES}. A Safe transaction is a few \
+             kilobytes, so something is wrong with the file rather than with the limit.",
+            json.len()
+        ));
+    }
     let v: Value = serde_json::from_str(json).map_err(|e| format!("not valid JSON: {e}"))?;
     // A Transaction Service listing wraps the records in "results".
     let v = match v.get("results").and_then(Value::as_array) {

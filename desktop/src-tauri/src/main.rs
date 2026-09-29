@@ -29,6 +29,18 @@ fn review_transaction(json_text: String, chain_id: u64, version: u32) -> Value {
     };
     let chain_id = if chain_id == 0 { None } else { Some(chain_id) };
 
+    // The window already checks, but the command is the trust boundary: anything
+    // that can reach this can reach it without going through the page.
+    if json_text.len() > clearsign_safe_json::MAX_RECORD_BYTES {
+        return serde_json::json!({
+            "ok": false,
+            "error": format!(
+                "this record is {} bytes; the limit is {}.",
+                json_text.len(),
+                clearsign_safe_json::MAX_RECORD_BYTES
+            ),
+        });
+    }
     match clearsign_safe_json::review_json(&json_text, chain_id, version) {
         Ok(r) => {
             let severity = match r.review.highest_severity() {

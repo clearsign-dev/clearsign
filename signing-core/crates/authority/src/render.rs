@@ -27,6 +27,11 @@ impl PlanReview<'_> {
         ));
         out.push_str(&line("Steps", &format!("{total}")));
 
+        // Numbered across the whole review, once. Doing this inside the step
+        // loop allocated the entire list per step, and the signer's arena never
+        // frees, so a long plan paid for it as many times as it had steps.
+        let numbered = self.numbered();
+
         for (pos, &i) in self.order.iter().enumerate() {
             let (Some(step), Some(flow)) = (plan.steps.get(i), self.flows.get(i)) else {
                 continue;
@@ -63,10 +68,10 @@ impl PlanReview<'_> {
             }
             // Numbered across the whole review, so what a step displays is what
             // the operator quotes back when approving.
-            let mut step_findings: Vec<_> = self
-                .numbered()
-                .into_iter()
+            let mut step_findings: Vec<_> = numbered
+                .iter()
                 .filter(|(_, f)| f.step == step.id)
+                .copied()
                 .collect();
             step_findings.sort_by_key(|(_, f)| core::cmp::Reverse(f.severity));
             for (number, f) in step_findings {
