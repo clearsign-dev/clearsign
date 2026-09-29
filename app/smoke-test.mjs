@@ -6,7 +6,8 @@
 // mocks the front end: it loads dist/clearsign.html, types into it, clicks it,
 // and fails on any uncaught error.
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { setTimeout as sleep } from 'node:timers/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,11 +21,11 @@ const FIXTURE = path.join(
 );
 
 const CHROME = [
+  process.env.CHROME_PATH,
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome',
   '/usr/bin/chromium-browser',
   '/usr/bin/chromium',
-  process.env.CHROME_PATH,
 ].find((p) => p && existsSync(p));
 
 if (!CHROME) {
@@ -36,12 +37,17 @@ if (!existsSync(PAGE)) {
   process.exit(2);
 }
 
-const PORT = 9412;
+const profile = mkdtempSync(path.join(tmpdir(), 'clearsign-smoke-'));
 const chrome = spawn(CHROME, [
-  '--headless=new', `--remote-debugging-port=${PORT}`,
+  '--headless=new', '--remote-debugging-port=0',
   '--disable-gpu', '--no-first-run', '--no-sandbox',
-  `--user-data-dir=${process.env.TMPDIR || '/tmp'}/clearsign-smoke`,
-], { stdio: 'ignore' });
+  `--user-data-dir=${profile}`, 'about:blank',
+], { stdio: ['ignore', 'ignore', 'pipe'] });
+let launchError;
+let chromeLog = '';
+chrome.on('error', (error) => { launchError = error; });
+chrome.stderr.on('data', (chunk) => { chromeLog = (chromeLog + chunk).slice(-8192); });
+const exited = new Promise((resolve) => chrome.once('close', resolve));
 
 let failures = 0;
 const check = (name, ok, detail = '') => {
@@ -50,15 +56,27 @@ const check = (name, ok, detail = '') => {
 };
 
 try {
-  let targets;
+  let target;
   for (let i = 0; i < 80; i++) {
+    if (launchError) throw launchError;
+    if (chrome.exitCode !== null || chrome.signalCode !== null) {
+      throw new Error(`Chrome exited before its debugging endpoint was ready:\n${chromeLog}`);
+    }
     try {
-      targets = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
-      if (targets.length) break;
+      const port = readFileSync(path.join(profile, 'DevToolsActivePort'), 'utf8').split('\n')[0];
+      if (/^\d+$/.test(port)) {
+        const response = await fetch(`http://127.0.0.1:${port}/json/list`, {
+          signal: AbortSignal.timeout(1000),
+        });
+        const targets = await response.json();
+        if (Array.isArray(targets)) target = targets.find((t) => t.type === 'page' && t.webSocketDebuggerUrl);
+        if (target) break;
+      }
     } catch { /* not up yet */ }
     await sleep(250);
   }
-  const ws = new WebSocket(targets.find((t) => t.type === 'page').webSocketDebuggerUrl);
+  if (!target) throw new Error(`Chrome debugging endpoint did not become ready:\n${chromeLog}`);
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise((res) => (ws.onopen = res));
 
   let id = 0;
@@ -198,6 +216,12 @@ try {
   ws.close();
 } finally {
   chrome.kill();
+  await Promise.race([exited, sleep(3000)]);
+  if (chrome.exitCode === null && chrome.signalCode === null && !launchError) {
+    chrome.kill('SIGKILL');
+    await exited;
+  }
+  rmSync(profile, { recursive: true, force: true, maxRetries: 3 });
 }
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nall checks passed');
