@@ -65,6 +65,15 @@ exist because someone wrote down what confused them.
 Commits carry a `Co-Authored-By` line when that is honest. Nothing else is
 required.
 
+## Releases
+
+Every release gets a section in [CHANGELOG.md](CHANGELOG.md), and the release
+notes lead with it. A fix that changes what the tool reports says what an
+affected version does wrong, not just that something was fixed — somebody
+deciding whether to update needs to know what staying put costs them, and
+"various improvements" is how people end up running a version that misreads
+their transactions.
+
 ## What is unlikely to be merged
 
 Protocol decoders outside the v1 set, token metadata, address books, anything
