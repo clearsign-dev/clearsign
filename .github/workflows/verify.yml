@@ -46,6 +46,26 @@ jobs:
         working-directory: signing-core
         run: cargo fmt --all --check
 
+  window:
+    name: the window still works
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Install the pinned toolchain
+        working-directory: signing-core
+        run: rustup show
+      - name: Build the page
+        # The smoke test runs as part of this, and fails the build if the page
+        # that comes out does not work. A page that parses is not a page that
+        # works: a constant used in three places and declared in none got past
+        # every other check here and shipped.
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: app/build.sh
+
   no-std:
     name: builds without an operating system
     runs-on: ubuntu-latest

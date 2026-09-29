@@ -51,6 +51,16 @@ build(wasm_backend, standalone_out, "  — one file, opens anywhere")
 build((here / "backend-desktop.js").read_text(), desktop_out, "  — front end of the application")
 PY
 
+# Parsing is not working. A constant referenced in three places and declared in
+# none passed every check this build had, and shipped.
+if [[ "${SKIP_SMOKE:-0}" != "1" ]] && command -v node >/dev/null 2>&1; then
+  echo
+  node "$HERE/smoke-test.mjs" || {
+    echo "the built page failed its own smoke test" >&2
+    exit 1
+  }
+fi
+
 echo
 echo "The single file:   open $OUT/clearsign.html"
 echo "The application:   cd $ROOT/desktop && npm run build"

@@ -9,6 +9,41 @@ that keeps people on a broken version.
 
 ## Unreleased
 
+### Fixed — the window was broken
+
+**`MAX_RECORD_BYTES` was referenced in three places and declared in none.**
+Fetching a transaction or dropping a file threw `ReferenceError` and the page
+did nothing. Introduced when input bounding was added: the edit targeted
+`<script>` and the tag is `<script type="module">`, so it silently never
+applied. Every Rust test passed, the build's parse check passed, and the page
+shipped broken.
+
+There is now a smoke test — `app/smoke-test.mjs` — that loads the built page in
+a real browser and uses it: reviews the Bybit fixture, drops an oversized file,
+edits the input, clears, and fails on anything the page throws. It runs as part
+of `app/build.sh` and in CI. Checked against the bug it exists for: with the
+constant removed, three of its checks fail.
+
+Writing it found a second one. The oversized-file branch called `show(...)`,
+which is not a function this page has.
+
+**A finished review could outlive the input that produced it.** The review flow
+had no request generation, so a slow fetch could land after a fast one, or after
+Clear, and leave a result on screen belonging to a transaction nobody was
+looking at. Every review now takes a generation; typing, changing network or
+version, clearing and starting another review all move it on, and a reply from
+an older generation is dropped.
+
+### Changed — the interface says what decoding establishes
+
+The results panel was headed **"What it actually does"**. It is now **"What the
+bytes say"**, which is the checkable claim. The WARNING verdict said "Nothing
+here is irreversible on its face"; it now says that of the part that could be
+decoded, and adds that what the code at the other end does is not established by
+these bytes. The clear verdict says plainly that nothing flagged is not the same
+as safe.
+
+
 ### Changed — how a decoded call is described
 
 **A four-byte selector says what shape a call has, not what the code at the
