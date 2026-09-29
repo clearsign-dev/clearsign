@@ -1,0 +1,57 @@
+name: A transaction it read badly
+description: It called something safe that was not, refused something it should have decoded, or got a hash wrong.
+labels: ["read-badly"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is the most useful thing anyone can send.
+
+        **If it is a security problem — a way to make the tool show something
+        untrue about bytes that would be signed — do not use this form.** Use
+        [Report a vulnerability](https://github.com/clearsign-dev/clearsign/security/advisories/new)
+        instead, so it stays private until there is a fix.
+
+        Everything below is already public on a chain. Do not paste anything
+        from a transaction you have not broadcast, and never paste a key.
+  - type: textarea
+    id: transaction
+    attributes:
+      label: The transaction
+      description: The JSON from Safe's service, or the raw calldata, or the `ur:` strings you scanned.
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: chain
+    attributes:
+      label: Chain ID
+      placeholder: "1"
+    validations:
+      required: true
+  - type: textarea
+    id: said
+    attributes:
+      label: What ClearSign said
+      description: Paste the output, including the exit code.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should have said, and how you know
+      description: >
+        What the transaction actually does, and what tells you so — the executed
+        transaction on a block explorer, the contract source, another decoder
+        that disagrees. "It looks wrong" is a fine reason to open this, but say
+        what made it look wrong.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Which build
+      description: "`clearsign --version`, or the release you downloaded, or the commit you built."
+    validations:
+      required: true

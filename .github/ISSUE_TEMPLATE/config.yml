@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/clearsign-dev/clearsign/security/advisories/new
+    about: Privately, so it stays that way until there is a fix. Read SECURITY.md first — it says what is already known.
+  - name: What is already known to be missing
+    url: https://github.com/clearsign-dev/clearsign/blob/main/docs/03-verification-status.md
+    about: No hardware, no verified boot, no EIP-712, one review. Worth checking before reporting one of them.
