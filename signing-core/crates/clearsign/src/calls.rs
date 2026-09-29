@@ -539,20 +539,27 @@ fn decode_known<'a>(
             args.expect_static_len(2)?;
             let recipient = args.address(0)?;
             let amount = args.uint256(1)?;
-            s.field("Action", String::from("ERC-20 transfer"));
-            s.field("Token contract", address::display(&to));
-            s.field("Recipient", address::display(&recipient));
+            s.field(
+                "Action",
+                String::from("Matches ERC-20 transfer(address,uint256)"),
+            );
+            s.field("Contract called", address::display(&to));
+            s.field("Recipient, if it is a token", address::display(&recipient));
             s.field("Amount (raw integer units)", amount.to_grouped_decimal());
             note_raw_units(review);
+            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_APPROVE => {
             args.expect_static_len(2)?;
             let spender = args.address(0)?;
             let amount = args.uint256(1)?;
-            s.field("Action", String::from("ERC-20 approve"));
-            s.field("Token contract", address::display(&to));
-            s.field("Spender", address::display(&spender));
+            s.field(
+                "Action",
+                String::from("Matches ERC-20 approve(address,uint256)"),
+            );
+            s.field("Contract called", address::display(&to));
+            s.field("Spender, if it is a token", address::display(&spender));
             if amount.is_max() || amount.is_effectively_unlimited() {
                 // A number just below 2^256-1 spends exactly like 2^256-1 and
                 // used to read as an ordinary WARNING, which is a difference no
@@ -590,6 +597,7 @@ fn decode_known<'a>(
                 );
                 note_raw_units(review);
             }
+            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_TRANSFER_FROM => {
@@ -597,12 +605,16 @@ fn decode_known<'a>(
             let from = args.address(0)?;
             let recipient = args.address(1)?;
             let amount = args.uint256(2)?;
-            s.field("Action", String::from("ERC-20 transferFrom"));
-            s.field("Token contract", address::display(&to));
+            s.field(
+                "Action",
+                String::from("Matches ERC-20 transferFrom(address,address,uint256)"),
+            );
+            s.field("Contract called", address::display(&to));
             s.field("From", address::display(&from));
-            s.field("Recipient", address::display(&recipient));
+            s.field("Recipient, if it is a token", address::display(&recipient));
             s.field("Amount (raw integer units)", amount.to_grouped_decimal());
             note_raw_units(review);
+            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_EXEC_TRANSACTION => {
@@ -837,6 +849,32 @@ pub fn refund_finding(
             gas_price.to_grouped_decimal()
         ),
     );
+}
+
+/// A four-byte selector says what shape the call has, not what the code at the
+/// other end will do with it.
+///
+/// `0xa9059cbb` with two well-formed arguments is what an ERC-20 `transfer`
+/// looks like. It is also what a contract that does something else entirely
+/// looks like if it chooses that selector, and what a proxy looks like the day
+/// after its implementation changes. Nothing in the signed bytes says which.
+/// The decoder reads bytes and cannot read deployed code, so it reports the
+/// shape as a shape.
+fn note_selector_is_not_behaviour(review: &mut Review, to: &Address) {
+    if !review.has("SELECTOR_IS_NOT_BEHAVIOUR") {
+        review.find(
+            Severity::Info,
+            "SELECTOR_IS_NOT_BEHAVIOUR",
+            format!(
+                "The call is shaped like a standard token function, and that is all these bytes \
+                 establish. Whether {} is a token, and what its code does when called this way, \
+                 is not in the signed bytes and was not checked. A contract can answer to a \
+                 familiar selector however it likes, and a proxy can be pointed somewhere new \
+                 between one transaction and the next.",
+                address::checksummed(to)
+            ),
+        );
+    }
 }
 
 fn note_raw_units(review: &mut Review) {

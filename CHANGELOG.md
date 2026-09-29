@@ -7,6 +7,50 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## Unreleased
+
+### Changed — how a decoded call is described
+
+**A four-byte selector says what shape a call has, not what the code at the
+other end will do with it.** The reviewer sent a correctly encoded
+`transfer(address,uint256)` to an address that is not a token; ClearSign called
+it "ERC-20 transfer", labelled the target "Token contract", and returned exit 0.
+Everything it printed was derived from the bytes, but two of the words were not.
+
+The wording now separates the two:
+
+```
+Action ........................ Matches ERC-20 transfer(address,uint256)
+Contract called ............... 0x…
+Recipient, if it is a token ... 0x…
+```
+
+with an `INFO` finding, `SELECTOR_IS_NOT_BEHAVIOUR`, saying that whether the
+address is a token and what its code does was not established — a contract can
+answer to a familiar selector however it likes, and a proxy can point somewhere
+new between one transaction and the next. `transfer`, `approve` and
+`transferFrom` all carry it. The exit code is unchanged: refusing every token
+transfer would make the tool useless, and the fix here is precision, not alarm.
+
+### Added — a support matrix generated from the code
+
+`docs/10-what-is-supported.md`, written by
+`signing-core/scripts/support-matrix.sh`, separating **listed** (the code will
+act on it), **tested** (a fixture exercises it) and **proven** (checked against
+something that is not this project).
+
+It exists because the deployment table was documented as **1,404** address-chain
+pairs while the code held **2,089**. Nobody lied; the table grew and the prose
+did not. That is what a hand-written support claim does. The corrected numbers
+are 11 deployments, 2,089 pairs across 561 chain IDs, 12 networks in the
+application, and Ethereum mainnet as the only chain anything has been proven on
+live.
+
+It also records, for the first time in one place, that **EVM support does not
+mean every Ethereum transaction**: types `0x01`, `0x03` and `0x04` are refused,
+the last being EIP-7702 authorizations. They are refused by name rather than
+guessed at, which is the designed behaviour, but the gap was not written down.
+
 ## v0.1.2 — 29 September 2026
 
 **Update from v0.1.1 if you use the authority engine.** The same reviewer went
