@@ -284,7 +284,7 @@
 
     <section class="panel">
       <div class="head">
-        <h2>What it actually does</h2>
+        <h2>What the bytes say</h2>
         <div class="head-actions"><span class="ver" id="domain-note"></span><button class="quiet" id="record" type="button" hidden>Copy record</button></div>
       </div>
       <div class="body" id="out"></div>
@@ -299,6 +299,11 @@
 </div>
 
 <script type="module">
+// Matches MAX_RECORD_BYTES in clearsign-safe-json. Bound the input before
+// anything allocates on the strength of it — a limit applied after the whole
+// file is in memory is not a limit.
+const MAX_RECORD_BYTES = 1024 * 1024;
+
 __REVIEW_BACKEND__
 
 const $ = (id) => document.getElementById(id);
@@ -321,8 +326,8 @@ function groupedHash(hex) {
 const VERDICTS = {
   critical: ["v-critical", "DO NOT SIGN", "Do not sign this", "Something here gives away control, moves funds, or cannot be undone. Read every CRITICAL item and be certain you meant it."],
   blind: ["v-caution", "CANNOT READ", "Part of this could not be read", "Some of this transaction is not in the set of things this tool understands, so nobody can tell you what it does from these bytes alone."],
-  warning: ["v-caution", "READ FIRST", "Read the warnings first", "Nothing here is irreversible on its face, but something wants your attention before you approve."],
-  clear: ["v-clear", "NOTHING FLAGGED", "Nothing alarming in the decoded content", "Confirm the details are what you intended, and compare the hash with your co-signers."],
+  warning: ["v-caution", "READ FIRST", "Read the warnings first", "Nothing in the part that could be decoded is irreversible on its face, but something wants your attention before you approve. What the code at the other end does when called is not established by these bytes."],
+  clear: ["v-clear", "NOTHING FLAGGED", "Nothing alarming in the decoded content", "Nothing flagged is not the same as safe: this reads the bytes, and cannot tell you what the contract at the other end will do with them. Confirm the details are what you intended, and compare the hash with your co-signers."],
 };
 
 function render(result, { example } = {}) {
@@ -564,7 +569,23 @@ $("record").addEventListener("click", async () => {
   setTimeout(() => { btn.textContent = "Copy record"; }, 1800);
 });
 
+// Every review is one generation. Anything that changes what is being reviewed
+// — typing, switching network or version, clearing, starting another review —
+// moves it on, and a reply from an older generation is dropped rather than
+// painted over a newer one. Without this, a slow fetch could land after a fast
+// one and leave a result on screen that belongs to a transaction nobody is
+// looking at any more.
+let generation = 0;
+function invalidate() {
+  generation += 1;
+  lastResult = null;
+  lastJson = null;
+  return generation;
+}
+
 async function run(opts = {}) {
+  const mine = invalidate();
+  const current = () => mine === generation;
   const out = $("out");
   let json = $("json").value.trim();
   let chainId = Number($("chain").value) || 0;
@@ -582,9 +603,11 @@ async function run(opts = {}) {
     out.replaceChildren(el("p", "working", "Asking Safe's service for that transaction…"));
     try {
       json = await fetchTransaction(option.value, hash);
+      if (!current()) return;
       $("json").value = json;
       $("chain").value = String(chainId);
     } catch (e) {
+      if (!current()) return;
       render({ ok: false, message: String(e.message || e) });
       return;
     }
@@ -596,6 +619,9 @@ async function run(opts = {}) {
   }
 
   const result = await review(json, chainId, version);
+  // The reviewer may have taken a while. If anything moved on while it did,
+  // this answer is about a transaction that is no longer on screen.
+  if (!current()) return;
   lastResult = result.ok ? result : null;
   lastJson = json;
   render(result, opts);
@@ -619,13 +645,31 @@ async function run(opts = {}) {
 
 $("review").addEventListener("click", () => { run(); });
 $("clear").addEventListener("click", () => {
+  // Moves the generation on, so a review already in flight cannot land after
+  // this and leave the screen looking like it holds a current result.
+  invalidate();
   $("json").value = "";
   $("txhash").value = "";
   $("out").replaceChildren();
   $("domain-note").textContent = "";
   $("record").hidden = true;
-  lastResult = null;
 });
+
+// Anything that changes what is being reviewed drops whatever is on screen,
+// rather than leaving a result beside inputs that no longer produced it.
+for (const id of ["json", "txhash", "chain", "version"]) {
+  const node = $(id);
+  if (!node) continue;
+  for (const ev of ["input", "change"]) {
+    node.addEventListener(ev, () => {
+      if (!lastResult && !$("out").hasChildNodes()) return;
+      invalidate();
+      $("out").replaceChildren();
+      $("domain-note").textContent = "";
+      $("record").hidden = true;
+    });
+  }
+}
 $("forget").addEventListener("click", () => { history = []; saveHistory(); drawHistory(); });
 $("load-example").addEventListener("click", () => {
   setMode("paste");
@@ -666,7 +710,10 @@ area.addEventListener("drop", async (ev) => {
   // Check the size before reading it. A limit applied after the whole file is
   // in memory is not a limit.
   if (file.size > MAX_RECORD_BYTES) {
-    show(`That file is ${file.size.toLocaleString()} bytes. The limit is ${MAX_RECORD_BYTES.toLocaleString()} — a Safe transaction is a few kilobytes, so something is wrong with the file rather than with the limit.`);
+    render({
+      ok: false,
+      message: `That file is ${file.size.toLocaleString()} bytes. The limit is ${MAX_RECORD_BYTES.toLocaleString()} bytes — a Safe transaction is a few kilobytes, so something is wrong with the file rather than with the limit.`,
+    });
     return;
   }
   area.value = await file.text();
