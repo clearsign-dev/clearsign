@@ -12,7 +12,6 @@
 
 use std::io::Read;
 
-mod safe_json;
 use std::process::ExitCode;
 
 use clearsign::address::Address;
@@ -22,6 +21,7 @@ use clearsign_qr::ur::encode_single;
 use clearsign_qr::{
     DataType, Decoder as QrDecoder, SignRequest, decode_sign_request, encode_signature,
 };
+use clearsign_safe_json as safe_json;
 use qrcodegen::{QrCode, QrCodeEcc};
 use zeroize::Zeroizing;
 
@@ -164,7 +164,7 @@ fn review_safe_json(args: &[String]) -> Result<Review, String> {
     let json = if path == "-" {
         read_stdin()?.as_str().to_owned()
     } else {
-        std::fs::read_to_string(&path).map_err(|e| format!("cannot read {path}: {e}"))?
+        read_file_capped(&path)?
     };
 
     let parsed = safe_json::parse(&json, chain_id)?;
@@ -399,12 +399,43 @@ fn seed_from_dice() -> Result<Outcome, String> {
     Ok(Outcome::Done)
 }
 
+/// The most this will read from anywhere, before it has read it.
+///
+/// The same number the JSON parser enforces, applied one step earlier: reading
+/// a file whole and then declining to parse it has already done the allocating.
+/// A Safe record is kilobytes and a scanned QR stream is smaller, so anything
+/// over this is a wrong file rather than a tight limit.
+const MAX_INPUT_BYTES: u64 = safe_json::MAX_RECORD_BYTES as u64;
+
+fn too_big(what: &str, n: u64) -> String {
+    format!(
+        "{what} is {n} bytes; this reads at most {MAX_INPUT_BYTES}. A transaction record is a few \
+         kilobytes, so the file is wrong rather than the limit."
+    )
+}
+
 fn read_stdin() -> Result<Zeroizing<String>, String> {
     let mut s = Zeroizing::new(String::new());
-    std::io::stdin()
+    // Bounded by one byte more than the limit, so going over is detected rather
+    // than truncated into something that parses as a different transaction.
+    let read = std::io::Read::take(std::io::stdin(), MAX_INPUT_BYTES.saturating_add(1))
         .read_to_string(&mut s)
         .map_err(|e| format!("reading stdin: {e}"))?;
+    if read as u64 > MAX_INPUT_BYTES {
+        return Err(too_big("what arrived on stdin", read as u64));
+    }
     Ok(s)
+}
+
+/// Read a file, having first asked how big it is.
+fn read_file_capped(path: &str) -> Result<String, String> {
+    let size = std::fs::metadata(path)
+        .map_err(|e| format!("cannot read {path}: {e}"))?
+        .len();
+    if size > MAX_INPUT_BYTES {
+        return Err(too_big(path, size));
+    }
+    std::fs::read_to_string(path).map_err(|e| format!("cannot read {path}: {e}"))
 }
 
 fn parse_safe_tx(args: &[String]) -> Result<(SafeTransaction, DomainVersion), String> {
@@ -489,9 +520,7 @@ fn addr(flag: &str, v: &str) -> Result<Address, String> {
 fn read_sign_request(source: &Source) -> Result<(SignRequest, Vec<u8>), String> {
     let input = match source {
         Source::Stdin => read_stdin()?.as_str().to_owned(),
-        Source::File(path) => {
-            std::fs::read_to_string(path).map_err(|e| format!("cannot read {path}: {e}"))?
-        }
+        Source::File(path) => read_file_capped(path)?,
     };
     let mut decoder = QrDecoder::new();
     let mut scanned = 0usize;

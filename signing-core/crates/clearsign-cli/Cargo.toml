@@ -12,6 +12,7 @@ name = "clearsign"
 path = "src/main.rs"
 
 [dependencies]
+clearsign-safe-json = { path = "../clearsign-safe-json" }
 clearsign = { path = "../clearsign", features = ["std"] }
 clearsign-keys = { path = "../clearsign-keys", features = ["std"] }
 clearsign-qr = { path = "../clearsign-qr", features = ["std"] }

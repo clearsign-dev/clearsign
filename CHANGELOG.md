@@ -54,6 +54,14 @@ already said: reviewing is offline, fetching a queued transaction contacts
 Safe's service, and the canonical build compiles offline while its own bootstrap
 does not.
 
+**The command-line tool was carrying its own copy of the JSON parser.**
+`clearsign-cli` had `safe_json.rs` as a local module rather than using the
+shared crate, so the size limit added above reached the window and the desktop
+application but not the command line. The duplicate is deleted and the tool uses
+the crate everyone else does. It also checks a file's size before opening it and
+caps what it takes from standard input, because reading a file whole and then
+declining to parse it has already done the allocating.
+
 ### Also
 
 The plan fuzz target asked the engine for its requirements and handed them
