@@ -861,20 +861,29 @@ pub fn refund_finding(
 /// The decoder reads bytes and cannot read deployed code, so it reports the
 /// shape as a shape.
 fn note_selector_is_not_behaviour(review: &mut Review, to: &Address) {
-    if !review.has("SELECTOR_IS_NOT_BEHAVIOUR") {
-        review.find(
-            Severity::Info,
-            "SELECTOR_IS_NOT_BEHAVIOUR",
-            format!(
-                "The call is shaped like a standard token function, and that is all these bytes \
-                 establish. Whether {} is a token, and what its code does when called this way, \
-                 is not in the signed bytes and was not checked. A contract can answer to a \
-                 familiar selector however it likes, and a proxy can be pointed somewhere new \
-                 between one transaction and the next.",
-                address::checksummed(to)
-            ),
-        );
+    // One notice per destination, not one per review. Deduplicating on the code
+    // alone meant a batch touching four contracts carried a single notice
+    // naming the first of them, which reads as though the limitation applies to
+    // that address and not to the other three.
+    let named = address::checksummed(to);
+    let already = review
+        .findings()
+        .iter()
+        .any(|f| f.code == "SELECTOR_IS_NOT_BEHAVIOUR" && f.message.contains(named.as_str()));
+    if already {
+        return;
     }
+    review.find(
+        Severity::Info,
+        "SELECTOR_IS_NOT_BEHAVIOUR",
+        format!(
+            "The call to {named} is shaped like a standard token function, and that is all these \
+             bytes establish. Whether that address is a token, and what its code does when called \
+             this way, is not in the signed bytes and was not checked. A contract can answer to a \
+             familiar selector however it likes, and a proxy can be pointed somewhere new between \
+             one transaction and the next."
+        ),
+    );
 }
 
 fn note_raw_units(review: &mut Review) {

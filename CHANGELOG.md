@@ -9,6 +9,34 @@ that keeps people on a broken version.
 
 ## Unreleased
 
+### Fixed — two items from a re-check
+
+**The cap was tested beside the gate, not at it.** The test asserted
+`too_many_to_acknowledge()`, the predicate `approve` consults — so deleting the
+check from `approve` itself would have left it green. There is now a test in
+`clearsign-keys/tests/approval_boundary.rs` that goes through `approve`, at the
+cap and one over, with both an empty and a complete acknowledgement list.
+Checked against the mutation it exists for: removing the gate's check fails it.
+
+**The selector qualification named only the first destination.** It was
+deduplicated on its code, so a batch touching four contracts carried a single
+notice naming one of them — which reads as though the limitation applies to that
+address and not the other three. There is now one notice per distinct
+destination.
+
+### Changed — how the review passes are described
+
+The v0.1.1 and v0.1.2 entries said "a second independent review" and "the same
+reviewer". Those rounds were **AI-assisted review passes**, not a human security
+audit, and the reviewer said so plainly: they cannot accept payment, enter a
+consulting contract, or provide a professional auditor's attestation.
+
+The wording is corrected here, and `03-verification-status.md` now separates the
+one human review in September from the four AI-assisted passes since. **The
+second human review is still unmet.** It matters that the distinction is made by
+us rather than discovered by someone else.
+
+
 ### Fixed — the window was broken
 
 **`MAX_RECORD_BYTES` was referenced in three places and declared in none.**
@@ -88,9 +116,9 @@ guessed at, which is the designed behaviour, but the gap was not written down.
 
 ## v0.1.2 — 29 September 2026
 
-**Update from v0.1.1 if you use the authority engine.** The same reviewer went
-through the v0.1.1 fixes and found that one of them was incomplete and one of
-the claims made about it was false.
+**Update from v0.1.1 if you use the authority engine.** A further review pass
+went through the v0.1.1 fixes and found that one of them was incomplete and one
+of the claims made about it was false.
 
 ### Fixed
 
@@ -155,8 +183,8 @@ breach the signer's allocation budget, which is what caught it.
 
 ## v0.1.1 — 29 September 2026
 
-**Update from v0.1.0 if you review batched transactions.** A second independent
-review found a decoding gap that could hide a dangerous call from you.
+**Update from v0.1.0 if you review batched transactions.** A review pass found a
+decoding gap that could hide a dangerous call from you.
 
 ### Fixed
 

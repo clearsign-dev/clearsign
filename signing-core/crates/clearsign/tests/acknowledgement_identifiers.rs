@@ -35,10 +35,11 @@ fn no_two_findings_ever_share_an_identifier() {
 }
 
 #[test]
-fn a_review_too_long_to_read_cannot_be_approved() {
-    // The other half of the rule. Numbers stay unique however many findings
-    // there are, and a list nobody could work through is refused rather than
-    // approved from whatever fits.
+fn the_cap_predicate_moves_at_the_documented_boundary() {
+    // This checks the predicate, not the gate. Deleting the cap check from
+    // `approve` would leave this green, which is why the gate has its own test
+    // in `clearsign-keys/tests/approval_boundary.rs` — a boundary is only
+    // tested where a caller meets it.
     assert!(!review_with(MAX_ACKNOWLEDGEABLE_FINDINGS).too_many_to_acknowledge());
     assert!(review_with(MAX_ACKNOWLEDGEABLE_FINDINGS + 1).too_many_to_acknowledge());
 }
