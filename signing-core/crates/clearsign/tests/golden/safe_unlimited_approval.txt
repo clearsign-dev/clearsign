@@ -17,7 +17,7 @@ Allowance ........................ UNLIMITED (2^256 - 1)
 
 -- Findings --
 [CRITICAL] 1:UNLIMITED_APPROVAL - Grants 0x3333333333333333333333333333333333333333 permission to move ALL of this token, now and in the future, until revoked.
-[INFO] 2:SELECTOR_IS_NOT_BEHAVIOUR - The call is shaped like a standard token function, and that is all these bytes establish. Whether 0x2222222222222222222222222222222222222222 is a token, and what its code does when called this way, is not in the signed bytes and was not checked. A contract can answer to a familiar selector however it likes, and a proxy can be pointed somewhere new between one transaction and the next.
+[INFO] 2:SELECTOR_IS_NOT_BEHAVIOUR - The call to 0x2222222222222222222222222222222222222222 is shaped like a standard token function, and that is all these bytes establish. Whether that address is a token, and what its code does when called this way, is not in the signed bytes and was not checked. A contract can answer to a familiar selector however it likes, and a proxy can be pointed somewhere new between one transaction and the next.
 [INFO] 3:COMPARE_SAFE_TX_HASH - Before signing, confirm the Safe transaction hash matches what every other signer sees on their own device, over a channel the preparing computer does not control.
 
 -- Must be acknowledged, one by one --

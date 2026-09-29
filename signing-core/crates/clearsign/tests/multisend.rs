@@ -347,3 +347,45 @@ fn a_dangerous_call_past_the_display_limit_is_still_named() {
     );
     assert_eq!(max_severity(&review), Severity::Critical);
 }
+
+#[test]
+fn every_destination_that_matched_a_selector_is_named() {
+    // Deduplicating the qualification on its code alone meant a batch touching
+    // several contracts carried one notice naming the first, which reads as if
+    // the limitation applied to that address and not to the others.
+    const USDC: &str = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+    const OTHER: &str = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
+    let mut packed = Vec::new();
+    for token in [USDC, OTHER] {
+        element(
+            &mut packed,
+            0,
+            addr(token),
+            &approve_max(addr(NOT_MULTISEND)),
+        );
+    }
+    let calldata = multi_send_calldata(&packed);
+    let tx = batch_tx(MULTISEND_1_3_0, &format!("0x{}", hex::encode(&calldata)));
+    let review = review_safe_transaction(&tx, DomainVersion::V1_3Plus);
+
+    let notices: Vec<&str> = review
+        .findings()
+        .iter()
+        .filter(|f| f.code == "SELECTOR_IS_NOT_BEHAVIOUR")
+        .map(|f| f.message.as_str())
+        .collect();
+    assert_eq!(
+        notices.len(),
+        2,
+        "each destination should carry its own notice, got {notices:?}"
+    );
+    for token in [USDC, OTHER] {
+        let bare = token.trim_start_matches("0x");
+        assert!(
+            notices
+                .iter()
+                .any(|m| m.to_lowercase().contains(&bare.to_lowercase())),
+            "no notice names {token}"
+        );
+    }
+}
