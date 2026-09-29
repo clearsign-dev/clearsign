@@ -213,6 +213,24 @@ jobs:
       - name: Add the WebAssembly target
         working-directory: signing-core
         run: rustup target add wasm32-unknown-unknown
+      - name: The application's version must match the tag
+        # v0.1.1 shipped installers named ClearSign_0.1.0_*, and the app's own
+        # build_info reported 0.1.0, because the version lives in three files
+        # and none of them are the tag. A release that names itself wrong is a
+        # release nobody can reason about.
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          want="${GITHUB_REF_NAME#v}"
+          for f in desktop/package.json desktop/src-tauri/tauri.conf.json; do
+            got=$(sed -n 's/.*"version": "\([^"]*\)".*/\1/p' "$f" | head -1)
+            [ "$got" = "$want" ] || { echo "::error::$f says $got, tag says $want" >&2; exit 1; }
+          done
+          got=$(sed -n 's/^version = "\([^"]*\)".*/\1/p' desktop/src-tauri/Cargo.toml | head -1)
+          [ "$got" = "$want" ] || { echo "::error::Cargo.toml says $got, tag says $want" >&2; exit 1; }
+          echo "the application calls itself $want, and so does the tag"
+
       - name: Build the front end from the shared template
         # Windows runners default to PowerShell, which ran this without running
         # it: the step passed in a second, built nothing, and Tauri then failed
