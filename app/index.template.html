@@ -480,7 +480,11 @@ async function fetchTransaction(host, hash) {
   const res = await fetch(url, { headers: { accept: "application/json" } });
   if (res.status === 404) throw new Error("Safe's service has no transaction with that hash on this network. Check the network, and that you copied the whole hash.");
   if (!res.ok) throw new Error(`Safe's service answered ${res.status}. Try again, or paste the JSON instead.`);
-  return await res.text();
+  // Safe's service is not hostile, but it is on the other side of a network
+  // and the answer is not read until it has been shown to be a sane size.
+  const body = await res.text();
+  if (body.length > MAX_RECORD_BYTES) throw new Error(`Safe's service returned ${body.length.toLocaleString()} bytes, more than this will read.`);
+  return body;
 }
 
 const HISTORY_KEY = "clearsign.history.v1";
@@ -659,6 +663,12 @@ area.addEventListener("drop", async (ev) => {
   const file = ev.dataTransfer?.files?.[0];
   if (!file) return;
   setMode("paste");
+  // Check the size before reading it. A limit applied after the whole file is
+  // in memory is not a limit.
+  if (file.size > MAX_RECORD_BYTES) {
+    show(`That file is ${file.size.toLocaleString()} bytes. The limit is ${MAX_RECORD_BYTES.toLocaleString()} — a Safe transaction is a few kilobytes, so something is wrong with the file rather than with the limit.`);
+    return;
+  }
   area.value = await file.text();
   await run();
 });

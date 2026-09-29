@@ -519,7 +519,7 @@ fn approval_requires_exactly_the_findings_the_review_numbers() {
     ));
 
     // Right code, a number that was never offered.
-    assert!(approve_plan(&r, &[(first, first_code), (u16::MAX, second_code)]).is_err());
+    assert!(approve_plan(&r, &[(first, first_code), (u32::MAX, second_code)]).is_err());
 
     // Extra acknowledgement.
     assert_eq!(
@@ -528,7 +528,7 @@ fn approval_requires_exactly_the_findings_the_review_numbers() {
             &[
                 (first, first_code),
                 (second, second_code),
-                (u16::MAX, "PAYMENT")
+                (u32::MAX, "PAYMENT")
             ]
         )
         .err(),
@@ -838,7 +838,7 @@ fn random_plans_never_panic_and_approved_plans_execute() {
         let Ok(r) = review_plan(&p) else { continue };
         let text = r.render();
         assert_eq!(text, r.render(), "rendering must be deterministic");
-        let acks: Vec<(u16, &str)> = r.required_acknowledgements();
+        let acks: Vec<(u32, &str)> = r.required_acknowledgements();
         let a = approve_plan(&r, &acks).unwrap();
         let out = execute(&p, &a, &mut Recorder::default()).unwrap();
         assert_eq!(out.len(), p.steps.len());
@@ -903,7 +903,7 @@ fn two_findings_with_the_same_code_in_one_step_are_two_requirements() {
     );
 
     // Acknowledging all but one of them is refused.
-    let all_but_one: Vec<(u16, &str)> = required.iter().copied().skip(1).collect();
+    let all_but_one: Vec<(u32, &str)> = required.iter().copied().skip(1).collect();
     assert!(
         approve_plan(&r, &all_but_one).is_err(),
         "a missing acknowledgement must refuse"

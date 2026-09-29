@@ -7,6 +7,65 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## v0.1.2 — 29 September 2026
+
+**Update from v0.1.1 if you use the authority engine.** The same reviewer went
+through the v0.1.1 fixes and found that one of them was incomplete and one of
+the claims made about it was false.
+
+### Fixed
+
+**An acknowledgement identifier could name two findings.** Finding numbers were
+`u16`, produced by clamping at 65,535. Past that every finding carried the same
+number, and in the plan engine — where requirements were held in a set — the
+duplicates merged. A 128-step plan producing 82,048 required findings collapsed
+to 65,536 distinct ones: **16,512 requirements silently disappeared, and the
+short list was accepted while the complete one was refused.**
+
+Identifiers are now `u32` and are never clamped. A review with more findings
+than `MAX_ACKNOWLEDGEABLE_FINDINGS` is refused outright rather than approved
+from whatever fits — a list nobody could read through is not a list anybody
+approved. The plan engine compares requirements as lists rather than through a
+set, so two that look alike stay two.
+
+*The transaction signer was affected differently: it compares lists already, so
+clamped numbers made a review impossible to approve rather than approvable on a
+partial list. Wrong, but wrong in the safe direction.*
+
+**The old acknowledgement syntax was silently reinterpreted.** v0.1.1 changed
+`authority --ack` from naming a step to naming a finding, and accepted the old
+`#5:CODE` form by stripping the `#`. That turned "step 5" into "finding 5" — a
+different finding, approved without comment. **The v0.1.1 changelog said the old
+form was "refused loudly". That was not true.** It is now: the tool refuses it
+and explains why, and the command's help no longer teaches the old form.
+
+**Input is bounded before it is read.** The JSON parser built the whole value
+before applying any limit, and the window read a dropped file entirely before
+looking at its size. A limit applied after the allocation it exists to prevent
+is not a limit. All three entry points — the parser, the window and the desktop
+command — now check the size first.
+
+### Corrected claims
+
+The desktop package description still promised "no network connection", the
+website's page description still said "No network access", and the release notes
+still called the canonical build "offline". Each now says what the README
+already said: reviewing is offline, fetching a queued transaction contacts
+Safe's service, and the canonical build compiles offline while its own bootstrap
+does not.
+
+### Also
+
+The plan fuzz target asked the engine for its requirements and handed them
+straight back, which checks nothing an implementation can get wrong on its own.
+It now asserts independently that there is one requirement per qualifying
+finding, that no two share an identifier, and that omitting any one of them
+refuses approval. Coverage rose from 1,995 to 2,036 edges.
+
+The review renderer built the numbered list once per step. On a long plan, with
+an arena that never frees, that cost as much as the plan had steps — enough to
+breach the signer's allocation budget, which is what caught it.
+
 ## v0.1.1 — 29 September 2026
 
 **Update from v0.1.0 if you review batched transactions.** A second independent

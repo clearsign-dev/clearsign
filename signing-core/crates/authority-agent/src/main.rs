@@ -23,9 +23,11 @@ authority — an agent proposes, you approve, then it runs.
   authority review <PROPOSAL.json>
       Read an agent's proposed tool calls, show what they actually do, and stop.
 
-  authority run <PROPOSAL.json> [--ack <CODE>]... [--perform-file-actions]
+  authority run <PROPOSAL.json> [--ack <N>:<CODE>]... [--perform-file-actions]
       The same review, then run the plan only if every BLIND and CRITICAL
-      finding is acknowledged exactly, by code, as `#<step>:<CODE>`.
+      finding is acknowledged exactly, as `<N>:<CODE>`, where N is the number
+      beside it in the review. Two findings in one step can share a code, so the
+      code alone does not say which one is being approved.
 
   authority tools
       List every tool an agent may propose on this device.
@@ -99,7 +101,7 @@ fn run_command(args: &[String], execute_it: bool) -> ExitCode {
         };
     }
 
-    let ack_refs: Vec<(u16, &str)> = match parse_acks(&acks) {
+    let ack_refs: Vec<(u32, &str)> = match parse_acks(&acks) {
         Ok(v) => v,
         Err(message) => return fail(&message),
     };
@@ -141,16 +143,25 @@ fn run_command(args: &[String], execute_it: bool) -> ExitCode {
 /// `2:SECRET_EGRESS` — the number beside the finding in the review, not the
 /// step. Two findings in one step can share a code, and then the code alone
 /// does not say which one is being acknowledged.
-fn parse_acks(acks: &[String]) -> Result<Vec<(u16, &str)>, String> {
+fn parse_acks(acks: &[String]) -> Result<Vec<(u32, &str)>, String> {
     let mut out = Vec::with_capacity(acks.len());
     for ack in acks {
-        // The review used to print a leading '#'. Still accepted, so an
-        // acknowledgement copied from an older transcript is not silently wrong.
-        let body = ack.strip_prefix('#').unwrap_or(ack);
-        let (number, code) = body
+        // `#5:CODE` used to mean step 5. It now means nothing, and accepting it
+        // by stripping the '#' silently turned an old step number into a new
+        // finding number — a different finding, quietly approved. Refuse it and
+        // say why.
+        if let Some(rest) = ack.strip_prefix('#') {
+            return Err(format!(
+                "acknowledgement {ack:?} uses the old form, where the number was the step. \
+                 It is now the number beside the finding in the review, written without a '#'. \
+                 Read the review again and acknowledge what it numbers, rather than rewriting \
+                 this as {rest:?} — that would acknowledge a different finding."
+            ));
+        }
+        let (number, code) = ack
             .split_once(':')
             .ok_or_else(|| format!("acknowledgement {ack:?} should look like 2:SECRET_EGRESS"))?;
-        let n: u16 = number.parse().map_err(|_| {
+        let n: u32 = number.parse().map_err(|_| {
             format!("acknowledgement {ack:?} does not start with the number beside the finding")
         })?;
         out.push((n, code));

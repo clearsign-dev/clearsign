@@ -61,7 +61,7 @@ struct Session {
     decoder: Decoder,
     request: Option<SignRequest>,
     review: Option<Review>,
-    acks: Vec<(u16, String)>,
+    acks: Vec<(u32, String)>,
 }
 
 impl Session {
@@ -158,7 +158,7 @@ impl Session {
             (Some(r), Some(v)) => (r, v),
             _ => return Err(String::from("nothing has been reviewed yet")),
         };
-        let acks: Vec<(u16, &str)> = self.acks.iter().map(|(n, c)| (*n, c.as_str())).collect();
+        let acks: Vec<(u32, &str)> = self.acks.iter().map(|(n, c)| (*n, c.as_str())).collect();
         let approval = approve(review, &acks).map_err(|e| e.to_string())?;
         let index = account_index_for_path(request)?;
 
@@ -248,9 +248,9 @@ impl Session {
 }
 
 /// `2:UNLIMITED_APPROVAL` -> `(2, "UNLIMITED_APPROVAL")`.
-fn parse_ack(spec: &str) -> Option<(u16, &str)> {
+fn parse_ack(spec: &str) -> Option<(u32, &str)> {
     let (n, code) = spec.split_once(':')?;
-    let n: u16 = n.trim().parse().ok()?;
+    let n: u32 = n.trim().parse().ok()?;
     let code = code.trim();
     if code.is_empty() {
         None

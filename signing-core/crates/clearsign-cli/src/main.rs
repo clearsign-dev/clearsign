@@ -283,13 +283,13 @@ struct SignFlags {
 ///
 /// The number is the one printed beside the finding, so acknowledging two
 /// findings that share a code takes two different acknowledgements.
-fn parse_acks(acks: &[String]) -> Result<Vec<(u16, &str)>, String> {
+fn parse_acks(acks: &[String]) -> Result<Vec<(u32, &str)>, String> {
     let mut out = Vec::with_capacity(acks.len());
     for ack in acks {
         let (n, code) = ack.split_once(':').ok_or_else(|| {
             format!("--ack {ack:?} should be the number and code shown in the review, like 2:UNLIMITED_APPROVAL")
         })?;
-        let n: u16 = n.trim().parse().map_err(|_| {
+        let n: u32 = n.trim().parse().map_err(|_| {
             format!("--ack {ack:?} does not start with the number shown beside the finding")
         })?;
         out.push((n, code.trim()));

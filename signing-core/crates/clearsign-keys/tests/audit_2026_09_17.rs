@@ -139,7 +139,7 @@ fn audit_f6_one_ack_code_covers_two_distinct_findings() {
 
     // Acknowledging one of them twice must not stand in for the other.
     let (first, _) = unlimited_acks[0];
-    let doubled: Vec<(u16, &str)> = required
+    let doubled: Vec<(u32, &str)> = required
         .iter()
         .map(|(n, c)| {
             if *c == "UNLIMITED_APPROVAL" {
@@ -155,6 +155,6 @@ fn audit_f6_one_ack_code_covers_two_distinct_findings() {
     );
 
     // The honest set works.
-    let honest: Vec<(u16, &str)> = required.iter().map(|(n, c)| (*n, *c)).collect();
+    let honest: Vec<(u32, &str)> = required.iter().map(|(n, c)| (*n, *c)).collect();
     assert!(approve(&review, &honest).is_ok(), "codes: {codes:?}");
 }

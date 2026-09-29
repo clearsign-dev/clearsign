@@ -38,10 +38,15 @@ impl Approval<'_> {
 /// looking like it happened rather than happening.
 pub fn approve<'r>(
     review: &'r Review,
-    acknowledged: &[(u16, &str)],
+    acknowledged: &[(u32, &str)],
 ) -> Result<Approval<'r>, KeyError> {
     let target = review.signing_target().ok_or(KeyError::NotSignable)?;
-    let required: Vec<(u16, &'static str)> = review.required_acknowledgements();
+    // A review too long to read through is refused rather than approved from a
+    // partial list. Checked before numbering, so no identifier is ever reused.
+    if review.too_many_to_acknowledge() {
+        return Err(KeyError::TooManyFindings);
+    }
+    let required: Vec<(u32, &'static str)> = review.required_acknowledgements();
 
     for (n, code) in &required {
         if !acknowledged.iter().any(|(m, c)| m == n && c == code) {

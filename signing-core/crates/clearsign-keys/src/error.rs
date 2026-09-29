@@ -20,6 +20,9 @@ pub enum KeyError {
     UnacknowledgedFinding(&'static str),
     /// An acknowledgement was given for a finding that is not present, or not one that needs acknowledging.
     UnexpectedAcknowledgement,
+    /// More findings than can be acknowledged one by one; see
+    /// `MAX_ACKNOWLEDGEABLE_FINDINGS`.
+    TooManyFindings,
     /// Signing failed inside the ECDSA implementation.
     Signing,
     /// The produced signature did not verify against the signing key. Nothing was released.
@@ -48,6 +51,9 @@ impl fmt::Display for KeyError {
             KeyError::NotSignable => {
                 f.write_str("this review is display-only and cannot be signed")
             }
+            KeyError::TooManyFindings => f.write_str(
+                "this review has more findings than can be acknowledged one by one; it cannot be approved",
+            ),
             KeyError::UnacknowledgedFinding(code) => {
                 write!(
                     f,

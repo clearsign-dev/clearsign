@@ -5,6 +5,9 @@
 //! single-byte change to a text field changes the fingerprint.
 
 use authority::*;
+use clearsign::Severity;
+use std::collections::BTreeSet;
+
 use libfuzzer_sys::fuzz_target;
 
 struct Bytes<'a>(&'a [u8]);
@@ -69,10 +72,46 @@ fuzz_target!(|data: &[u8]| {
     assert_eq!(text, review.render());
     assert!(!text.contains('\u{1b}'), "raw escape character reached the review");
 
-    // Ask the review what it requires rather than deriving it here. The previous
-    // version deduplicated by (step, code) — the same assumption the engine was
-    // making — so the oracle agreed with the bug and could never have found it.
+    // The requirements come from the review, but they are then checked against
+    // properties stated here. An oracle that only asks the implementation what
+    // it wants and hands it back agrees with whatever the implementation
+    // believes — which is how a previous version of this file agreed with a bug
+    // for about 6.5 million executions.
     let acks = review.required_acknowledgements();
+
+    // 1. One requirement per finding that needs one. Not fewer: two findings
+    //    that look alike are still two findings.
+    let expected = review
+        .findings()
+        .iter()
+        .filter(|f| f.severity >= Severity::Blind)
+        .count();
+    assert_eq!(
+        acks.len(),
+        expected,
+        "requirements were lost between the findings and the list to acknowledge"
+    );
+
+    // 2. No two requirements share an identifier. An identifier that names two
+    //    findings lets confirming one confirm the other.
+    let distinct: BTreeSet<_> = acks.iter().collect();
+    assert_eq!(distinct.len(), acks.len(), "two requirements share an identifier");
+
+    // 3. Leaving any single requirement out must refuse. Checked for every one
+    //    of them, not just the first.
+    for skip in 0..acks.len() {
+        let short: Vec<_> = acks
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != skip)
+            .map(|(_, a)| *a)
+            .collect();
+        assert!(
+            approve_plan(&review, &short).is_err(),
+            "approval accepted a list missing requirement {skip}"
+        );
+    }
+
     let approval = approve_plan(&review, &acks).expect("exact acknowledgements must be accepted");
     let out = execute(&plan, &approval, &mut Echo).expect("approved valid plan must run");
     assert_eq!(out.len(), plan.steps.len());

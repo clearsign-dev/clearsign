@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "ClearSign",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "identifier": "com.anticsdecoded.clearsign",
   "build": {
     "frontendDist": "../src"
@@ -40,6 +40,6 @@
       "icons/icon.ico"
     ],
     "shortDescription": "See what a transaction really does before you approve it.",
-    "longDescription": "Reads a Safe transaction and says what those bytes actually do, from the bytes alone. It holds no keys, signs nothing, and makes no network connection. Your hardware wallet still signs; this is the second pair of eyes."
+    "longDescription": "Reads a Safe transaction and says what those bytes actually do, from the bytes alone. It holds no keys and signs nothing; reviewing happens offline, and the only thing that reaches the network is fetching a queued transaction by its hash from Safe's service. Your hardware wallet still signs; this is the second pair of eyes."
   }
 }

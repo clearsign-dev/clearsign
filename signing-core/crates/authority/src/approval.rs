@@ -1,6 +1,6 @@
 //! Binding a person's approval to one exact plan.
 
-use alloc::collections::BTreeSet;
+use alloc::vec::Vec;
 use core::marker::PhantomData;
 
 use crate::ApprovalError;
@@ -28,20 +28,34 @@ impl ApprovedPlan<'_> {
 /// to two different spenders.
 pub fn approve_plan<'r>(
     review: &'r PlanReview<'_>,
-    acknowledged: &[(u16, &str)],
+    acknowledged: &[(u32, &str)],
 ) -> Result<ApprovedPlan<'r>, ApprovalError> {
-    let required: BTreeSet<(u16, &'static str)> =
-        review.required_acknowledgements().into_iter().collect();
-    let given: BTreeSet<(u16, &str)> = acknowledged.iter().copied().collect();
-
-    if let Some((number, code)) = required.iter().find(|(n, c)| !given.contains(&(*n, *c))) {
-        return Err(ApprovalError::Unacknowledged {
-            number: *number,
-            code,
-        });
+    // A review too long to read through is refused rather than approved from a
+    // partial list. Checked before numbering, so no identifier is ever reused.
+    if review.too_many_to_acknowledge() {
+        return Err(ApprovalError::TooManyFindings);
     }
-    if given.len() != required.len() || acknowledged.len() != given.len() {
+    let required: Vec<(u32, &'static str)> = review.required_acknowledgements();
+
+    // Compared as lists, not through a set. A set silently merged two
+    // requirements that happened to look alike, which is how confirming one
+    // unlimited approval came to confirm two.
+    for (n, code) in &required {
+        if !acknowledged.iter().any(|(m, c)| m == n && *c == *code) {
+            return Err(ApprovalError::Unacknowledged { number: *n, code });
+        }
+    }
+    if acknowledged.len() != required.len() {
         return Err(ApprovalError::UnexpectedAcknowledgement);
+    }
+    for (i, (n, code)) in acknowledged.iter().enumerate() {
+        let repeated = acknowledged
+            .iter()
+            .skip(i.saturating_add(1))
+            .any(|(m, c)| m == n && *c == *code);
+        if repeated || !required.iter().any(|(m, c)| m == n && *c == *code) {
+            return Err(ApprovalError::UnexpectedAcknowledgement);
+        }
     }
     Ok(ApprovedPlan {
         fingerprint: review.fingerprint,

@@ -164,7 +164,11 @@ jobs:
 
           **Reproducibility.** The `aarch64-unknown-linux-musl` build is the one
           you can check, and it is built here the same way you would rebuild it:
-          in the canonical container, offline, with build paths remapped out.
+          in the canonical container, with build paths remapped out and the
+          compile itself offline from a copied registry cache. The container's
+          own bootstrap is not offline — it installs three packages with apt and
+          downloads rustup, neither pinned by digest — so the environment is
+          named and reproducible in practice rather than sealed.
           Rebuild it with `signing-core/scripts/reproducible-cross-check.sh` and
           compare against `signing-core/EXPECTED-HASHES.txt`.
 

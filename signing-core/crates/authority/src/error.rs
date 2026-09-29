@@ -90,9 +90,12 @@ pub enum ApprovalError {
     /// A BLIND or CRITICAL finding was not acknowledged. Identified by the
     /// number the review displays, because a code alone is not unique within a
     /// step.
-    Unacknowledged { number: u16, code: &'static str },
+    Unacknowledged { number: u32, code: &'static str },
     /// Acknowledgements must match exactly the findings that need them.
     UnexpectedAcknowledgement,
+    /// More findings than can be acknowledged one by one; see
+    /// `clearsign::MAX_ACKNOWLEDGEABLE_FINDINGS`.
+    TooManyFindings,
 }
 
 impl fmt::Display for ApprovalError {
@@ -101,6 +104,9 @@ impl fmt::Display for ApprovalError {
             ApprovalError::Unacknowledged { number, code } => {
                 write!(f, "risk {number}:{code} must be acknowledged")
             }
+            ApprovalError::TooManyFindings => f.write_str(
+                "this plan has more findings than can be acknowledged one by one; it cannot be approved",
+            ),
             ApprovalError::UnexpectedAcknowledgement => {
                 f.write_str("acknowledgements must match exactly the risks that require them")
             }
