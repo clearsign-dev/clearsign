@@ -3,10 +3,8 @@
 use alloc::collections::BTreeSet;
 use core::marker::PhantomData;
 
-use clearsign::Severity;
-
+use crate::ApprovalError;
 use crate::policy::PlanReview;
-use crate::{ApprovalError, StepId};
 
 /// Permission to run exactly one plan. No public constructor.
 pub struct ApprovedPlan<'r> {
@@ -21,21 +19,26 @@ impl ApprovedPlan<'_> {
 }
 
 /// Approve a reviewed plan. `acknowledged` must list **exactly** every BLIND and
-/// CRITICAL finding as `(step, code)`: none missing, no extras, no duplicates.
+/// CRITICAL finding as `(number, code)`, using the numbers the review displays:
+/// none missing, no extras, no duplicates.
+///
+/// Numbered rather than keyed by `(step, code)`, because two findings sharing a
+/// code within one step are two separate requirements. Keying by code merged
+/// them, so acknowledging "the unlimited approval" once approved two of them,
+/// to two different spenders.
 pub fn approve_plan<'r>(
     review: &'r PlanReview<'_>,
-    acknowledged: &[(StepId, &str)],
+    acknowledged: &[(u16, &str)],
 ) -> Result<ApprovedPlan<'r>, ApprovalError> {
-    let required: BTreeSet<(StepId, &'static str)> = review
-        .findings
-        .iter()
-        .filter(|f| f.severity >= Severity::Blind)
-        .map(|f| (f.step, f.code))
-        .collect();
-    let given: BTreeSet<(StepId, &str)> = acknowledged.iter().copied().collect();
+    let required: BTreeSet<(u16, &'static str)> =
+        review.required_acknowledgements().into_iter().collect();
+    let given: BTreeSet<(u16, &str)> = acknowledged.iter().copied().collect();
 
-    if let Some((step, code)) = required.iter().find(|(s, c)| !given.contains(&(*s, *c))) {
-        return Err(ApprovalError::Unacknowledged { step: *step, code });
+    if let Some((number, code)) = required.iter().find(|(n, c)| !given.contains(&(*n, *c))) {
+        return Err(ApprovalError::Unacknowledged {
+            number: *number,
+            code,
+        });
     }
     if given.len() != required.len() || acknowledged.len() != given.len() {
         return Err(ApprovalError::UnexpectedAcknowledgement);

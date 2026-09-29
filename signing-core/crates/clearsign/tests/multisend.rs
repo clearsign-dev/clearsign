@@ -275,3 +275,75 @@ fn lookup_requires_both_the_address_and_the_chain() {
         multisend::NotABatch::UnknownAddress
     );
 }
+
+/// Pack one MultiSend element: operation, to, value, data length, data.
+fn element(out: &mut Vec<u8>, operation: u8, to: [u8; 20], data: &[u8]) {
+    out.push(operation);
+    out.extend_from_slice(&to);
+    out.extend_from_slice(&[0u8; 32]); // value 0
+    let mut len = [0u8; 32];
+    len[24..].copy_from_slice(&(data.len() as u64).to_be_bytes());
+    out.extend_from_slice(&len);
+    out.extend_from_slice(data);
+}
+
+/// Wrap packed elements in `multiSend(bytes)` the way the ABI encodes it.
+fn multi_send_calldata(packed: &[u8]) -> Vec<u8> {
+    let mut out = Vec::new();
+    out.extend_from_slice(&[0x8d, 0x80, 0xff, 0x0a]);
+    let mut offset = [0u8; 32];
+    offset[31] = 0x20;
+    out.extend_from_slice(&offset);
+    let mut len = [0u8; 32];
+    len[24..].copy_from_slice(&(packed.len() as u64).to_be_bytes());
+    out.extend_from_slice(&len);
+    out.extend_from_slice(packed);
+    while out.len() % 32 != 4 {
+        out.push(0);
+    }
+    out
+}
+
+/// `approve(spender, 2^256-1)`.
+fn approve_max(spender: [u8; 20]) -> Vec<u8> {
+    let mut d = vec![0x09, 0x5e, 0xa7, 0xb3];
+    d.extend_from_slice(&[0u8; 12]);
+    d.extend_from_slice(&spender);
+    d.extend_from_slice(&[0xffu8; 32]);
+    d
+}
+
+#[test]
+fn a_dangerous_call_past_the_display_limit_is_still_named() {
+    // A batch long enough that the last call is never displayed. The hidden
+    // call grants an unlimited approval — the thing INV-6 says must be
+    // CRITICAL. Reporting only "some calls are not shown" is not the same as
+    // saying what they do: an operator who acknowledges a long batch must not
+    // be signing away every token they hold without being told.
+    const USDC: &str = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+    let mut packed = Vec::new();
+    for _ in 0..MAX_BATCH_CALLS {
+        element(&mut packed, 0, addr(NOT_MULTISEND), &[]);
+    }
+    element(
+        &mut packed,
+        0,
+        addr(USDC),
+        &approve_max(addr(NOT_MULTISEND)),
+    );
+
+    let calldata = multi_send_calldata(&packed);
+    let tx = batch_tx(MULTISEND_1_3_0, &format!("0x{}", hex::encode(&calldata)));
+    let review = review_safe_transaction(&tx, DomainVersion::V1_3Plus);
+    let found = codes(&review);
+
+    assert!(
+        found.contains(&"MULTISEND_CALLS_NOT_SHOWN"),
+        "the batch should say some calls are not shown, got {found:?}"
+    );
+    assert!(
+        found.contains(&"UNLIMITED_APPROVAL"),
+        "a hidden call granting an unlimited approval must still be named CRITICAL, got {found:?}"
+    );
+    assert_eq!(max_severity(&review), Severity::Critical);
+}

@@ -12,9 +12,16 @@ what looked like an ordinary token transfer. What they approved was a
 balance.
 
 ClearSign decodes the transaction in front of you from the bytes themselves,
-with no network access, no knowledge of your wallet, and no input from any
-service — including the one that showed it to you. It holds no keys and signs
-nothing. Your hardware wallet still does that.
+with no knowledge of your wallet and no input from any service — including the
+one that showed it to you. It holds no keys and signs nothing. Your hardware
+wallet still does that.
+
+**On network access, precisely.** The decoder never opens a socket: paste a
+transaction, or drop a file, and nothing leaves the machine. The application
+also offers to *fetch* a queued transaction by its hash, and that one feature
+contacts Safe's transaction service — nothing else, ever. What comes back is
+then decoded from its bytes, and its own `dataDecoded` field is ignored. The
+signer image has no network stack compiled into its kernel at all.
 
 > **Early development. Unaudited beyond one review. Not for real funds.**
 >

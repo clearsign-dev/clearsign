@@ -84,7 +84,11 @@ if [[ "$A" == "$B" ]]; then
   {
     echo "# The signer binaries, as built in the canonical environment."
     echo "# Reproduce with signing-core/scripts/reproducible-cross-check.sh."
-    echo "# Environment: $DEBIAN_BUILD_IMAGE, Rust $TOOLCHAIN, target $TARGET, offline."
+    echo "# Environment: $DEBIAN_BUILD_IMAGE, Rust $TOOLCHAIN, target $TARGET."
+    echo "# The compile is offline, from a copied registry cache. The container's"
+    echo "# own bootstrap is not: it apt-gets curl, gcc and libc6-dev, and downloads"
+    echo "# rustup. Those are not pinned by digest, so the environment is named and"
+    echo "# reproducible in practice rather than sealed."
     echo "# Anything built elsewhere, including on the maintainer's own machine, may"
     echo "# differ: rustc does not promise identical output across compiler hosts."
     echo "$A"

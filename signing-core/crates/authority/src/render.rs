@@ -61,12 +61,17 @@ impl PlanReview<'_> {
             if step.action.is_irreversible() {
                 out.push_str(&line("Reversible", "no"));
             }
-            let mut step_findings: Vec<_> =
-                self.findings.iter().filter(|f| f.step == step.id).collect();
-            step_findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
-            for f in step_findings {
+            // Numbered across the whole review, so what a step displays is what
+            // the operator quotes back when approving.
+            let mut step_findings: Vec<_> = self
+                .numbered()
+                .into_iter()
+                .filter(|(_, f)| f.step == step.id)
+                .collect();
+            step_findings.sort_by_key(|(_, f)| core::cmp::Reverse(f.severity));
+            for (number, f) in step_findings {
                 out.push_str(&format!(
-                    "  [{}] {}: {}\n",
+                    "  [{}] {number}:{}: {}\n",
                     f.severity.label(),
                     f.code,
                     f.message
@@ -98,10 +103,9 @@ impl PlanReview<'_> {
         out.push_str(&line("Data leaves device", &format!("{leaving} step(s)")));
         out.push_str(&line("Moves money or funds", &format!("{money} step(s)")));
         let needing: Vec<String> = self
-            .findings
-            .iter()
-            .filter(|f| f.severity >= Severity::Blind)
-            .map(|f| format!("#{}:{}", f.step.0, f.code))
+            .required_acknowledgements()
+            .into_iter()
+            .map(|(n, code)| format!("{n}:{code}"))
             .collect();
         if !needing.is_empty() {
             out.push_str(&line("Must acknowledge", &needing.join(", ")));

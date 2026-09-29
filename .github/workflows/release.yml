@@ -131,7 +131,12 @@ jobs:
           set -euo pipefail
           cat > notes.md <<'NOTES'
           A tool for reading a Safe transaction before you approve it. It holds no
-          keys, signs nothing, and never touches a network.
+          keys and signs nothing.
+
+          The decoder never opens a socket. Paste a transaction and nothing
+          leaves the machine. The one feature that does reach the network is
+          fetching a queued transaction by its hash, which contacts Safe's
+          transaction service and nothing else.
 
           Start with `README.md` in the archive, or
           `docs/06-using-it-before-you-sign.md` in the repository.

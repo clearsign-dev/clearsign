@@ -87,8 +87,10 @@ impl fmt::Display for PlanError {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ApprovalError {
-    /// A BLIND or CRITICAL finding was not acknowledged.
-    Unacknowledged { step: StepId, code: &'static str },
+    /// A BLIND or CRITICAL finding was not acknowledged. Identified by the
+    /// number the review displays, because a code alone is not unique within a
+    /// step.
+    Unacknowledged { number: u16, code: &'static str },
     /// Acknowledgements must match exactly the findings that need them.
     UnexpectedAcknowledgement,
 }
@@ -96,8 +98,8 @@ pub enum ApprovalError {
 impl fmt::Display for ApprovalError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ApprovalError::Unacknowledged { step, code } => {
-                write!(f, "risk {code} in step #{} must be acknowledged", step.0)
+            ApprovalError::Unacknowledged { number, code } => {
+                write!(f, "risk {number}:{code} must be acknowledged")
             }
             ApprovalError::UnexpectedAcknowledgement => {
                 f.write_str("acknowledgements must match exactly the risks that require them")
