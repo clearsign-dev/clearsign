@@ -73,6 +73,18 @@ A fuzz target was building its acknowledgements by deduplicating on
 the bug and could never have found it. About 6.5 million executions proved
 nothing on that path. It now asks the review what it requires.
 
+### Known issue in the v0.1.1 downloads
+
+The installers attached to v0.1.1 are named `ClearSign_0.1.0_*` and the
+application's own build information says `0.1.0`. The version lives in three
+files, none of which is the tag, and none of them were bumped. **The contents
+are v0.1.1** — the command-line archives and the reproducible binary are
+correct, and the binary's hash matches what `EXPECTED-HASHES.txt` records for
+this release.
+
+Fixed for the next release, which also refuses to publish if the application's
+version and the tag disagree.
+
 ## v0.1.0 — 28 September 2026
 
 First release. A tool for reading a Safe transaction before you approve it: it

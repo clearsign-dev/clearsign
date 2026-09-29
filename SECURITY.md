@@ -75,6 +75,13 @@ These are real, and reporting them tells me nothing new:
   that gate on your own machine is not a finding; it is the door being where the
   sign says it is.
 - **The released binaries are not code-signed or notarised.**
+- **`glib` 0.18.5 carries a known unsoundness** (`VariantStrIter`'s `Iterator`
+  and `DoubleEndedIterator` impls). It is pulled in by the whole GTK stack —
+  `gtk`, `webkit2gtk`, `gdk`, `pango` — which is Tauri's Linux webview, so it is
+  not compiled into the macOS or Windows builds at all and cannot move to 0.20
+  until Tauri's Linux backend does. Reported here rather than left to be
+  discovered. The signing core does not depend on it; its decoder has one direct
+  dependency.
 
 ## Scope
 
