@@ -1,9 +1,10 @@
 # Contributing
 
-The most useful thing anyone can send is **a transaction ClearSign read badly**
-— one it called safe that was not, one it refused that it should have decoded,
-or one whose hash it got wrong. Open an issue with the transaction, the chain,
-and what you expected. That is worth more than a patch.
+Bug reports should include the ClearSign version, chain, input format and
+expected result. A public historical transaction is a useful reproducer; do not
+publish private keys, recovery phrases or confidential transaction data.
+Incorrect hashes, misleading descriptions and unexpected refusals are all
+worth reporting.
 
 If it is a security problem, do not open an issue. See [SECURITY.md](SECURITY.md).
 
@@ -11,7 +12,7 @@ If it is a security problem, do not open an issue. See [SECURITY.md](SECURITY.md
 
 ```sh
 cd signing-core
-cargo test --workspace --release      # 170 tests
+cargo test --workspace --release --locked
 cargo clippy --workspace --all-targets -- -D warnings
 cargo fmt --all --check
 ```
@@ -28,10 +29,10 @@ sent back however good it is otherwise.
 - **The decoder cannot panic.** `clippy` denies indexing, `unwrap`, `expect`,
   `panic` and unchecked arithmetic in the decoder and key crates. `unsafe` is
   forbidden outright. Return a typed error instead.
-- **Nothing untrusted is ever displayed.** Every value shown must be derived
-  from the bytes being signed. Not a label from an API, not a name from a token
-  list, not a `dataDecoded` field. If the bytes do not say it, it does not
-  appear.
+- **Keep signed fields separate from external claims.** Derive transaction
+  fields from the input bytes, escape untrusted text and label transport
+  metadata explicitly. Do not substitute API descriptions, token names or
+  `dataDecoded` for decoding. A selector match is not proof of contract behaviour.
 - **Anything not fully understood is BLIND.** A guess that looks like an answer
   is the failure this project exists to prevent. Refusing is a feature.
 - **The v1 selector set is closed.** `multiSend(bytes)` is the last selector v1
@@ -57,10 +58,9 @@ cd signing-core/fuzz && cargo +nightly fuzz run <target> -- -max_total_time=60
 
 ## Pull requests
 
-Write the description as prose, in whatever voice is yours. Say what changed and
-why it needed changing. If you found something surprising on the way, that is
-usually the most valuable paragraph — several of the fixes in this repository
-exist because someone wrote down what confused them.
+Describe the behaviour changed, the reason for the change and how it was tested.
+Include compatibility changes and remaining limitations. Distinguish checks
+actually run from checks still needed; record review provenance accurately.
 
 Commits carry a `Co-Authored-By` line when that is honest. Nothing else is
 required.
