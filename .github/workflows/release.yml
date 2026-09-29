@@ -129,7 +129,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          cat > notes.md <<'NOTES'
+          # The section of CHANGELOG.md for this tag leads the notes. Somebody
+          # on the Releases page should be able to see what they are getting and
+          # what staying put costs them, without opening the repository.
+          if awk -v tag="## ${GITHUB_REF_NAME} " '
+                index($0, tag) == 1 { found = 1; next }
+                found && /^## / { exit }
+                found { print }
+              ' CHANGELOG.md > changes.md && [ -s changes.md ]; then
+            cat changes.md > notes.md
+            printf '\n---\n\n' >> notes.md
+          else
+            echo "::warning::CHANGELOG.md has no section for ${GITHUB_REF_NAME}."
+            : > notes.md
+          fi
+          cat >> notes.md <<'NOTES'
           A tool for reading a Safe transaction before you approve it. It holds no
           keys and signs nothing.
 

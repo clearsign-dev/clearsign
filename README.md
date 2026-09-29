@@ -109,8 +109,9 @@ approve transactions on a Safe, or with [the review package](docs/05-review-pack
 if you are here to attack it. [docs/](docs/) has the rest: the threat model, the
 verification record, the platform architecture and the decisions behind them.
 
-Security reports go through GitHub's private advisory form — see
-[SECURITY.md](SECURITY.md).
+[CHANGELOG.md](CHANGELOG.md) says what changed in each release and what staying
+on an older one costs you. Security reports go through GitHub's private advisory
+form — see [SECURITY.md](SECURITY.md).
 
 ## Licence
 
