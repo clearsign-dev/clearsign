@@ -64,7 +64,7 @@ fn run_command(args: &[String], execute_it: bool) -> ExitCode {
         match a.as_str() {
             "--ack" => match it.next() {
                 Some(code) => acks.push(code.clone()),
-                None => return fail("--ack needs a finding code, as #<step>:<CODE>"),
+                None => return fail("--ack needs a finding, as <number>:<CODE>"),
             },
             "--perform-file-actions" => perform = true,
             other if path.is_none() => path = Some(String::from(other)),
@@ -99,7 +99,7 @@ fn run_command(args: &[String], execute_it: bool) -> ExitCode {
         };
     }
 
-    let ack_refs: Vec<(authority::StepId, &str)> = match parse_acks(&acks) {
+    let ack_refs: Vec<(u16, &str)> = match parse_acks(&acks) {
         Ok(v) => v,
         Err(message) => return fail(&message),
     };
@@ -136,21 +136,24 @@ fn run_command(args: &[String], execute_it: bool) -> ExitCode {
     }
 }
 
-/// `--ack #5:SECRET_EGRESS` names the step as well as the finding, so an
+/// `--ack 2:SECRET_EGRESS` names the finding by the number beside it, so an
 /// acknowledgement cannot drift onto a different step of a changed plan.
-fn parse_acks(acks: &[String]) -> Result<Vec<(authority::StepId, &str)>, String> {
+/// `2:SECRET_EGRESS` — the number beside the finding in the review, not the
+/// step. Two findings in one step can share a code, and then the code alone
+/// does not say which one is being acknowledged.
+fn parse_acks(acks: &[String]) -> Result<Vec<(u16, &str)>, String> {
     let mut out = Vec::with_capacity(acks.len());
     for ack in acks {
-        let body = ack
-            .strip_prefix('#')
-            .ok_or_else(|| format!("acknowledgement {ack:?} should look like #5:SECRET_EGRESS"))?;
-        let (step, code) = body
+        // The review used to print a leading '#'. Still accepted, so an
+        // acknowledgement copied from an older transcript is not silently wrong.
+        let body = ack.strip_prefix('#').unwrap_or(ack);
+        let (number, code) = body
             .split_once(':')
-            .ok_or_else(|| format!("acknowledgement {ack:?} should look like #5:SECRET_EGRESS"))?;
-        let id: u16 = step
-            .parse()
-            .map_err(|_| format!("acknowledgement {ack:?} does not name a step number"))?;
-        out.push((authority::StepId(id), code));
+            .ok_or_else(|| format!("acknowledgement {ack:?} should look like 2:SECRET_EGRESS"))?;
+        let n: u16 = number.parse().map_err(|_| {
+            format!("acknowledgement {ack:?} does not start with the number beside the finding")
+        })?;
+        out.push((n, code));
     }
     Ok(out)
 }

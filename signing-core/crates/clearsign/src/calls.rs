@@ -3,8 +3,10 @@
 //! The rules here are the product. Each finding code is stable and documented,
 //! because auditors and other wallets may key automation off them.
 
+use alloc::collections::BTreeMap;
 use alloc::format;
 use alloc::string::String;
+use alloc::vec::Vec;
 
 use crate::abi::Args;
 use crate::address::{self, Address};
@@ -405,35 +407,56 @@ fn review_batch(
 
     // Every call is judged, including the ones there is no room to display. An
     // operator who acknowledges "this batch is too long" must not be signing an
-    // inner DELEGATECALL they were never shown.
+    // inner DELEGATECALL, an unlimited approval, or an owner change that they
+    // were never shown.
+    //
+    // Each hidden call goes through exactly the same rules as a displayed one,
+    // into a scratch review whose sections are then discarded. Only its findings
+    // survive, and they are grouped by code before being reported: a batch may
+    // hold a thousand calls, and a thousand separately acknowledgeable findings
+    // is not a review anybody reads.
     if let Some(hidden) = calls.get(shown..) {
-        let hidden_delegatecalls = hidden
-            .iter()
-            .filter(|c| matches!(c.operation, Operation::DelegateCall))
-            .count();
-        let hidden_invalid = hidden
-            .iter()
-            .filter(|c| matches!(c.operation, Operation::Invalid(_)))
-            .count();
-        if hidden_delegatecalls > 0 {
+        let mut by_code: BTreeMap<&'static str, (Severity, Vec<usize>)> = BTreeMap::new();
+        for (offset, call) in hidden.iter().enumerate() {
+            let position = shown.saturating_add(offset).saturating_add(1);
+            let mut scratch = Review::new("hidden batch call");
+            review_call(
+                &mut scratch,
+                "hidden batch call",
+                call.to,
+                call.value,
+                call.data,
+                CallContext {
+                    safe: ctx.safe,
+                    operation: call.operation,
+                    chain_id: ctx.chain_id,
+                    depth,
+                },
+            );
+            for f in scratch.findings() {
+                let entry = by_code.entry(f.code).or_insert((f.severity, Vec::new()));
+                if f.severity > entry.0 {
+                    entry.0 = f.severity;
+                }
+                entry.1.push(position);
+            }
+        }
+
+        for (code, (severity, positions)) in by_code {
             review.find(
-                Severity::Critical,
-                "SAFE_DELEGATECALL",
+                severity,
+                code,
                 format!(
-                    "{hidden_delegatecalls} of the {} calls in this batch are DELEGATECALLs that run \
-                     code with full control over this Safe, and they are past the {shown} shown \
-                     below. This is the pattern that emptied Bybit.",
-                    calls.len()
+                    "{} of the {} calls in this batch raise this, and they are past the {shown} \
+                     shown below: {}. What they do is judged here but cannot be read from the \
+                     screen.",
+                    positions.len(),
+                    calls.len(),
+                    list_positions(&positions),
                 ),
             );
         }
-        if hidden_invalid > 0 {
-            review.find(
-                Severity::Critical,
-                "SAFE_INVALID_OPERATION",
-                format!("{hidden_invalid} calls past the ones shown have an operation value that is neither CALL nor DELEGATECALL."),
-            );
-        }
+
         if !hidden.is_empty() {
             review.find(
                 Severity::Blind,
@@ -470,6 +493,24 @@ fn review_batch(
                 depth,
             },
         );
+    }
+}
+
+/// "33, 47 and 108", or "33, 47, 108 and 12 more". A finding naming a thousand
+/// call positions is a finding nobody finishes reading.
+fn list_positions(positions: &[usize]) -> String {
+    const NAMED: usize = 8;
+    let named: Vec<String> = positions
+        .iter()
+        .take(NAMED)
+        .map(|p| format!("{p}"))
+        .collect();
+    let rest = positions.len().saturating_sub(named.len());
+    let head = named.join(", ");
+    if rest > 0 {
+        format!("{head} and {rest} more")
+    } else {
+        head
     }
 }
 

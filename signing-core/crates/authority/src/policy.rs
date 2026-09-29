@@ -39,6 +39,32 @@ impl<'p> PlanReview<'p> {
         self.fingerprint
     }
 
+    /// Every BLIND and CRITICAL finding, numbered as the review displays them.
+    ///
+    /// Numbered, not keyed by code, because two findings with the same code in
+    /// the same step are two separate requirements: a step granting unlimited
+    /// approvals to two different spenders must be confirmed twice, not once.
+    /// `clearsign` makes the same distinction for a single transaction, and a
+    /// plan that merges them would quietly undo it.
+    pub fn required_acknowledgements(&self) -> Vec<(u16, &'static str)> {
+        self.numbered()
+            .into_iter()
+            .filter(|(_, f)| f.severity >= Severity::Blind)
+            .map(|(n, f)| (n, f.code))
+            .collect()
+    }
+
+    /// Findings in display order, each with the number shown beside it.
+    pub(crate) fn numbered(&self) -> Vec<(u16, &PlanFinding)> {
+        let mut findings: Vec<&PlanFinding> = self.findings.iter().collect();
+        findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
+        findings
+            .into_iter()
+            .enumerate()
+            .map(|(i, f)| (u16::try_from(i.saturating_add(1)).unwrap_or(u16::MAX), f))
+            .collect()
+    }
+
     pub fn findings(&self) -> &[PlanFinding] {
         &self.findings
     }

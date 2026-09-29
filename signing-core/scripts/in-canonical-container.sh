@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # The canonical build, run inside the pinned image. Everything the environment
 # can vary without changing the result is varied by the caller.
+#
+# Note on "offline": the cargo build below is offline, from a registry cache
+# copied in by the caller. This bootstrap is not — apt and rustup both reach the
+# network, and neither is pinned by digest. So the canonical environment is
+# named and reproducible in practice, not sealed. Pinning the bootstrap is the
+# obvious next step and is not done yet.
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq >/dev/null 2>&1

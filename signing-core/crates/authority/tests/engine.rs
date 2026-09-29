@@ -494,60 +494,62 @@ fn execution_order_follows_dependencies_not_listing_order() {
 // ------------------------------------------------------------------ approval
 
 #[test]
-fn approval_requires_exact_step_scoped_acknowledgements() {
+fn approval_requires_exactly_the_findings_the_review_numbers() {
     let p = injected_exfiltration();
     let r = review_plan(&p).unwrap();
+
+    // The numbers come from the review rather than being written down here, so
+    // the test says "acknowledge what you were shown" rather than encoding an
+    // ordering that is not the property under test.
+    let required = r.required_acknowledgements();
+    assert_eq!(required.len(), 2, "two secret egresses, got {required:?}");
+    assert!(required.iter().all(|(_, c)| *c == "SECRET_EGRESS"));
+    let (first, first_code) = required[0];
+    let (second, second_code) = required[1];
+
     assert!(matches!(
         approve_plan(&r, &[]),
         Err(ApprovalError::Unacknowledged { .. })
     ));
-    // Acknowledging only one of the two secret egress steps is not enough.
+
+    // Acknowledging one of the two is not enough.
     assert!(matches!(
-        approve_plan(&r, &[(StepId(4), "SECRET_EGRESS")]),
-        Err(ApprovalError::Unacknowledged {
-            step: StepId(2),
-            ..
-        })
+        approve_plan(&r, &[(second, second_code)]),
+        Err(ApprovalError::Unacknowledged { number, .. }) if number == first
     ));
-    // Right code, wrong step.
-    assert!(
-        approve_plan(
-            &r,
-            &[(StepId(2), "SECRET_EGRESS"), (StepId(3), "SECRET_EGRESS")]
-        )
-        .is_err()
-    );
+
+    // Right code, a number that was never offered.
+    assert!(approve_plan(&r, &[(first, first_code), (u16::MAX, second_code)]).is_err());
+
     // Extra acknowledgement.
     assert_eq!(
         approve_plan(
             &r,
             &[
-                (StepId(2), "SECRET_EGRESS"),
-                (StepId(4), "SECRET_EGRESS"),
-                (StepId(1), "PAYMENT")
+                (first, first_code),
+                (second, second_code),
+                (u16::MAX, "PAYMENT")
             ]
         )
         .err(),
         Some(ApprovalError::UnexpectedAcknowledgement)
     );
+
     // Duplicate acknowledgement.
     assert_eq!(
         approve_plan(
             &r,
             &[
-                (StepId(2), "SECRET_EGRESS"),
-                (StepId(4), "SECRET_EGRESS"),
-                (StepId(4), "SECRET_EGRESS")
+                (first, first_code),
+                (second, second_code),
+                (second, second_code)
             ]
         )
         .err(),
         Some(ApprovalError::UnexpectedAcknowledgement)
     );
-    let ok = approve_plan(
-        &r,
-        &[(StepId(2), "SECRET_EGRESS"), (StepId(4), "SECRET_EGRESS")],
-    )
-    .unwrap();
+
+    let ok = approve_plan(&r, &[(first, first_code), (second, second_code)]).unwrap();
     assert_eq!(ok.fingerprint(), r.fingerprint());
 }
 
@@ -836,14 +838,7 @@ fn random_plans_never_panic_and_approved_plans_execute() {
         let Ok(r) = review_plan(&p) else { continue };
         let text = r.render();
         assert_eq!(text, r.render(), "rendering must be deterministic");
-        let acks: Vec<(StepId, &str)> = r
-            .findings()
-            .iter()
-            .filter(|f| f.severity >= Severity::Blind)
-            .map(|f| (f.step, f.code))
-            .collect::<std::collections::BTreeSet<_>>()
-            .into_iter()
-            .collect();
+        let acks: Vec<(u16, &str)> = r.required_acknowledgements();
         let a = approve_plan(&r, &acks).unwrap();
         let out = execute(&p, &a, &mut Recorder::default()).unwrap();
         assert_eq!(out.len(), p.steps.len());
@@ -862,4 +857,56 @@ fn print_sample_review() {
         "{}",
         review_plan(&injected_exfiltration()).unwrap().render()
     );
+}
+
+/// An EIP-1559 transaction submitting a Safe batch that grants an unlimited
+/// approval to two different spenders. `clearsign` reports both, numbered, and
+/// requires each to be acknowledged separately.
+const TWO_UNLIMITED_APPROVALS: &str = "0x02f9034f0107843b9aca008506fc23ac00830186a0941db92e2eebc8e0c075a02bea49a2935bcd2dfcf480b903246a76120200000000000000000000000040a2accbd92bca938b02010e17a5b8929b49130d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000140000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001848d80ff0a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000013200a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b30000000000000000000000001111111111111111111111111111111111111111ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044095ea7b30000000000000000000000002222222222222222222222222222222222222222ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0";
+
+#[test]
+fn two_findings_with_the_same_code_in_one_step_are_two_requirements() {
+    // The transaction grants an unlimited approval to two different spenders.
+    // clearsign reports both and asks for both to be acknowledged. Copying them
+    // into a plan step must not merge them: "yes, the unlimited approval" said
+    // once would be approving two, to two different addresses.
+    let tx = clearsign::hex::decode(TWO_UNLIMITED_APPROVALS).unwrap();
+    let p = plan(
+        "Approve two spenders",
+        vec![step(
+            1,
+            "Sign the batch",
+            Action::SignTransaction { unsigned_tx: tx },
+            &[],
+        )],
+    );
+    let r = review_plan(&p).unwrap();
+
+    let unlimited = r
+        .findings()
+        .iter()
+        .filter(|f| f.code == "UNLIMITED_APPROVAL")
+        .count();
+    assert_eq!(unlimited, 2, "both approvals should be reported separately");
+
+    // Both must be acknowledged separately. Keyed by code they merged, and
+    // saying "yes, the unlimited approval" once approved two of them, to two
+    // different spenders.
+    let required = r.required_acknowledgements();
+    let unlimited_required = required
+        .iter()
+        .filter(|(_, c)| *c == "UNLIMITED_APPROVAL")
+        .count();
+    assert_eq!(
+        unlimited_required, 2,
+        "each approval is its own requirement, got {required:?}"
+    );
+
+    // Acknowledging all but one of them is refused.
+    let all_but_one: Vec<(u16, &str)> = required.iter().copied().skip(1).collect();
+    assert!(
+        approve_plan(&r, &all_but_one).is_err(),
+        "a missing acknowledgement must refuse"
+    );
+    assert!(approve_plan(&r, &required).is_ok());
 }

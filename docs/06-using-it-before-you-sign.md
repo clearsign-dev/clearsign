@@ -5,8 +5,11 @@ a DAO treasury, a protocol multisig. You do not need any hardware, and you do no
 need to change how you sign. This adds one step before you click approve.
 
 **What it does:** reads the transaction you are about to approve and tells you
-what those bytes actually do, from the bytes alone. It has no network access, no
-knowledge of your wallet, and no opinion from any service — including Safe's own.
+what those bytes actually do, from the bytes alone. It has no knowledge of your
+wallet and no opinion from any service — including Safe's own. The decoder never
+opens a socket; the one thing that reaches the network is the option to fetch a
+queued transaction by its hash from Safe's service, and what comes back is
+decoded from its bytes with its `dataDecoded` field ignored.
 
 **What it does not do:** hold your keys, sign anything, or talk to a chain. It
 reads and reports. Your existing hardware wallet still signs.
