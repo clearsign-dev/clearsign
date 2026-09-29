@@ -3,10 +3,8 @@
 //! require: no panic; deterministic rendering; approval with exactly the required
 //! acknowledgements always succeeds; the approved plan executes fully; any
 //! single-byte change to a text field changes the fingerprint.
-use std::collections::BTreeSet;
 
 use authority::*;
-use clearsign::Severity;
 use libfuzzer_sys::fuzz_target;
 
 struct Bytes<'a>(&'a [u8]);
@@ -71,14 +69,10 @@ fuzz_target!(|data: &[u8]| {
     assert_eq!(text, review.render());
     assert!(!text.contains('\u{1b}'), "raw escape character reached the review");
 
-    let acks: Vec<(StepId, &str)> = review
-        .findings()
-        .iter()
-        .filter(|f| f.severity >= Severity::Blind)
-        .map(|f| (f.step, f.code))
-        .collect::<BTreeSet<_>>()
-        .into_iter()
-        .collect();
+    // Ask the review what it requires rather than deriving it here. The previous
+    // version deduplicated by (step, code) — the same assumption the engine was
+    // making — so the oracle agreed with the bug and could never have found it.
+    let acks = review.required_acknowledgements();
     let approval = approve_plan(&review, &acks).expect("exact acknowledgements must be accepted");
     let out = execute(&plan, &approval, &mut Echo).expect("approved valid plan must run");
     assert_eq!(out.len(), plan.steps.len());
