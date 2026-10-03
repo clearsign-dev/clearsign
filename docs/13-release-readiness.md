@@ -102,7 +102,10 @@ substitutes for retention or willingness to pay.
 - [Tauri native WebDriver](https://v2.tauri.app/develop/tests/webdriver/manual-setup/):
   used for the installed Linux application. Windows uses Microsoft's
   [WebView2 attach method](https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/webdriver#step-4b-attaching-microsoft-edge-webdriver-to-a-running-webview2-app),
-  with loopback debugging enabled only in the test process environment.
+  with loopback debugging enabled only for testing. Elevated CI runners require
+  an app-specific machine-policy override because WebView2 ignores environment
+  flags in elevated hosts; the workflow restores the prior value in `finally`.
+  See [Microsoft's elevated-host guidance](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/security#for-an-elevated-host-app-use-appropriate-override-flags).
   Neither adds an embedded test server or persistent automation configuration
   to the shipped application.
 - [glib advisory](https://rustsec.org/advisories/RUSTSEC-2024-0429.html) and

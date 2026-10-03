@@ -339,8 +339,25 @@ jobs:
           $destination = Join-Path $env:RUNNER_TEMP 'clearsign-installed'
           $process = Start-Process -FilePath $installer[0].FullName -ArgumentList '/S', "/D=$destination" -Wait -PassThru
           if ($process.ExitCode -ne 0) { throw "Installer failed: $($process.ExitCode)" }
-          node desktop/installed-smoke.mjs "$destination/clearsign-desktop.exe"
-          if ($LASTEXITCODE -ne 0) { throw 'Installed Windows application failed its smoke test' }
+          # Elevated WebView2 hosts ignore environment-based debugging flags.
+          # Scope the documented machine-policy override to this test app, and
+          # restore it even if the test fails. Nothing is added to the installer.
+          $policy = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2\AdditionalBrowserArguments'
+          $appName = 'clearsign-desktop.exe'
+          $previous = if (Test-Path $policy) { (Get-ItemProperty $policy).PSObject.Properties[$appName] } else { $null }
+          $previousValue = if ($null -ne $previous) { $previous.Value } else { $null }
+          New-Item -Path $policy -Force | Out-Null
+          try {
+            New-ItemProperty -Path $policy -Name $appName -PropertyType String -Value '--remote-debugging-port=9222 --remote-debugging-address=127.0.0.1' -Force | Out-Null
+            node desktop/installed-smoke.mjs "$destination/clearsign-desktop.exe"
+            if ($LASTEXITCODE -ne 0) { throw 'Installed Windows application failed its smoke test' }
+          } finally {
+            if ($null -ne $previous) {
+              Set-ItemProperty -Path $policy -Name $appName -Value $previousValue
+            } else {
+              Remove-ItemProperty -Path $policy -Name $appName -ErrorAction SilentlyContinue
+            }
+          }
       - name: Collect the installers
         # Keep failed candidates available for diagnosis, but the failed desktop
         # job still blocks the artifacts and publish jobs.
