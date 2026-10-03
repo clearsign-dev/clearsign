@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>ClearSign</title>
 <!-- No webfont. A tool whose value is that it contacts nothing should not ask
      Google for a typeface every time somebody opens it — that alone would tell
@@ -462,6 +463,7 @@ for (const [name, id, host] of NETWORKS) {
 
 let mode = "fetch";
 function setMode(next) {
+  invalidate();
   mode = next;
   $("tab-fetch").classList.toggle("is-on", next === "fetch");
   $("tab-paste").classList.toggle("is-on", next === "paste");
@@ -480,16 +482,31 @@ $("tab-paste").addEventListener("click", () => setMode("paste"));
    as a claim: the fields are reviewed here and the hash is recomputed from them,
    so a service that answered with something else would be caught rather than
    believed. */
-async function fetchTransaction(host, hash) {
+async function fetchTransaction(host, hash, signal) {
   const url = `https://safe-transaction-${host}.safe.global/api/v1/multisig-transactions/${hash}/`;
-  const res = await fetch(url, { headers: { accept: "application/json" } });
+  const res = await fetch(url, { headers: { accept: "application/json" }, signal, redirect: "error" });
   if (res.status === 404) throw new Error("Safe's service has no transaction with that hash on this network. Check the network, and that you copied the whole hash.");
   if (!res.ok) throw new Error(`Safe's service answered ${res.status}. Try again, or paste the JSON instead.`);
-  // Safe's service is not hostile, but it is on the other side of a network
-  // and the answer is not read until it has been shown to be a sane size.
-  const body = await res.text();
-  if (body.length > MAX_RECORD_BYTES) throw new Error(`Safe's service returned ${body.length.toLocaleString()} bytes, more than this will read.`);
-  return body;
+  if (!res.body) throw new Error("Safe's service returned no transaction body.");
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8", { fatal: true });
+  let bytes = 0;
+  let body = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_RECORD_BYTES) throw new Error("Safe's response exceeds the 1 MiB limit.");
+      body += decoder.decode(value, { stream: true });
+    }
+    return body + decoder.decode();
+  } catch (error) {
+    await reader.cancel().catch(() => {});
+    throw error;
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 const HISTORY_KEY = "clearsign.history.v1";
@@ -576,10 +593,16 @@ $("record").addEventListener("click", async () => {
 // one and leave a result on screen that belongs to a transaction nobody is
 // looking at any more.
 let generation = 0;
+let fetchController = null;
 function invalidate() {
+  fetchController?.abort();
+  fetchController = null;
   generation += 1;
   lastResult = null;
   lastJson = null;
+  $("out").replaceChildren();
+  $("domain-note").textContent = "";
+  $("record").hidden = true;
   return generation;
 }
 
@@ -590,6 +613,7 @@ async function run(opts = {}) {
   let json = $("json").value.trim();
   let chainId = Number($("chain").value) || 0;
   let version = Number($("version").value);
+  let requestedHash = null;
 
   if (mode === "fetch" && !opts.fromHistory) {
     const hash = $("txhash").value.trim();
@@ -600,9 +624,13 @@ async function run(opts = {}) {
     const option = netSelect.selectedOptions[0];
     chainId = Number(option?.dataset.chain || 1);
     version = 0;
+    requestedHash = hash.toLowerCase();
     out.replaceChildren(el("p", "working", "Asking Safe's service for that transaction…"));
+    const controller = new AbortController();
+    fetchController = controller;
+    const timeout = setTimeout(() => controller.abort(), 30000);
     try {
-      json = await fetchTransaction(option.value, hash);
+      json = await fetchTransaction(option.value, hash, controller.signal);
       if (!current()) return;
       $("json").value = json;
       $("chain").value = String(chainId);
@@ -610,6 +638,9 @@ async function run(opts = {}) {
       if (!current()) return;
       render({ ok: false, message: String(e.message || e) });
       return;
+    } finally {
+      clearTimeout(timeout);
+      if (fetchController === controller) fetchController = null;
     }
   }
 
@@ -618,10 +649,23 @@ async function run(opts = {}) {
     return;
   }
 
-  const result = await review(json, chainId, version);
+  let result;
+  try {
+    if (new TextEncoder().encode(json).byteLength > MAX_RECORD_BYTES) {
+      throw new Error("This record exceeds the 1 MiB limit.");
+    }
+    result = await review(json, chainId, version);
+  } catch (error) {
+    if (current()) render({ ok: false, message: String(error.message || error) });
+    return;
+  }
   // The reviewer may have taken a while. If anything moved on while it did,
   // this answer is about a transaction that is no longer on screen.
   if (!current()) return;
+  if (requestedHash && result.ok && result.hash.toLowerCase() !== requestedHash) {
+    render({ ok: false, message: "The returned transaction does not match the requested hash. Do not sign it." });
+    return;
+  }
   lastResult = result.ok ? result : null;
   lastJson = json;
   render(result, opts);
@@ -657,12 +701,11 @@ $("clear").addEventListener("click", () => {
 
 // Anything that changes what is being reviewed drops whatever is on screen,
 // rather than leaving a result beside inputs that no longer produced it.
-for (const id of ["json", "txhash", "chain", "version"]) {
+for (const id of ["json", "txhash", "chain", "version", "network"]) {
   const node = $(id);
   if (!node) continue;
   for (const ev of ["input", "change"]) {
     node.addEventListener(ev, () => {
-      if (!lastResult && !$("out").hasChildNodes()) return;
       invalidate();
       $("out").replaceChildren();
       $("domain-note").textContent = "";
@@ -707,6 +750,7 @@ area.addEventListener("drop", async (ev) => {
   const file = ev.dataTransfer?.files?.[0];
   if (!file) return;
   setMode("paste");
+  const mine = generation;
   // Check the size before reading it. A limit applied after the whole file is
   // in memory is not a limit.
   if (file.size > MAX_RECORD_BYTES) {
@@ -716,8 +760,14 @@ area.addEventListener("drop", async (ev) => {
     });
     return;
   }
-  area.value = await file.text();
-  await run();
+  try {
+    const text = await file.text();
+    if (mine !== generation) return;
+    area.value = text;
+    await run();
+  } catch (error) {
+    if (mine === generation) render({ ok: false, message: String(error.message || error) });
+  }
 });
 
 drawHistory();

@@ -65,6 +65,8 @@ jobs:
         env:
           CHROME_PATH: /usr/bin/google-chrome
         run: app/build.sh
+      - name: Release tooling tests
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
 
   no-std:
     name: builds without an operating system

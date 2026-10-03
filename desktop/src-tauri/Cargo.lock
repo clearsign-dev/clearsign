@@ -329,7 +329,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "sha3",
 ]
@@ -348,9 +348,10 @@ dependencies = [
 
 [[package]]
 name = "clearsign-safe-json"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "clearsign",
+ "serde",
  "serde_json",
 ]
 

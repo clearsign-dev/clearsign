@@ -10,7 +10,8 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { setTimeout as sleep } from 'node:timers/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { chromeCandidates } from './browser-test-paths.mjs';
 
 // fileURLToPath, not .pathname: this repository lives under a path with a
 // space in it, and .pathname hands back %20.
@@ -20,13 +21,7 @@ const FIXTURE = path.join(
   HERE, '..', 'signing-core', 'crates', 'clearsign-cli', 'tests', 'fixtures', 'bybit-safe-tx.json',
 );
 
-const CHROME = [
-  process.env.CHROME_PATH,
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/usr/bin/google-chrome',
-  '/usr/bin/chromium-browser',
-  '/usr/bin/chromium',
-].find((p) => p && existsSync(p));
+const CHROME = chromeCandidates().find(p => existsSync(p));
 
 if (!CHROME) {
   console.error('no Chrome found; set CHROME_PATH');
@@ -109,7 +104,7 @@ try {
 
   await send('Page.enable');
   await send('Runtime.enable');
-  await send('Page.navigate', { url: new URL(`file://${PAGE}`).href });
+  await send('Page.navigate', { url: pathToFileURL(PAGE).href });
   await sleep(2500);
 
   console.log('the built page:');
@@ -210,6 +205,89 @@ try {
   await sleep(900);
   const afterClear = (await evaluate('document.body.innerText')) || '';
   check('clearing removes the result', !/DO NOT SIGN/i.test(afterClear));
+
+  const substituted = await evaluate(`(async () => {
+    const originalFetch = window.fetch;
+    window.fetch = async () => new Response(${JSON.stringify(fixture)}, { status: 200 });
+    try {
+      document.getElementById('tab-fetch').click();
+      document.getElementById('txhash').value = '0x' + '00'.repeat(32);
+      document.getElementById('review').click();
+      await new Promise(r => setTimeout(r, 500));
+      return document.getElementById('out').innerText;
+    } finally { window.fetch = originalFetch; }
+  })()`);
+  check('fetch refuses a different transaction than the requested hash',
+    /does not match the requested hash/.test(substituted || ''));
+
+  const matched = await evaluate(`(async () => {
+    const originalFetch = window.fetch;
+    window.fetch = async () => new Response(${JSON.stringify(fixture)}, { status: 200 });
+    try {
+      document.getElementById('txhash').value = ${JSON.stringify(JSON.parse(fixture).safeTxHash)};
+      document.getElementById('review').click();
+      await new Promise(r => setTimeout(r, 500));
+      return document.getElementById('out').innerText;
+    } finally { window.fetch = originalFetch; }
+  })()`);
+  check('fetch still reviews a transaction with the requested hash', /DO NOT SIGN/i.test(matched || ''));
+
+  const cancelledFetch = await evaluate(`(async () => {
+    const originalFetch = window.fetch;
+    let aborted = false;
+    window.fetch = async (_, options) => new Promise((resolve, reject) => {
+      options.signal.addEventListener('abort', () => {
+        aborted = true;
+        reject(new DOMException('Cancelled', 'AbortError'));
+      }, { once: true });
+    });
+    try {
+      document.getElementById('review').click();
+      document.getElementById('network').dispatchEvent(new Event('change'));
+      await new Promise(r => setTimeout(r, 50));
+      return { aborted, output: document.getElementById('out').innerText };
+    } finally { window.fetch = originalFetch; }
+  })()`);
+  check('changing networks cancels the old request and clears its result',
+    cancelledFetch?.aborted && cancelledFetch.output === '');
+
+  const staleDrop = await evaluate(`(async () => {
+    document.getElementById('clear').click();
+    const file = new File(['{}'], 'delayed.json');
+    let finish;
+    file.text = () => new Promise(resolve => { finish = resolve; });
+    const dt = new DataTransfer(); dt.items.add(file);
+    const area = document.getElementById('json');
+    area.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    area.value = 'newer input';
+    area.dispatchEvent(new Event('input', { bubbles: true }));
+    finish('{}');
+    await new Promise(r => setTimeout(r, 100));
+    return { value: area.value, output: document.getElementById('out').innerText };
+  })()`);
+  check('a delayed file read cannot replace newer input', staleDrop?.value === 'newer input');
+
+  const bounded = await evaluate(`(async () => {
+    const originalFetch = window.fetch;
+    let cancelled = false;
+    let pulls = 0;
+    window.fetch = async () => new Response(new ReadableStream({
+      pull(controller) {
+        pulls += 1;
+        if (pulls > 8) controller.close();
+        else controller.enqueue(new Uint8Array(256 * 1024));
+      },
+      cancel() { cancelled = true; },
+    }));
+    try {
+      document.getElementById('tab-fetch').click();
+      document.getElementById('txhash').value = '0x' + '00'.repeat(32);
+      document.getElementById('review').click();
+      await new Promise(r => setTimeout(r, 500));
+      return { cancelled, pulls };
+    } finally { window.fetch = originalFetch; }
+  })()`);
+  check('oversized network responses are stopped while streaming', bounded?.cancelled && bounded.pulls < 8);
 
   check('nothing threw', errors.length === 0, errors.slice(0, 3).join(' | '));
 
