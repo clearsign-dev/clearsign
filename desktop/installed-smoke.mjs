@@ -102,6 +102,20 @@ try {
   console.log(`Installed app smoke passed: ${application} (${version})`);
 } catch (error) {
   if (windows && existsSync('desktop-webdriver.log')) console.error(readFileSync('desktop-webdriver.log', 'utf8'));
+  if (windows) {
+    try {
+      console.error(execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `
+        Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'clearsign|msedgewebview2' } |
+          Select-Object Name,ProcessId,ParentProcessId,ExecutablePath,CommandLine | Format-List;
+        Get-Process | Where-Object { $_.ProcessName -match 'clearsign|msedgewebview2' } |
+          Select-Object ProcessName,Id,Responding,MainWindowTitle | Format-List;
+        Get-WinEvent -FilterHashtable @{LogName='Application'; StartTime=(Get-Date).AddMinutes(-5); Level=1,2} -ErrorAction SilentlyContinue |
+          Select-Object -First 8 TimeCreated,ProviderName,Id,Message | Format-List
+      `], { encoding: 'utf8', timeout: 15000, maxBuffer: 2 * 1024 * 1024 }));
+    } catch (diagnosticError) {
+      console.error(diagnosticError.stdout?.toString() || diagnosticError.message);
+    }
+  }
   if (session) {
     try {
       console.error(await evaluate('return document.body.innerText'));

@@ -342,6 +342,9 @@ jobs:
           node desktop/installed-smoke.mjs "$destination/clearsign-desktop.exe"
           if ($LASTEXITCODE -ne 0) { throw 'Installed Windows application failed its smoke test' }
       - name: Collect the installers
+        # Keep failed candidates available for diagnosis, but the failed desktop
+        # job still blocks the artifacts and publish jobs.
+        if: success() || failure()
         shell: bash
         run: |
           set -euo pipefail
@@ -356,6 +359,7 @@ jobs:
           fi
           ls -la desktop-dist
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: success() || failure()
         with:
           name: app-${{ matrix.os }}
           path: desktop-dist/*
