@@ -10,7 +10,8 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { setTimeout as sleep } from 'node:timers/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { chromeCandidates } from './browser-test-paths.mjs';
 
 // fileURLToPath, not .pathname: this repository lives under a path with a
 // space in it, and .pathname hands back %20.
@@ -20,13 +21,7 @@ const FIXTURE = path.join(
   HERE, '..', 'signing-core', 'crates', 'clearsign-cli', 'tests', 'fixtures', 'bybit-safe-tx.json',
 );
 
-const CHROME = [
-  process.env.CHROME_PATH,
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/usr/bin/google-chrome',
-  '/usr/bin/chromium-browser',
-  '/usr/bin/chromium',
-].find((p) => p && existsSync(p));
+const CHROME = chromeCandidates().find(p => existsSync(p));
 
 if (!CHROME) {
   console.error('no Chrome found; set CHROME_PATH');
@@ -109,7 +104,7 @@ try {
 
   await send('Page.enable');
   await send('Runtime.enable');
-  await send('Page.navigate', { url: new URL(`file://${PAGE}`).href });
+  await send('Page.navigate', { url: pathToFileURL(PAGE).href });
   await sleep(2500);
 
   console.log('the built page:');

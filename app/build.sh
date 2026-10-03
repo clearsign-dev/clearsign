@@ -56,6 +56,7 @@ PY
 if [[ "${SKIP_SMOKE:-0}" != "1" ]] && command -v node >/dev/null 2>&1; then
   echo
   node --test "$HERE/backend-desktop.test.mjs"
+  node --test "$HERE/browser-test-paths.test.mjs"
   node "$HERE/smoke-test.mjs" || {
     echo "the built page failed its own smoke test" >&2
     exit 1
