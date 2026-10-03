@@ -28,6 +28,18 @@ permissions:
   contents: read
 
 jobs:
+  glib-backport:
+    name: Linux desktop dependency backport
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: sudo apt-get update && sudo apt-get install -y libglib2.0-dev
+      - name: Compare with the original crate and run optimized iterator tests
+        run: |
+          curl --fail --location --retry 3 https://static.crates.io/crates/glib/glib-0.18.5.crate -o /tmp/glib.crate
+          python3 scripts/check_glib_backport.py /tmp/glib.crate
+          cargo test --release --locked --manifest-path desktop/vendor/glib-0.18.5/Cargo.toml --lib variant_iter::tests
+
   tests:
     name: tests, lints and formatting
     runs-on: ubuntu-latest
