@@ -19,6 +19,8 @@
 
 use clearsign::{DomainVersion, Review, SafeTransaction, U256, hex};
 
+mod strict_json;
+
 /// The largest record this will look at, checked before anything is parsed.
 ///
 /// A Safe transaction record is a few kilobytes; a very large batch is tens.
@@ -50,7 +52,8 @@ pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String>
             json.len()
         ));
     }
-    let v: Value = serde_json::from_str(json).map_err(|e| format!("not valid JSON: {e}"))?;
+    let strict_json::UniqueValue(v) =
+        serde_json::from_str(json).map_err(|e| format!("not valid JSON: {e}"))?;
     // A Transaction Service listing wraps the records in "results".
     let v = match v.get("results").and_then(Value::as_array) {
         Some(results) if results.len() == 1 => results.first().unwrap_or(&Value::Null).clone(),
@@ -63,7 +66,7 @@ pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String>
         None => v,
     };
 
-    let (chain_id, chain_id_source) = match (uint(&v, "chainId").ok().flatten(), chain_id_flag) {
+    let (chain_id, chain_id_source) = match (uint(&v, "chainId")?, chain_id_flag) {
         (Some(from_file), Some(from_flag)) if from_file != from_flag => {
             return Err(format!(
                 "the file says chain {from_file} and --chain-id says {from_flag}. \
@@ -93,8 +96,10 @@ pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String>
             }
             Some(_) => return Err(String::from("data should be a hex string or null")),
         },
-        operation: u8::try_from(uint(&v, "operation")?.unwrap_or(0))
-            .map_err(|_| "operation should be 0 (call) or 1 (delegatecall)".to_owned())?,
+        operation: u8::try_from(
+            uint(&v, "operation")?.ok_or_else(|| "the file has no operation".to_owned())?,
+        )
+        .map_err(|_| "operation should be 0 (call) or 1 (delegatecall)".to_owned())?,
         safe_tx_gas: u256(&v, "safeTxGas")?,
         base_gas: u256(&v, "baseGas")?,
         gas_price: u256(&v, "gasPrice")?,
@@ -143,7 +148,7 @@ fn uint(v: &Value, key: &str) -> Result<Option<u64>, String> {
 
 fn u256(v: &Value, key: &str) -> Result<U256, String> {
     match v.get(key) {
-        None | Some(Value::Null) => Ok(U256::from_u64(0)),
+        None | Some(Value::Null) => Err(format!("the file has no {key}")),
         Some(Value::Number(n)) => n
             .as_u64()
             .map(U256::from_u64)

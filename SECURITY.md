@@ -1,7 +1,7 @@
 # Reporting a vulnerability
 
 Use GitHub's private advisory form:
-**[Report a vulnerability](https://github.com/AnticsDecoded/clearsign/security/advisories/new)**
+**[Report a vulnerability](https://github.com/clearsign-dev/clearsign/security/advisories/new)**
 — on the repository, under Security → Advisories. It is private until we publish
 it together, and it keeps the whole exchange in one place.
 

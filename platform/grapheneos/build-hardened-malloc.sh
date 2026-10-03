@@ -34,16 +34,8 @@ docker run --rm --platform linux/arm64 -v "$HERE:/work" -w /work "$DEBIAN_BUILD_
   # CONFIG_NATIVE=false and baseline ARMv8.0: upstream defaults to -march=native, which on an
   # Apple Silicon build machine emits instructions a Cortex-A53 lacks (observed: SIGILL in init).
   CFLAGS="-march=armv8-a" make -s -C $HM -j8 VARIANT=default CONFIG_CXX_ALLOCATOR=false CONFIG_NATIVE=false
-  set +e
-  CFLAGS="-march=armv8-a" make -s -C $HM test CONFIG_CXX_ALLOCATOR=false CONFIG_NATIVE=false > /tmp/hm_nocxx_test.log 2>&1
-  set -e
-  grep -E "^(FAIL|ERROR):" /tmp/hm_nocxx_test.log | sed -E "s/^(FAIL|ERROR): ([a-z_]+).*/\2/" | sort > /tmp/failed.txt || true
-  printf "%s\n" test_delete_type_size_mismatch test_invalid_aligned_sized_delete_large test_invalid_aligned_sized_delete_small | sort > /tmp/allowed.txt
-  if ! diff -q /tmp/failed.txt /tmp/allowed.txt >/dev/null && [ -s /tmp/failed.txt ]; then
-    if comm -23 /tmp/failed.txt /tmp/allowed.txt | grep -q .; then
-      echo "unexpected hardened_malloc test failures:"; comm -23 /tmp/failed.txt /tmp/allowed.txt; exit 1
-    fi
-  fi
+  CFLAGS="-march=armv8-a" make -s -C $HM/test
+  python3 check-deployment-tests.py "$HM"
   echo "deployment variant: all C allocator tests passed (C++ delete tests excluded by configuration)"
   if readelf -d $HM/out/libhardened_malloc.so | grep NEEDED | grep -vE "libc.so.6|ld-linux-aarch64.so.1" | grep -q .; then
     echo "deployment variant has unexpected dependencies"; readelf -d $HM/out/libhardened_malloc.so | grep NEEDED; exit 1

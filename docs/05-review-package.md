@@ -4,8 +4,9 @@
 place: what it claims, where the trust boundaries are, what is deliberately out
 of scope, and how to reproduce every claim. Written 17 Sep 2026.
 
-Nothing here has been reviewed outside the project. This document exists to make
-that cheaper to fix.
+The reported September 2026 external review is recorded in section 6a. Later
+AI-assisted passes are not independent human audits. See
+`docs/03-verification-status.md` for current evidence and remaining gaps.
 
 ---
 
@@ -72,9 +73,9 @@ is not a finding; finding something *worse* about them is.
 - **MultiSend decoding trusts an address on a chain.** The signer cannot read
   chain state, so it confirms that the address is a published deployment for the
   stated chain, not that the code there is what was published.
-- **The Linux compartment has a root shell** on the debug serial port. That
-  compartment is for running ordinary software, not for custody; the
-  signer-only image is the one with nothing in it.
+- **The Linux compartment is untrusted.** Its serial device and interactive
+  input path were removed following the September review. Its output is
+  prefixed by the VMM; that boundary still requires independent re-review.
 - **`authority-agent` does not resolve symlinks.** A path is judged as written.
 - **No formal verification of our own code.** seL4 is proven; `clearsign` is not.
 

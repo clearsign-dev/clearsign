@@ -7,7 +7,27 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
-## Unreleased
+## v0.1.2 — Unreleased
+
+This version has not been published. The latest downloadable release is v0.1.1.
+
+### Fixed - direct review on 3 October 2026
+
+- Enable the Tauri JavaScript bridge required by the desktop backend.
+- Bind fetched records to the requested transaction hash, cancel stale network
+  requests, and prevent delayed file reads from replacing newer input.
+- Limit network response bytes while streaming, before collecting the body.
+- Reject duplicate JSON keys, malformed chain IDs, and absent signed numeric
+  fields rather than replacing them with defaults.
+- Gate publishing on tests and version checks; compare canonical binaries with
+  the committed hashes rather than the build script's freshly written file.
+- Include installers and the standalone HTML page in SHA256SUMS, publish build
+  metadata, require every platform's artifacts, and use locked dependencies.
+- Reject empty allocator test runs and harness errors instead of inferring
+  success from the absence of failure lines in a log.
+
+This was an AI-assisted code review with regression tests, not an independent
+human audit. Hardware validation and independent re-review remain outstanding.
 
 ### Fixed — two items from a re-check
 
@@ -114,9 +134,7 @@ mean every Ethereum transaction**: types `0x01`, `0x03` and `0x04` are refused,
 the last being EIP-7702 authorizations. They are refused by name rather than
 guessed at, which is the designed behaviour, but the gap was not written down.
 
-## v0.1.2 — 29 September 2026
-
-**Update from v0.1.1 if you use the authority engine.** A further review pass
+**Changes since v0.1.1 for users of the authority engine.** A further review pass
 went through the v0.1.1 fixes and found that one of them was incomplete and one
 of the claims made about it was false.
 

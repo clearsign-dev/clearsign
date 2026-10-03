@@ -17,10 +17,31 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
+  validate:
+    name: release validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Validate release tooling
+        run: |
+          python3 -m unittest discover -s scripts -p 'test_*.py'
+          python3 scripts/release_manifest.py check-version "${GITHUB_REF_NAME}" "${GITHUB_REF_TYPE}"
+          node --test app/backend-desktop.test.mjs
+      - name: Test the source being released
+        working-directory: signing-core
+        run: |
+          cargo test --workspace --release --locked
+          cargo clippy --workspace --all-targets --locked -- -D warnings
+          cargo fmt --all --check
+
   build:
+    needs: validate
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -64,6 +85,7 @@ jobs:
           path: signing-core/dist/*.tar.gz*
 
   reproducible:
+    needs: validate
     # aarch64-unknown-linux-musl is the one artifact the release notes ask people
     # to verify, so it has to be built the way the verification instructions say:
     # in the canonical container, offline, with the paths remapped out. Built on
@@ -81,7 +103,10 @@ jobs:
         working-directory: signing-core
         run: cargo fetch --locked
       - name: Build in the canonical environment
-        run: SKIP_HOST_BUILD=1 ARTIFACTS=/tmp/repro signing-core/scripts/reproducible-cross-check.sh
+        run: |
+          cp signing-core/EXPECTED-HASHES.txt /tmp/committed-hashes.txt
+          SKIP_HOST_BUILD=1 ARTIFACTS=/tmp/repro signing-core/scripts/reproducible-cross-check.sh
+          diff -u /tmp/committed-hashes.txt signing-core/EXPECTED-HASHES.txt
       - name: Package the canonical binary
         run: |
           set -euo pipefail
@@ -100,7 +125,7 @@ jobs:
             > signing-core/dist/BINARY-SHA256
           cat signing-core/dist/BINARY-SHA256
           diff <(awk '{print $1}' signing-core/dist/BINARY-SHA256) \
-               <(awk '/  clearsign$/{print $1}' signing-core/EXPECTED-HASHES.txt) \
+               <(awk '/  clearsign$/{print $1}' /tmp/committed-hashes.txt) \
             || { echo "::error::the packaged binary is not the one EXPECTED-HASHES.txt describes" >&2; exit 1; }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -111,6 +136,8 @@ jobs:
 
   publish:
     needs: [build, reproducible, desktop]
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -122,7 +149,8 @@ jobs:
       - name: Collect the hashes
         run: |
           set -euo pipefail
-          cat dist/*.sha256 | sed 's|dist/||' > dist/SHA256SUMS
+          python3 scripts/release_manifest.py manifest dist "${GITHUB_REF_NAME#v}" "${GITHUB_SHA}"
+          ( cd dist && sha256sum --check SHA256SUMS )
           cat dist/SHA256SUMS
       - name: Publish
         env:
@@ -174,7 +202,8 @@ jobs:
 
           Compare the **binary**, not the archive. `BINARY-SHA256` attached here
           is the binary's hash; `SHA256SUMS` covers the archives, which include a
-          README and the licences and so hash differently.
+          README and the licences and so hash differently. The checksum list also
+          covers every installer, the standalone HTML page and build metadata.
 
           The macOS and x86_64 builds are produced by GitHub's runners and are
           not reproducible in that sense — rustc does not promise identical
@@ -195,12 +224,13 @@ jobs:
           gh release create "${GITHUB_REF_NAME}" \
             --title "${GITHUB_REF_NAME}" \
             --notes-file notes.md \
-            dist/*.tar.gz dist/SHA256SUMS dist/BINARY-SHA256 \
+            dist/*.tar.gz dist/clearsign.html dist/SHA256SUMS dist/BINARY-SHA256 dist/BUILD-METADATA.json \
             $(ls dist/*.dmg dist/*.msi dist/*.exe dist/*.deb dist/*.AppImage 2>/dev/null || true)
 
   # The installers. One job per platform, because each one is built by the
   # operating system it installs onto.
   desktop:
+    needs: validate
     name: app for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -255,8 +285,8 @@ jobs:
       - name: Build the application
         working-directory: desktop
         run: |
-          npm ci || npm install
-          npm run build
+          npm ci
+          npm run build -- -- --locked
       - name: Collect the installers
         shell: bash
         run: |
@@ -265,6 +295,11 @@ jobs:
           find desktop/src-tauri/target/release/bundle \
             \( -name '*.dmg' -o -name '*.msi' -o -name '*.exe' -o -name '*.deb' -o -name '*.AppImage' \) \
             -exec cp {} desktop-dist/ \;
+          test -n "$(find desktop-dist -type f -print -quit)" \
+            || { echo "::error::no installers were produced" >&2; exit 1; }
+          if [ "${{ runner.os }}" = Linux ]; then
+            cp app/dist/clearsign.html desktop-dist/
+          fi
           ls -la desktop-dist
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
