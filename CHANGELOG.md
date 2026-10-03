@@ -13,6 +13,11 @@ This version has not been published. The latest downloadable release is v0.1.1.
 
 ### Fixed - direct review on 3 October 2026
 
+- Backport the upstream glib `VariantStrIter` fix for the Linux desktop's GTK3
+  dependency. The original optimized iterator tests crashed; all 11 pass with
+  the two-line correction. Verify the vendored source against the original crate.
+- Test installed Debian and Windows NSIS applications through their native
+  WebViews, and validate complete release candidates on branch builds.
 - Enable the Tauri JavaScript bridge required by the desktop backend.
 - Declare and generate UTF-8 explicitly: the packaged macOS window previously
   misdecoded text and failed to initialize its controls despite browser tests.

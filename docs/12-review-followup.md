@@ -52,7 +52,7 @@ It does not expand supported transaction types or establish contract behavior
 from selectors. A separate review tool also cannot enforce that an external
 wallet signs the hash it displayed: the signing workflow must bind them.
 
-### Open dependency advisory
+### Desktop dependency backport
 
 GitHub reports [GHSA-wrw7-89jp-8q8g](https://github.com/advisories/GHSA-wrw7-89jp-8q8g)
 for `glib 0.18.5` in the Linux desktop dependency graph. It affects
@@ -62,10 +62,21 @@ The CLI, WebAssembly reviewer and bare-metal decoder do not use this dependency.
 
 No calls to `array_iter_str` or `VariantStrIter` were found in ClearSign or the
 downloaded dependency sources outside glib itself and its tests. That source
-search is not a complete reachability proof. The alert remains open. Before a
-Linux desktop release, resolve this through a compatible reviewed backport or
-supported dependency migration, or complete and document a platform-specific
-reachability assessment. Do not dismiss the alert merely because the build passes.
+search is not a complete reachability proof. A subsequent check reproduced a
+SIGSEGV in glib's optimized iterator tests. The exact two-line upstream fix is
+now backported in `desktop/vendor/glib-0.18.5`; all 11 iterator tests passed
+locally with it. The original crate checksum and a whole-source comparison guard
+the backport against unrelated changes. See `desktop/vendor/README.md`.
+The desktop lockfile selects the local source. The package version remains
+0.18.5, so version-only advisory tools may still report it. This is a backport
+of one fix, not a claim that the desktop dependency graph is vulnerability-free.
+
+The release workflow now includes native installed-app smoke tests for the
+Debian and Windows NSIS packages, without adding a test server to the shipped
+application. Their run results must be checked before release. The complete
+artifact manifest is also validated on branch builds, not only after tagging.
+This does not establish clean-machine compatibility for every installer format
+or every supported OS version.
 
 ## Release and deployment
 
