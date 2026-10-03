@@ -38,3 +38,4 @@ desktop/node_modules/
 desktop/src-tauri/gen/
 desktop/vendor/*/target/
 desktop-smoke.png
+desktop-webdriver.log

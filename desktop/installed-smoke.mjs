@@ -2,8 +2,9 @@
 // test-only server are compiled into the application.
 import assert from 'node:assert/strict';
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const application = resolve(process.argv[2] || '');
@@ -11,8 +12,22 @@ assert.ok(process.argv[2] && existsSync(application), 'installed application mus
 const version = JSON.parse(readFileSync(new URL('./package.json', import.meta.url))).version;
 const fixture = JSON.parse(readFileSync(new URL(
   '../signing-core/crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json', import.meta.url)));
-// tauri-driver 2.0.5 binds its intermediary to loopback itself.
-const driver = spawn('tauri-driver', [], {
+const windows = process.platform === 'win32';
+// Windows uses Microsoft's documented attach mode. These environment overrides
+// affect only this test process; no automation settings are shipped in the app.
+const app = windows ? spawn(application, [], {
+  stdio: 'inherit', env: {
+    ...process.env,
+    WEBVIEW2_USER_DATA_FOLDER: mkdtempSync(join(tmpdir(), 'clearsign-webview-')),
+    WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: '--remote-debugging-port=9222 --remote-debugging-address=127.0.0.1',
+  },
+}) : null;
+let appError;
+app?.on('error', error => { appError = error; });
+// tauri-driver binds its intermediary to loopback itself on Linux.
+const driver = spawn(windows ? 'msedgedriver.exe' : 'tauri-driver', windows ? [
+  '--port=4444', '--verbose', `--log-path=${resolve('desktop-webdriver.log')}`,
+] : [], {
   stdio: 'inherit', detached: process.platform !== 'win32',
 });
 let driverError;
@@ -32,6 +47,8 @@ async function until(check, label) {
   const deadline = Date.now() + 30000;
   while (Date.now() < deadline) {
     if (driverError) throw driverError;
+    if (appError) throw appError;
+    if (app) assert.equal(app.exitCode, null, 'installed app exited before the check completed');
     assert.equal(driver.exitCode, null, 'native driver exited before the check completed');
     if (await check()) return;
     await sleep(200);
@@ -48,8 +65,19 @@ try {
   await until(async () => {
     try { return (await command('GET', '/status')).ready; } catch { return false; }
   }, 'native driver startup');
+  if (windows) {
+    await until(async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:9222/json/version', { signal: AbortSignal.timeout(2000) });
+        return response.ok && Boolean((await response.json()).webSocketDebuggerUrl);
+      } catch { return false; }
+    }, 'installed WebView2 startup');
+  }
+  console.log('Creating native WebDriver session');
   const opened = await command('POST', '/session', {
-    capabilities: { alwaysMatch: { 'tauri:options': { application } } },
+    capabilities: { alwaysMatch: windows ? {
+      browserName: 'webview2', 'ms:edgeOptions': { debuggerAddress: '127.0.0.1:9222' },
+    } : { 'tauri:options': { application } } },
   });
   session = opened.sessionId;
   assert.ok(session, 'native session was created');
@@ -73,6 +101,7 @@ try {
   assert.ok(!(await output()).includes(fixture.safeTxHash), 'no stale hash on refusal');
   console.log(`Installed app smoke passed: ${application} (${version})`);
 } catch (error) {
+  if (windows && existsSync('desktop-webdriver.log')) console.error(readFileSync('desktop-webdriver.log', 'utf8'));
   if (session) {
     try {
       console.error(await evaluate('return document.body.innerText'));
@@ -85,10 +114,11 @@ try {
   if (session) {
     try { await command('DELETE', `/session/${session}`); } catch (error) { console.error(error); }
   }
-  if (driver.pid) {
+  for (const child of [app, driver].filter(Boolean)) {
+    if (!child.pid || child.exitCode !== null) continue;
     try {
-      if (process.platform === 'win32') execFileSync('taskkill', ['/pid', String(driver.pid), '/T', '/F']);
-      else process.kill(-driver.pid, 'SIGTERM');
+      if (windows) execFileSync('taskkill', ['/pid', String(child.pid), '/T', '/F']);
+      else process.kill(-child.pid, 'SIGTERM');
     } catch { /* The driver may already have exited with its session. */ }
   }
 }

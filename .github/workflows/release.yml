@@ -318,7 +318,7 @@ jobs:
           npm ci
           npm run build -- -- --locked
       - name: Install the native UI test driver
-        if: runner.os != 'macOS'
+        if: runner.os == 'Linux'
         run: cargo install tauri-driver --version 2.0.5 --locked
       - name: Install and test the Debian package
         if: runner.os == 'Linux'

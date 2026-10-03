@@ -100,8 +100,11 @@ substitutes for retention or willingness to pay.
   presentation format worth tracking. Imported display descriptions must not
   override decoded bytes or become an authority for contract behavior.
 - [Tauri native WebDriver](https://v2.tauri.app/develop/tests/webdriver/manual-setup/):
-  used here to exercise installed Windows/Linux applications without shipping
-  an embedded test server.
+  used for the installed Linux application. Windows uses Microsoft's
+  [WebView2 attach method](https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/webdriver#step-4b-attaching-microsoft-edge-webdriver-to-a-running-webview2-app),
+  with loopback debugging enabled only in the test process environment.
+  Neither adds an embedded test server or persistent automation configuration
+  to the shipped application.
 - [glib advisory](https://rustsec.org/advisories/RUSTSEC-2024-0429.html) and
   [upstream correction](https://github.com/gtk-rs/gtk-rs-core/pull/1343): provenance
   for the narrowly scoped desktop backport.
