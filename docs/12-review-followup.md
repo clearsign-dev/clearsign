@@ -10,6 +10,7 @@ was stopped. The starting revision was
 | Boundary | Problem | Check |
 | --- | --- | --- |
 | Desktop frontend to Rust | Backend expected a global Tauri bridge that the configuration did not enable | Desktop bridge configuration and invocation test |
+| Packaged HTML to WebView | Missing UTF-8 metadata left the macOS package misdecoded with inactive controls | Explicit UTF-8 generation, metadata regression test and native app smoke test |
 | JSON to signed fields | Duplicate keys were accepted; malformed chain IDs and missing numeric fields could become defaults | Shared adapter regression tests, including escaped duplicate keys and recursion limits |
 | Network to review | A self-consistent service response could describe a different requested transaction | Browser checks both matching and substituted transaction hashes |
 | Asynchronous input to display | A delayed file read could replace newer input; network changes could leave stale work | Browser input race and cancellation tests |
@@ -32,8 +33,12 @@ tooling tests passed. Two canonical signer builds matched. All seven stages of
 The recorded initramfs hash was refreshed from that build; the separate two-clean-
 volume image reproducibility test was not repeated in this pass.
 
-The desktop check exercises the bridge contract and configuration; it is not a
-Windows or Linux installer smoke test. Browser network tests use controlled
+The macOS native app was also opened and used: the historical example produced
+the expected critical review and hash, clearing removed the verdict, and
+malformed input was refused. The initial CI-built package failed to initialize;
+the UTF-8 fix was verified in a locally rebuilt release-mode app. Windows Chrome
+discovery and portable file URLs have separate regression tests. These checks
+are not Windows or Linux installed-app smoke tests. Browser network tests use controlled
 responses, not an assertion about current service availability. Regression tests
 for one input race do not prove the absence of every possible race.
 

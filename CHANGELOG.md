@@ -14,6 +14,10 @@ This version has not been published. The latest downloadable release is v0.1.1.
 ### Fixed - direct review on 3 October 2026
 
 - Enable the Tauri JavaScript bridge required by the desktop backend.
+- Declare and generate UTF-8 explicitly: the packaged macOS window previously
+  misdecoded text and failed to initialize its controls despite browser tests.
+- Discover Windows Chrome installations and use portable file URLs in the
+  installer smoke tests.
 - Bind fetched records to the requested transaction hash, cancel stale network
   requests, and prevent delayed file reads from replacing newer input.
 - Limit network response bytes while streaming, before collecting the body.
