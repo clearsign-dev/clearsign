@@ -11,7 +11,8 @@ assert.ok(process.argv[2] && existsSync(application), 'installed application mus
 const version = JSON.parse(readFileSync(new URL('./package.json', import.meta.url))).version;
 const fixture = JSON.parse(readFileSync(new URL(
   '../signing-core/crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json', import.meta.url)));
-const driver = spawn('tauri-driver', ['--host', '127.0.0.1'], {
+// tauri-driver 2.0.5 binds its intermediary to loopback itself.
+const driver = spawn('tauri-driver', [], {
   stdio: 'inherit', detached: process.platform !== 'win32',
 });
 let driverError;
@@ -31,6 +32,7 @@ async function until(check, label) {
   const deadline = Date.now() + 30000;
   while (Date.now() < deadline) {
     if (driverError) throw driverError;
+    assert.equal(driver.exitCode, null, 'native driver exited before the check completed');
     if (await check()) return;
     await sleep(200);
   }
@@ -56,7 +58,8 @@ try {
   await until(async () => (await output()).includes('DO NOT SIGN'), 'critical historical review');
   const review = await output();
   assert.match(review, /DELEGATECALL/);
-  assert.ok(review.toLowerCase().includes(fixture.safeTxHash.toLowerCase()), 'exact recomputed Safe hash');
+  const displayedHash = await evaluate('return document.querySelector("#out .hash").textContent');
+  assert.equal(displayedHash.replace(/\s/g, '').toLowerCase(), fixture.safeTxHash.toLowerCase(), 'exact recomputed Safe hash');
   await evaluate('const el = document.getElementById("json"); el.value += " "; el.dispatchEvent(new Event("input", {bubbles:true}));');
   assert.equal(await output(), '', 'editing removes the old review');
   await click('load-example');
