@@ -6,4 +6,4 @@
 # in clean volumes and compares. The signer inside is the binary recorded in
 # signing-core/EXPECTED-HASHES.txt, and the build refuses to package any other.
 2aa6a4b8a0bedd695c4d331f7c824c96433290598869ec9a91720dd065c11a13  Image
-3acfbd2148eca8a108bc5d1b9cb22425065dbc68618dc7e4cd9c98ad2b6a78eb  initramfs.cpio.gz
+14df5792a4f7dc3f53a98d346758431f378cf1583dc37fe06847fe871ac686cb  initramfs.cpio.gz
