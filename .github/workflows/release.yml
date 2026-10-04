@@ -155,7 +155,7 @@ jobs:
         run: |
           version=$(python3 -c 'import json; print(json.load(open("desktop/package.json"))["version"])')
           python3 scripts/release_manifest.py manifest dist "$version" "${GITHUB_SHA}"
-          ( cd dist && sha256sum --check SHA256SUMS )
+          python3 scripts/release_manifest.py verify dist "$version" "${GITHUB_SHA}"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: release-candidate
@@ -173,11 +173,10 @@ jobs:
         with:
           name: release-candidate
           path: dist
-      - name: Collect the hashes
+      - name: Verify the validated candidate without rewriting it
         run: |
           set -euo pipefail
-          python3 scripts/release_manifest.py manifest dist "${GITHUB_REF_NAME#v}" "${GITHUB_SHA}"
-          ( cd dist && sha256sum --check SHA256SUMS )
+          python3 scripts/release_manifest.py verify dist "${GITHUB_REF_NAME#v}" "${GITHUB_SHA}"
           cat dist/SHA256SUMS
       - name: Publish
         env:
@@ -270,7 +269,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkit2gtk-driver xvfb
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkit2gtk-driver xvfb libfuse2
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
@@ -325,6 +324,18 @@ jobs:
         run: |
           sudo dpkg -i desktop/src-tauri/target/release/bundle/deb/*.deb
           xvfb-run -a node desktop/installed-smoke.mjs /usr/bin/clearsign-desktop
+      - name: Launch and test the AppImage
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          # Remove the installed copy so this check cannot accidentally use it.
+          package=$(dpkg-deb --field desktop/src-tauri/target/release/bundle/deb/*.deb Package)
+          sudo dpkg -r "$package"
+          test ! -e /usr/bin/clearsign-desktop
+          images=(desktop/src-tauri/target/release/bundle/appimage/*.AppImage)
+          test "${#images[@]}" -eq 1
+          chmod +x "${images[0]}"
+          xvfb-run -a node desktop/installed-smoke.mjs "${images[0]}"
       - name: Install and test the Windows application
         if: runner.os == 'Windows'
         shell: pwsh
@@ -351,6 +362,28 @@ jobs:
             New-ItemProperty -Path $policy -Name $appName -PropertyType String -Value '--remote-debugging-port=9222 --remote-debugging-address=127.0.0.1' -Force | Out-Null
             node desktop/installed-smoke.mjs "$destination/clearsign-desktop.exe"
             if ($LASTEXITCODE -ne 0) { throw 'Installed Windows application failed its smoke test' }
+
+            # Exercise MSI separately, after removing the NSIS installation.
+            $uninstaller = Join-Path $destination 'uninstall.exe'
+            $process = Start-Process -FilePath $uninstaller -ArgumentList '/S', "_?=$destination" -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "NSIS uninstall failed: $($process.ExitCode)" }
+            if (Test-Path "$destination/clearsign-desktop.exe") { throw 'NSIS application remains installed' }
+            $msi = @(Get-ChildItem desktop/src-tauri/target/release/bundle/msi/*.msi)
+            if ($msi.Count -ne 1) { throw 'Expected one MSI installer' }
+            $msiDestination = Join-Path $env:RUNNER_TEMP 'clearsign-msi-installed'
+            if (Test-Path $msiDestination) { throw 'MSI test requires a fresh destination' }
+            $msiLog = Join-Path $env:RUNNER_TEMP 'clearsign-msi-install.log'
+            $arguments = @('/i', "`"$($msi[0].FullName)`"", '/qn', '/norestart', "INSTALLDIR=`"$msiDestination`"", '/L*v', "`"$msiLog`"")
+            $process = Start-Process msiexec.exe -ArgumentList $arguments -Wait -PassThru
+            if ($process.ExitCode -ne 0) {
+              Get-Content $msiLog -Tail 100
+              throw "MSI install failed: $($process.ExitCode)"
+            }
+            node desktop/installed-smoke.mjs "$msiDestination/clearsign-desktop.exe"
+            if ($LASTEXITCODE -ne 0) { throw 'MSI application failed its smoke test' }
+            $process = Start-Process msiexec.exe -ArgumentList '/x', "`"$($msi[0].FullName)`"", '/qn', '/norestart' -Wait -PassThru
+            if ($process.ExitCode -ne 0) { throw "MSI uninstall failed: $($process.ExitCode)" }
+            if (Test-Path "$msiDestination/clearsign-desktop.exe") { throw 'MSI application remains installed' }
           } finally {
             if ($null -ne $previous) {
               Set-ItemProperty -Path $policy -Name $appName -Value $previousValue

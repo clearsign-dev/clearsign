@@ -13,6 +13,14 @@ const version = JSON.parse(readFileSync(new URL('./package.json', import.meta.ur
 const fixture = JSON.parse(readFileSync(new URL(
   '../signing-core/crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json', import.meta.url)));
 const windows = process.platform === 'win32';
+if (windows) {
+  let occupied = false;
+  try {
+    await fetch('http://127.0.0.1:9222/json/version', { signal: AbortSignal.timeout(2000) });
+    occupied = true;
+  } catch { /* No previous WebView may supply this test's automation session. */ }
+  assert.equal(occupied, false, 'debugging port must be unused before launching the app');
+}
 // Windows uses Microsoft's documented attach mode. These environment overrides
 // affect only this test process; no automation settings are shipped in the app.
 const app = windows ? spawn(application, [], {
@@ -99,6 +107,15 @@ try {
   await until(async () => (await output()).length > 0, 'malformed input refusal');
   assert.match(await output(), /cannot|invalid|refus|expected|JSON/i);
   assert.ok(!(await output()).includes(fixture.safeTxHash), 'no stale hash on refusal');
+  const oversized = await command('POST', `/session/${session}/execute/async`, {
+    script: `const done = arguments[arguments.length - 1];
+      window.__TAURI__.core.invoke('review_transaction', {
+        jsonText: ' '.repeat(1024 * 1024 + 1), chainId: 1, version: 3,
+      }).then(done, error => done({transportError: String(error)}));`, args: [],
+  });
+  assert.equal(oversized.ok, false, 'Rust IPC boundary refuses oversized input');
+  assert.equal(oversized.severity, 'refused');
+  assert.match(oversized.message, /limit is 1048576/);
   console.log(`Installed app smoke passed: ${application} (${version})`);
 } catch (error) {
   if (windows && existsSync('desktop-webdriver.log')) console.error(readFileSync('desktop-webdriver.log', 'utf8'));

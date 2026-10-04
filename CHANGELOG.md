@@ -11,6 +11,17 @@ that keeps people on a broken version.
 
 This version has not been published. The latest downloadable release is v0.1.1.
 
+### Release checks - 4 October 2026
+
+- Add native launch checks for the MSI and AppImage, alongside Debian and NSIS.
+  Remove the installed copy before testing the next format.
+- Verify the existing candidate manifest before publishing instead of generating
+  new checksums. Reject stale installer versions, unexpected files, incomplete
+  checksum lists and mismatched source metadata.
+- Check version consistency on branch builds too, including npm lock metadata.
+- Give oversized desktop IPC requests the same refusal response schema as other
+  invalid input, and test this at the native Rust boundary.
+
 ### Fixed - direct review on 3 October 2026
 
 - Backport the upstream glib `VariantStrIter` fix for the Linux desktop's GTK3
