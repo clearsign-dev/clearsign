@@ -49,6 +49,10 @@ The Rust decoder does not access the network. Pasted and dropped records are rev
 
 [CONTRIBUTING.md](CONTRIBUTING.md) covers builds, tests and pull requests. [The review package](docs/05-review-package.md) introduces the trust boundaries. [CHANGELOG.md](CHANGELOG.md) records release changes and known limitations.
 
+[Release and pilot readiness](docs/13-release-readiness.md) separates the current
+reviewer from the independent review, hardware validation and customer evidence
+still needed before high-value deployment.
+
 Report ordinary bugs through [GitHub issues](https://github.com/clearsign-dev/clearsign/issues/new/choose). Report vulnerabilities privately through [GitHub security advisories](https://github.com/clearsign-dev/clearsign/security/advisories/new). Do not include recovery phrases, private keys or confidential transaction data.
 
 ## Licence

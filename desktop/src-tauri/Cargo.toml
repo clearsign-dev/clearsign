@@ -19,3 +19,7 @@ clearsign-safe-json = { path = "../../signing-core/crates/clearsign-safe-json" }
 
 [lints.rust]
 unsafe_code = "forbid"
+
+[patch.crates-io]
+# GTK3 requires glib 0.18. See ../vendor/README.md for the upstream backport.
+glib = { path = "../vendor/glib-0.18.5" }
