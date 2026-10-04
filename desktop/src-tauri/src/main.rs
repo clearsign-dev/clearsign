@@ -7,8 +7,8 @@
 //! about what a transaction does is the situation this whole project exists to
 //! remove.
 //!
-//! Nothing in this binary opens a network connection, reads a key, or writes to
-//! disk. It takes text in and gives a review back.
+//! The Rust reviewer takes text in and gives a review back without networking
+//! or key access. The WebView can fetch records from Safe and persist UI settings.
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![forbid(unsafe_code)]
@@ -34,7 +34,8 @@ fn review_transaction(json_text: String, chain_id: u64, version: u32) -> Value {
     if json_text.len() > clearsign_safe_json::MAX_RECORD_BYTES {
         return serde_json::json!({
             "ok": false,
-            "error": format!(
+            "severity": "refused",
+            "message": format!(
                 "this record is {} bytes; the limit is {}.",
                 json_text.len(),
                 clearsign_safe_json::MAX_RECORD_BYTES

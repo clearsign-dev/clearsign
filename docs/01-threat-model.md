@@ -4,6 +4,15 @@
 
 The history study's rule applies here more than anywhere: **be crude in features, never in the trust claim.** Every property below is either tested, or explicitly listed as not yet provided.
 
+**Deployment clarification, 4 October 2026:** the diagram below describes the
+intended dedicated signer. The released desktop reviewer holds no keys, trusts
+its host OS and cannot enforce what a separate wallet signs. The seL4 and Linux
+signer images remain experimental under emulation; they do not protect against
+a compromised QEMU host. Physical isolation, verified boot and a trusted display
+on production hardware are not established. The invariants are requirements,
+not a claim that every deployment provides every property. Check the
+[verification record](03-verification-status.md) for the evidence and limits.
+
 ---
 
 ## 1. What we protect
@@ -27,7 +36,7 @@ The history study's rule applies here more than anywhere: **be crude in features
 | **T6** | Physical thief or evil maid | Has the device for minutes or hours | **Partly.** Covered by the device, not the decoder. Detailed in the device threat model later. |
 | **T7** | Lab-grade physical attacker | Side channels, fault injection, decapping | **No.** An explicit non-goal for v1. |
 | **T8** | Coercion | Forces the user to sign | **No** for v1. Duress features are a later item. |
-| **T9** | The project itself | Our release keys, our infrastructure, our continued existence | **Yes.** Release keys under 2-of-3 control, and a documented exit path. |
+| **T9** | The project itself | Our release keys, our infrastructure, our continued existence | **Yes, as a design requirement.** Multi-person release-key control is planned, not demonstrated by the current unsigned releases. |
 
 ## 3. Trust boundaries
 
@@ -63,7 +72,7 @@ These are the properties the code must hold. Each gets a test ID in the source.
 | **INV-6** | High-risk actions are flagged CRITICAL: delegatecall, changes to the Safe implementation, owners, threshold, modules, guards or fallback handler, and unlimited token approvals. | T3 |
 | **INV-7** | The decoder never panics on any input. Every failure is a typed error. | T4 |
 | **INV-8** | The signer image contains no network stack. | T1 |
-| **INV-9** | Release builds are reproducible from public source. | T5, T9 |
+| **INV-9** | Reproducible release builds are the target. Currently demonstrated only for the canonical `aarch64-unknown-linux-musl` binaries, not desktop installers or builds across compiler hosts. | T5, T9 |
 | **INV-10** | Nothing can be signed except a digest attached to a review. The digest is recomputed from the reviewed bytes, never taken from the caller, and signing requires acknowledging **exactly** the set of BLIND and CRITICAL findings. There is no API that signs a raw hash. | T1, T2, T3 |
 | **INV-11** | No seed is ever generated from a hardware random number generator alone. Seeds come from at least 99 dice rolls, or from hardware entropy mixed with at least 50 dice rolls, so a silently broken generator cannot compromise them. | T5 and the Coldcard failure class |
 | **INV-12** | Every signature is verified by public-key recovery, and checked to be low-S, before it is released. | T5, fault injection |

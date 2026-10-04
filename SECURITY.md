@@ -75,13 +75,14 @@ These are real, and reporting them tells me nothing new:
   that gate on your own machine is not a finding; it is the door being where the
   sign says it is.
 - **The released binaries are not code-signed or notarised.**
-- **`glib` 0.18.5 carries a known unsoundness** (`VariantStrIter`'s `Iterator`
-  and `DoubleEndedIterator` impls). It is pulled in by the whole GTK stack —
-  `gtk`, `webkit2gtk`, `gdk`, `pango` — which is Tauri's Linux webview, so it is
-  not compiled into the macOS or Windows builds at all and cannot move to 0.20
-  until Tauri's Linux backend does. Reported here rather than left to be
-  discovered. The signing core does not depend on it; its decoder has one direct
-  dependency.
+- **The Linux desktop's glib dependency required a security backport.** v0.1.0
+  and v0.1.1 use the affected upstream 0.18.5 source. The v0.1.2 source includes
+  the exact upstream correction for RUSTSEC-2024-0429, with source-provenance
+  checks and the upstream iterator tests. See
+  [desktop/vendor/README.md](desktop/vendor/README.md). The version remains
+  0.18.5, so version-only scanners may still flag it. This does not exclude
+  reports of an incomplete fix or a newly demonstrated path. The signing core
+  does not depend on glib; macOS and Windows do not compile this GTK dependency.
 
 ## Scope
 
@@ -91,9 +92,15 @@ application under `desktop/`, and the build and release workflows.
 
 Out of scope: the website, which lives in its own repository and is a static
 export with no server and no analytics — report anything there against
-[clearsign.dev](https://github.com/clearsign-dev/clearsign.dev) instead. Also
-out of scope: findings that require an already-compromised machine to reach the
-signer, since that is the threat model's starting assumption rather than a bug.
+[clearsign.dev](https://github.com/clearsign-dev/clearsign.dev) instead.
+
+A compromised transaction-producing computer or untrusted Linux guest is an
+in-scope adversary. Malicious input, guest-to-signer boundary violations and
+review/signature mismatches remain reportable. Control of the trusted host
+running the desktop reviewer or QEMU is not a protection those deployments
+provide; merely replacing their code or display after gaining that control is
+outside the claimed boundary. A vulnerability that obtains such control through
+ClearSign remains reportable.
 
 ## Please don't
 

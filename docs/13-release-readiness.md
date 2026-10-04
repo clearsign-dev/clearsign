@@ -26,11 +26,16 @@ keys into a development signer to demonstrate the workflow.
   candidate. A green compile is not an installed-app test.
 - Run source tests, desktop dependency backport checks, browser regressions,
   canonical rebuilds, native UI checks and the complete artifact-manifest job.
-- Test the downloaded macOS DMG and installed application. The native CI checks
-  cover Debian and Windows NSIS; MSI and AppImage still need format-specific
-  install/launch checks before claiming those paths have been tested.
+- Test the downloaded macOS DMG and installed application. Native CI checks are
+  defined for Debian, AppImage, Windows NSIS and MSI. Record the successful run
+  for the candidate; the presence of a test is not evidence that it passed.
+  Linux checks use Ubuntu 22.04 with build dependencies installed, not every
+  distribution or a clean end-user machine.
 - Check the displayed version, historical fixture hash, malformed-input refusal,
   clearing and input changes. Test on a clean non-developer machine as well.
+- Verify the candidate's existing manifest before publishing, without regenerating
+  checksums to make changed downloads pass. Require the expected versioned
+  installer names and source commit in the metadata.
 - Date the changelog only when the candidate is approved. Keep one version across
   source, desktop configuration and tag. Verify the published downloads and their
   checksums after publication, not just the intermediate workflow artifacts.
@@ -67,6 +72,8 @@ Start with three to five Safe treasury or custody teams as a proposed pilot,
 not a claim that those customers exist. Run in observation mode alongside their
 existing controls. Ask them to supply redacted workflows and consent before
 retaining any transaction records; do not add telemetry by default.
+Use the [pilot evaluation record](14-pilot-evaluation.md) to collect comparable
+results and buying evidence without inventing adoption or customer numbers.
 
 Measure installation success, time per review, unsupported-input rate, warnings
 that operators repeatedly ignore, digest-comparison completion and disagreements
