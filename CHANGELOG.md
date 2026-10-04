@@ -7,9 +7,13 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
-## v0.1.2 — Unreleased
+## v0.1.2 — 2026-10-04
 
-This version has not been published. The latest downloadable release is v0.1.1.
+**Unsigned evaluation release. Not approved for high-value custody.** This
+release fixes review, desktop and packaging problems in v0.1.1. It holds no keys
+and does not enforce what a separate wallet signs. Independent post-fix review,
+platform code signing and production-hardware validation remain outstanding.
+Use public fixtures or disposable test workflows for evaluation.
 
 ### Release checks - 4 October 2026
 
