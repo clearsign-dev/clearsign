@@ -125,18 +125,6 @@ pub fn review_safe_transaction(tx: &SafeTransaction, version: DomainVersion) -> 
     }
     review.sections.push(s);
 
-    if matches!(version, DomainVersion::Legacy) {
-        review.find(
-            Severity::Critical,
-            "SIGNATURE_NOT_CHAIN_BOUND",
-            String::from(
-                "The v1.1.x Safe domain does not include the chain ID, so this signature is valid \
-                 for the same Safe address on every chain it exists on, not only this one. Anyone \
-                 holding it can replay it elsewhere while the nonce still matches.",
-            ),
-        );
-    }
-
     calls::refund_finding(&mut review, tx.gas_price, tx.gas_token, tx.refund_receiver);
 
     calls::review_call(
@@ -152,6 +140,25 @@ pub fn review_safe_transaction(tx: &SafeTransaction, version: DomainVersion) -> 
             depth: 1,
         },
     );
+
+    // Added after the call is reviewed, so that within CRITICAL the findings
+    // about this transaction are numbered first. This one is true of every
+    // transaction a v1.1.x Safe will ever sign; reported first, it was the item
+    // a reader learned to skip, and the Bybit transaction's DELEGATECALL
+    // arrived second, behind it. It still must be acknowledged: the risk is
+    // real, and it is the reader's to accept.
+    if matches!(version, DomainVersion::Legacy) {
+        review.find(
+            Severity::Critical,
+            "SIGNATURE_NOT_CHAIN_BOUND",
+            String::from(
+                "About this Safe, not this transaction: the v1.1.x Safe domain does not include \
+                 the chain ID, so this signature is valid for the same Safe address on every chain \
+                 it exists on, not only this one. Anyone holding it can replay it elsewhere while \
+                 the nonce still matches.",
+            ),
+        );
+    }
 
     let safe_tx_hash = safe_transaction_hash(tx, version);
     review.set_signing_target(crate::review::SigningTarget {

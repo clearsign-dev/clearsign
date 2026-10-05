@@ -1,6 +1,6 @@
 # ClearSign
 
-ClearSign reviews Safe and supported EVM transactions locally. It decodes signed fields, recomputes transaction hashes and flags operations such as delegatecalls, Safe administration changes and unlimited approvals.
+ClearSign reviews Safe and supported EVM transactions locally. It decodes signed fields, recomputes transaction hashes and flags operations such as delegatecalls, Safe administration changes, contract ownership and upgrade changes, and unlimited approvals and permits.
 
 [Website](https://clearsign-dev.github.io/clearsign.dev/) · [Downloads](https://github.com/clearsign-dev/clearsign/releases) · [Supported formats](docs/10-what-is-supported.md) · [Verification status](docs/03-verification-status.md)
 
@@ -32,14 +32,16 @@ For transaction review, exit `0` means no BLIND or CRITICAL finding was raised; 
 
 ## Scope
 
-- EIP-1559 and legacy EVM transaction formats, with canonical RLP checks.
+- EVM transaction formats: legacy, EIP-2930, EIP-1559, EIP-4844 and EIP-7702, with canonical RLP checks. Each EIP-7702 authorization is flagged, because it hands an account to code.
 - Safe transaction hashes for supported domain versions, including the inner call and operation type.
-- ERC-20-shaped `transfer`, `transferFrom` and `approve` calls. Matching a selector does not establish the target's identity or execution behaviour.
-- Safe administration calls and MultiSend batches at listed address-chain pairs. Display and parsing limits are explicit; not every call in a large batch is shown.
+- Token calls shaped like `transfer`, `transferFrom`, `approve`, `increaseAllowance`, `setApprovalForAll` and Permit2 `approve`. Matching a selector does not establish the target's identity or execution behaviour.
+- Contract administration: ownership transfers, role grants, proxy upgrades and admin changes, on any contract a Safe or an account calls.
+- Calls that carry other calls — Safe MultiSend batches at listed address-chain pairs, `multicall`, timelock operations and smart-account batches (ERC-7579 / ERC-7821) — with every carried call judged by the same rules. Display and parsing limits are explicit; not every call in a large batch is shown.
+- EIP-712 typed data, reviewed from the command line: permits, Permit2 and Safe transactions are interpreted, and any other structure is shown field by field and marked BLIND. Typed data is not yet read by the window or signed by the signer.
 - Uniform Resources and EIP-4527 transport in the development signing tools.
 - An experimental authority engine for reviewing proposed agent actions.
 
-Unsupported formats and unknown calls are refused or marked BLIND. Bitcoin, Solana and general EIP-712 typed data are outside the current scope. The [support matrix](docs/10-what-is-supported.md) separates implemented support, test coverage and external comparisons; a listed chain is not a tested wallet integration.
+Unsupported formats and unknown calls are refused or marked BLIND — which is most DeFi activity, by design. Bitcoin, Solana and chain-specific transaction types (Celo's fee-currency transactions, zkSync's EIP-712 transactions) are outside the current scope. The [support matrix](docs/10-what-is-supported.md) separates implemented support, test coverage and external comparisons; a listed chain is not a tested wallet integration.
 
 ## Network Access
 

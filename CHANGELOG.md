@@ -7,6 +7,107 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## Unreleased
+
+### Added — the attacks it was reading as noise
+
+**Calls that take control of a contract are read, not refused.** A Safe that
+administers a protocol signs ownership transfers, role grants and proxy
+upgrades, and until now each came back BLIND: the same verdict a routine
+staking call gets. The transaction that cost Radiant Capital about $50M in
+October 2024 — a Safe calling `transferOwnership` on the protocol's address
+provider — read exactly like ordinary traffic. Now `transferOwnership`,
+DSAuth's `setOwner`, `renounceOwnership`, `acceptOwnership`, `grantRole`,
+`revokeRole`, `renounceRole`, `upgradeTo`, `upgradeToAndCall`, `changeAdmin`
+and ProxyAdmin's `upgrade`, `upgradeAndCall` and `changeProxyAdmin` are decoded.
+Ownership transfers, role grants, upgrades and admin changes are CRITICAL by
+name. The call an upgrade runs as the new code is BLIND, for the same reason a
+DELEGATECALL is.
+
+**Permissions beyond `approve`.** `increaseAllowance` and `increaseApproval`
+(Badger DAO's injected script used the first), `setApprovalForAll` (the 2022
+Uniswap V3 position phishing) and Permit2's `approve`, with its expiry shown as
+a date and a warning when the contract called is not Permit2's address.
+
+**Calls that carry other calls are opened.** `multicall(bytes[])`,
+TimelockController `schedule` and `execute`, and smart-account
+`execute(bytes32,bytes)` (ERC-7579 and ERC-7821) — the shape of the 2025
+EIP-7702 drains, in which victims' own accounts ran batches of approvals.
+Every carried call is judged by the same rules, including the ones past the
+display limit, as MultiSend batches already were.
+
+**EIP-2930, EIP-4844 and EIP-7702 transactions are decoded.** They were refused.
+Each EIP-7702
+authorization is CRITICAL — it hands an account to code — and one valid on
+every chain says so.
+
+**EIP-712 typed data is reviewed**, from the command line: `clearsign
+typed-data`. Hashing follows the standard exactly: it matches the EIP's own
+example, Permit2's deployed domain separator, and alloy on 5,000 random
+documents. ERC-2612 permits, DAI-style permits, Permit2's four signature types
+and Safe transactions are read field by field, and an unlimited permission is
+CRITICAL. Any other structure is shown field by field and is BLIND. The window
+does not read typed data yet, and the signer does not sign it.
+
+Two limits in the new reader were found by reading it, not by fuzzing, whose
+inputs stop at 4 KiB: a type with 200,000 array dimensions overflowed the stack
+and aborted the process, and recomputing each struct's type hash for every
+value let a crafted request cost minutes of CPU. Dimensions are now capped at
+eight and type hashes are computed once per request, both with tests.
+
+A review of the new code found five more, each fixed with a test. A Permit2
+allowance one below its maximum was a WARNING, not CRITICAL; any Permit2 amount
+from 2^144 up is now unlimited, as ERC-20 amounts near the maximum already were.
+An expiration of 0, which Permit2 replaces with the block's own time, was shown
+as a date in 1970, as though the permission were long dead. Hex in typed data
+was read leniently, so `0x0x12` hashed as a number other tools refuse. A Safe
+transaction requested as typed data came back with a signing target, the one
+typed-data review that did. And calls padded past the decoding limit were only
+BLIND, where an over-long MultiSend batch was already CRITICAL; what was not
+read could be anything, so it is CRITICAL too.
+
+### Changed
+
+**On a v1.1.x Safe, the transaction's own CRITICAL is numbered first.**
+`SIGNATURE_NOT_CHAIN_BOUND` is true of every transaction such a Safe signs.
+Listed first, it was the item readers learned to skip, and Bybit's DELEGATECALL
+came second, behind it — the problem [09](docs/09-against-real-transactions.md)
+recorded. It still must be acknowledged, and it now says that it is about the
+Safe rather than the transaction. **Acknowledgement numbers on v1.1.x reviews
+change:** Bybit's is now `1:SAFE_DELEGATECALL`.
+
+**`transferFrom` no longer claims to be ERC-20.** ERC-721 uses the same
+selector, so the last value is labelled as an amount or a token ID.
+
+### Fixed
+
+**A record from Safe's own service was refused.** For some executed
+transactions the service gives `gasToken` and `refundReceiver` as `null`; one
+in 10,851 records sampled across 28 chains did. It is now read as the zero
+address only when the file's own hash proves that reading, and the review says
+so, in the desktop app and the browser as well as the CLI.
+
+**The arena budget test could pass or fail depending on what else ran.** It
+counted allocations from every thread, so another test building its input at
+the same moment was charged to the request being measured; under load a
+maximal transaction read 2.2 MB against the 2 MB alarm. It now counts only the
+thread doing the review, and gives the same figures on every run.
+
+**The support matrix said 11 selectors were decoded when the code held 14.**
+The generator counted only entries written on one line. It now reads the table.
+
+**Tests that mutation testing showed were missing.** Of 332 mutants of the
+previous decoder, 223 were caught and 42 survived every test: nothing checked
+that an unsigned EIP-155 payload with only `r` filled in is refused, that refund
+fields are shown when any one is set, or where the nesting limits fall. A second
+run, against the extended decoder, found more of the same kind: limits on
+arrays, nesting, blob hashes and authorizations never tested at their exact
+boundary, and labels no test read. A first run against the JSON readers found
+that nothing checked a listing of several Safe transactions is refused rather
+than read as its first. Every survivor a test can kill now has one; the rest
+are equivalent, and `crates/clearsign/tests/mutation_gaps.rs` lists each with
+the reason.
+
 ## v0.1.2 — 2026-10-04
 
 **Unsigned evaluation release. Not approved for high-value custody.** This

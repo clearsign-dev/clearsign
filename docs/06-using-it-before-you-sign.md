@@ -55,7 +55,7 @@ Operation ........................ DELEGATECALL
 Code that will run as the Safe ... 0x9622 1423 681A 6d52 E184 D440 a8eF CEbB 105C 7242
 Calldata selector ................ 0xa9059cbb
 
-[CRITICAL] 2:SAFE_DELEGATECALL - DELEGATECALL runs the code at 0x9622…7242 with
+[CRITICAL] 1:SAFE_DELEGATECALL - DELEGATECALL runs the code at 0x9622…7242 with
 full control over this Safe's storage, owners, modules and funds. Any function
 name the calldata appears to have does NOT describe what that code does, so it
 is deliberately not decoded.
@@ -89,11 +89,19 @@ reason they would differ is that something is misrepresenting the transaction.
 
 - It has had **one** external security review. Ten problems were found and fixed,
   and the fixes have not been reviewed by anyone outside the project.
-- It decodes a deliberately small set of things: ERC-20 transfers and approvals,
-  Safe administration, and MultiSend batches at Safe's published addresses.
-  Anything else is reported as *not understood* rather than guessed at. That is
-  the design, but it means it will sometimes tell you less than you want.
-- It does not yet read EIP-712 typed data beyond the Safe transaction type.
+- It decodes a deliberately bounded set of things: ERC-20 transfers and
+  approvals, Safe administration, MultiSend batches at Safe's published
+  addresses, and since October 2026 the calls attacks have used: ownership,
+  role and upgrade changes, token permissions beyond `approve`, and calls that
+  carry other calls. Anything else is reported as *not understood* rather than
+  guessed at. That is the design, but it means it will often tell you less
+  than you want: most ordinary DeFi calls are still BLIND.
+- The window reads Safe transactions only. EIP-712 typed data — permits,
+  Permit2 and the like — can be reviewed with the command-line tool
+  (`clearsign typed-data request.json`), not yet in the window, and nothing
+  here signs it.
+- The newest decoders, everything added in October 2026, have not had a human
+  security review.
 - Running it on your everyday laptop means trusting that laptop. It is a second
   opinion, not a secure device. Never give it a recovery phrase.
 

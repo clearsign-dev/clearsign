@@ -158,6 +158,6 @@ jobs:
       - name: Fuzz every parser briefly
         working-directory: signing-core
         run: |
-          for target in rlp_decode tx_bytes safe_tx multisend plan ur_decode; do
+          for target in rlp_decode tx_bytes safe_tx multisend plan plan_wire ur_decode calldata typed_data; do
             cargo +nightly fuzz run "$target" -- -max_total_time=60 -max_len=4096
           done
