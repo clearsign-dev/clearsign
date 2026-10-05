@@ -30,7 +30,8 @@ mkdir -p "$ARTIFACTS"
 
 prepare() { # source tree plus this machine's crate cache, so the build is offline
   local work="$1"
-  (cd "$ROOT" && tar --exclude ./target --exclude ./fuzz --exclude ./vendor -cf - .) | (cd "$work" && tar -xf -)
+  # bench/ is its own workspace with large corpora and is not part of any build.
+  (cd "$ROOT" && tar --exclude ./target --exclude ./fuzz --exclude ./vendor --exclude ./bench -cf - .) | (cd "$work" && tar -xf -)
   mkdir -p "$work/cargo-cache"
   cp -R "$CARGO_HOME_DIR/registry" "$work/cargo-cache/registry"
   cp "$ROOT/scripts/in-canonical-container.sh" "$work/in-container.sh"

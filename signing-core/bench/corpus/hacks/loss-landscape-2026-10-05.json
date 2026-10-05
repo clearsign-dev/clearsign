@@ -1,0 +1,2719 @@
+[
+ {
+  "metric": "Wallet-drainer phishing losses (EVM)",
+  "value": 295000000,
+  "unit": "USD (approx., 'nearly')",
+  "period": "2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "In the past year, Scam Sniffer has monitored these Wallet Drainers stealing nearly 295 million US dollars in assets from about 324,000 victims."
+ },
+ {
+  "metric": "Wallet-drainer phishing victims",
+  "value": 324000,
+  "unit": "victims (approx.)",
+  "period": "2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "In the past year, Scam Sniffer has monitored these Wallet Drainers stealing nearly 295 million US dollars in assets from about 324,000 victims."
+ },
+ {
+  "metric": "Largest single drainer victim; signature used: Increase Allowance",
+  "value": 24050000,
+  "unit": "USD",
+  "period": "2023 (September)",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "Table 'The 13 Most Severe Theft Victims': 0x13e382dfe53207e9ce2eeeab330f69da2794179e | $24.05m | Increase Allowance"
+ },
+ {
+  "metric": "Cumulative losses of the 13 largest drainer victims",
+  "value": 50000000,
+  "unit": "USD",
+  "period": "2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "The above are the victims who have suffered the most from theft, with cumulative losses of $50 million."
+ },
+ {
+  "metric": "Top-13 2023 victims: losses where the signed item was an on-chain approval (Approve / Increase Allowance / Increase Approval) [computed from the report's table]",
+  "value": 39010000,
+  "unit": "USD (6 of the 13 victims: 24.05 + 4.47 + 3.83 + 3.22 + 2.25 + 1.19 = 39.01M; about 76% of the 13 victims' $51.46M table total)",
+  "period": "2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "Table rows: $24.05m Increase Allowance; $4.47m Increase Approval; $3.83m Approve; $3.22m Approve; $2.25m Approve; $1.19m Approve"
+ },
+ {
+  "metric": "Top-13 2023 victims: losses where the signed item was an off-chain ERC-20 Permit or Uniswap Permit2 signature [computed from the report's table]",
+  "value": 9930000,
+  "unit": "USD (5 victims: 4.08+2.29+1.24+1.04 Permit, 1.28 Permit2; a further $1.49m victim signed 'ERC20 Permit, Approve')",
+  "period": "2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "Table rows: $4.08m ERC20 Permit; $2.29m ERC20 Permit; $1.49m ERC20 Permit, Approve; $1.28m Uniswap Permit2; $1.24m ERC20 Permit; $1.04m ERC20 Permit"
+ },
+ {
+  "metric": "Inferno Drainer: amount stolen",
+  "value": 81000000,
+  "unit": "USD",
+  "period": "2023 (9 months from March 2023)",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "Monkey drained $16 million over a span of 6 months, while Inferno Drainer outpaced this significantly, looting $81 million in just 9 months."
+ },
+ {
+  "metric": "Drainer operators' profit from 20% service fees",
+  "value": 47000000,
+  "unit": "USD (at least)",
+  "period": "2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2023: Crypto Phishing Scams Drain $300 Million from 320,000 Users' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2023-crypto-phishing-scams-drain-300-million-from-320000-users/",
+  "published": "2024-01-01",
+  "quote": "Based on a 20% Drainer fee, they profited at least $47 million from selling wallet drainer services."
+ },
+ {
+  "metric": "MS Drainer: amount stolen",
+  "value": 58980000,
+  "unit": "USD",
+  "period": "Mar-Dec 2023 (9 months)",
+  "source_name": "Scam Sniffer, 'From Google to X Ads: Tracing the Crypto Wallet Drainer's $58 Million Trail' (MS Drainer)",
+  "source_url": "https://drops.scamsniffer.io/from-google-to-x-ads-tracing-the-crypto-wallet-drainers-58-million-trail/",
+  "published": "2023-12-21",
+  "quote": "they have stolen nearly $58.98 million from about 63,210 victims over the past nine months"
+ },
+ {
+  "metric": "MS Drainer: victims",
+  "value": 63210,
+  "unit": "victims (approx.)",
+  "period": "Mar-Dec 2023 (9 months)",
+  "source_name": "Scam Sniffer, 'From Google to X Ads: Tracing the Crypto Wallet Drainer's $58 Million Trail' (MS Drainer)",
+  "source_url": "https://drops.scamsniffer.io/from-google-to-x-ads-tracing-the-crypto-wallet-drainers-58-million-trail/",
+  "published": "2023-12-21",
+  "quote": "they have stolen nearly $58.98 million from about 63,210 victims over the past nine months"
+ },
+ {
+  "metric": "Drainer phishing losses, January 2024",
+  "value": 55000000,
+  "unit": "USD (approx.)",
+  "period": "2024-01",
+  "source_name": "Scam Sniffer, 'Scam Sniffer Report: $55 Million Stolen Due To Phishing In January' (monthly)",
+  "source_url": "https://drops.scamsniffer.io/scamsniffer-report-over-55-million-stolen-due-to-crypto-phishing-in-january/",
+  "published": "2024-02-09",
+  "quote": "approximately $55 million stolen across all EVM chains"
+ },
+ {
+  "metric": "Drainer phishing victims, January 2024; top-7 victims' losses $17M (signed ERC20 Permit and/or increaseAllowance)",
+  "value": 40000,
+  "unit": "victims (approx.)",
+  "period": "2024-01",
+  "source_name": "Scam Sniffer, 'Scam Sniffer Report: $55 Million Stolen Due To Phishing In January' (monthly)",
+  "source_url": "https://drops.scamsniffer.io/scamsniffer-report-over-55-million-stolen-due-to-crypto-phishing-in-january/",
+  "published": "2024-02-09",
+  "quote": "around 40,000 victims, with the top 7 victims losing $17 million"
+ },
+ {
+  "metric": "Drainer phishing losses, March 2024 (monthly report; the 2024 annual report later gives $75.2M)",
+  "value": 71000000,
+  "unit": "USD",
+  "period": "2024-03",
+  "source_name": "Scam Sniffer, 'Scam Sniffer Report: $71 Million Stolen Due To Phishing In March' (monthly)",
+  "source_url": "https://drops.scamsniffer.io/71-million-stolen-due-to-phishing-in-march/",
+  "published": "2024-04-02",
+  "quote": "Crypto phishing scams hit $71M in March, marking a 50% increase in stolen funds from February."
+ },
+ {
+  "metric": "Drainer phishing losses, Q1 2024 (monthly report; the 2024 annual report later gives $187.2M)",
+  "value": 173000000,
+  "unit": "USD",
+  "period": "2024-Q1",
+  "source_name": "Scam Sniffer, 'Scam Sniffer Report: $71 Million Stolen Due To Phishing In March' (monthly)",
+  "source_url": "https://drops.scamsniffer.io/71-million-stolen-due-to-phishing-in-march/",
+  "published": "2024-04-02",
+  "quote": "The first quarter of 2024 has seen a total of $173M lost to phishing scams."
+ },
+ {
+  "metric": "Drainer phishing losses, H1 2024 (Scam Sniffer mid-year figure)",
+  "value": 314000000,
+  "unit": "USD",
+  "period": "2024-H1",
+  "source_name": "crypto.news, 'Crypto scammers stole nearly $60m from 20 victims in H1 2024, data shows' (secondary; cites Scam Sniffer X thread https://twitter.com/realScamSniffer/status/1809089851859611908)",
+  "source_url": "https://crypto.news/crypto-scammers-stole-nearly-60m-from-20-victims-in-h1-2024-data-shows/",
+  "published": "2024-07-05",
+  "quote": "they stole $314 million worth of crypto, marking a 6.44% increase compared to 2023"
+ },
+ {
+  "metric": "Drainer phishing victims, H1 2024",
+  "value": 260000,
+  "unit": "victims (approx.)",
+  "period": "2024-H1",
+  "source_name": "crypto.news, 'Crypto scammers stole nearly $60m from 20 victims in H1 2024, data shows' (secondary; cites Scam Sniffer X thread https://twitter.com/realScamSniffer/status/1809089851859611908)",
+  "source_url": "https://crypto.news/crypto-scammers-stole-nearly-60m-from-20-victims-in-h1-2024-data-shows/",
+  "published": "2024-07-05",
+  "quote": "targeting around 260,000 victims"
+ },
+ {
+  "metric": "Losses of 20 largest drainer victims, H1 2024",
+  "value": 58000000,
+  "unit": "USD (approx.)",
+  "period": "2024-H1",
+  "source_name": "crypto.news, 'Crypto scammers stole nearly $60m from 20 victims in H1 2024, data shows' (secondary; cites Scam Sniffer X thread https://twitter.com/realScamSniffer/status/1809089851859611908)",
+  "source_url": "https://crypto.news/crypto-scammers-stole-nearly-60m-from-20-victims-in-h1-2024-data-shows/",
+  "published": "2024-07-05",
+  "quote": "around $58 million worth of crypto was drained from 20 victims alone"
+ },
+ {
+  "metric": "Largest single drainer victim, H1 2024",
+  "value": 11000000,
+  "unit": "USD",
+  "period": "2024-H1",
+  "source_name": "crypto.news, 'Crypto scammers stole nearly $60m from 20 victims in H1 2024, data shows' (secondary; cites Scam Sniffer X thread https://twitter.com/realScamSniffer/status/1809089851859611908)",
+  "source_url": "https://crypto.news/crypto-scammers-stole-nearly-60m-from-20-victims-in-h1-2024-data-shows/",
+  "published": "2024-07-05",
+  "quote": "one victim losing $11 million, becoming the second-largest theft victim in crypto history"
+ },
+ {
+  "metric": "Wallet-drainer phishing losses (EVM)",
+  "value": 494000000,
+  "unit": "USD",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Total Loss: $494M USD, up 67%"
+ },
+ {
+  "metric": "Wallet-drainer phishing victims",
+  "value": 332000,
+  "unit": "victim addresses",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Number of Victims: 332,000 addresses, up 3.7%"
+ },
+ {
+  "metric": "Largest single drainer theft (setOwner signature changing a DSProxy's owner; 55M DAI)",
+  "value": 55480000,
+  "unit": "USD",
+  "period": "2024 (August)",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Largest Single Theft: $55.48M USD"
+ },
+ {
+  "metric": "Drainer thefts of $1M or more: count",
+  "value": 30,
+  "unit": "cases",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "30 cases exceeding $1 million occurred throughout the year, with total losses of $171 million."
+ },
+ {
+  "metric": "Drainer thefts of $1M or more: total",
+  "value": 171000000,
+  "unit": "USD",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "30 cases exceeding $1 million occurred throughout the year, with total losses of $171 million."
+ },
+ {
+  "metric": "Drainer phishing losses, Q1 2024",
+  "value": 187200000,
+  "unit": "USD",
+  "period": "2024-Q1",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "First quarter saw the heaviest losses, reaching $187.2 million with 175,000 victims."
+ },
+ {
+  "metric": "Drainer phishing losses, March 2024 (peak month)",
+  "value": 75200000,
+  "unit": "USD",
+  "period": "2024-03",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "March recorded the highest losses at $75.2 million."
+ },
+ {
+  "metric": "Drainer phishing losses, Q2+Q3 2024 combined",
+  "value": 257000000,
+  "unit": "USD",
+  "period": "2024-Q2+Q3",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Second and third quarters combined losses totaled $257 million, with victims decreasing to 90,000."
+ },
+ {
+  "metric": "Drainer phishing losses, Q4 2024",
+  "value": 51000000,
+  "unit": "USD",
+  "period": "2024-Q4",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Fourth quarter losses dropped to $51 million with victims reducing to 30,000."
+ },
+ {
+  "metric": "Largest monthly large-case losses: August and September 2024",
+  "value": [
+   55480000,
+   32510000
+  ],
+  "unit": "USD [Aug, Sep]",
+  "period": "2024-08, 2024-09",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "The peak period occurred during July-September, with major losses of $55.48M and $32.51M in August and September respectively."
+ },
+ {
+  "metric": "Share of large-case (>=$1M) losses by signature: Permit",
+  "value": 56.7,
+  "unit": "percent of large-case losses",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Permit (56.7%)"
+ },
+ {
+  "metric": "Share of large-case (>=$1M) losses by signature: setOwner (Proxy ownership change)",
+  "value": 31.9,
+  "unit": "percent of large-case losses",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "setOwner (31.9%) ... Notably, the setOwner phishing signature targeting Proxy ownership modification led to a significant incident in August."
+ },
+ {
+  "metric": "Share of large-case (>=$1M) losses by signature: Transfer",
+  "value": 4.5,
+  "unit": "percent of large-case losses",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Transfer (4.5%)"
+ },
+ {
+  "metric": "Share of large-case (>=$1M) losses by signature: increaseAllowance",
+  "value": 3.5,
+  "unit": "percent of large-case losses",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "increaseAllowance (3.5%)"
+ },
+ {
+  "metric": "Share of large-case (>=$1M) losses by signature: Others",
+  "value": 3.4,
+  "unit": "percent of large-case losses",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Others (3.4%)"
+ },
+ {
+  "metric": "Large-case losses on Ethereum",
+  "value": 152000000,
+  "unit": "USD (25 cases, 85.3%)",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Ethereum (25 cases, 85.3%), losses of $152 million"
+ },
+ {
+  "metric": "Large-case losses by asset type: Staking & Restaking tokens",
+  "value": 40.9,
+  "unit": "percent",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Staking & Restaking（40.9%）"
+ },
+ {
+  "metric": "Large-case losses by asset type: Stablecoins",
+  "value": 33.5,
+  "unit": "percent",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Stablecoin（33.5%）"
+ },
+ {
+  "metric": "Drainer market share Q1-Q2 2024: Angel / Pink / Inferno",
+  "value": [
+   42,
+   28,
+   22
+  ],
+  "unit": "percent",
+  "period": "2024-H1",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Q1-Q2: Three major players dominated (Angel: 42%, Pink: 28%, Inferno: 22%)"
+ },
+ {
+  "metric": "Largest 2024 drainer case: setOwner signature, DAI",
+  "value": 55000000,
+  "unit": "USD",
+  "period": "2024 (August)",
+  "source_name": "SlowMist, 'Analysis of the 2024 Blockchain Security and Anti-Money Laundering Annual Report: Phishing and Scam Techniques' (re-uses Scam Sniffer data)",
+  "source_url": "https://slowmist.medium.com/analysis-of-the-2024-blockchain-security-and-anti-money-laundering-annual-report-phishing-and-scam-503f018c7c4c",
+  "published": "2025-01-10",
+  "quote": "In one incident in August, a setOwner phishing signature led to a victim losing $55 million in DAI."
+ },
+ {
+  "metric": "Permit share of phishing (large-case) losses",
+  "value": 56.7,
+  "unit": "percent",
+  "period": "2024",
+  "source_name": "SlowMist, 'Analysis of the 2024 Blockchain Security and Anti-Money Laundering Annual Report: Phishing and Scam Techniques' (re-uses Scam Sniffer data)",
+  "source_url": "https://slowmist.medium.com/analysis-of-the-2024-blockchain-security-and-anti-money-laundering-annual-report-phishing-and-scam-503f018c7c4c",
+  "published": "2025-01-10",
+  "quote": "Permit signatures remain the primary method for phishing attacks, accounting for 56.7%."
+ },
+ {
+  "metric": "Wallet-drainer signature-phishing losses (EVM; phishing websites only, excludes hacks/exchange compromises/contract exploits)",
+  "value": 83850000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Total losses: $83.85M across 106,106 victims — down 83% and 68% respectively from 2024"
+ },
+ {
+  "metric": "Wallet-drainer signature-phishing victims",
+  "value": 106106,
+  "unit": "victims",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Total losses: $83.85M across 106,106 victims — down 83% and 68% respectively from 2024"
+ },
+ {
+  "metric": "Change in drainer phishing losses vs 2024",
+  "value": -83,
+  "unit": "percent",
+  "period": "2025 vs 2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Total losses: $83.85M across 106,106 victims — down 83% and 68% respectively from 2024"
+ },
+ {
+  "metric": "Largest single drainer theft (Permit signature; stETH + aEthWBTC)",
+  "value": 6500000,
+  "unit": "USD",
+  "period": "2025 (September)",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Largest single theft: $6.5M via Permit signature (September)"
+ },
+ {
+  "metric": "Drainer thefts of $1M or more: count (2025 / 2024 / 2023)",
+  "value": [
+   11,
+   30,
+   13
+  ],
+  "unit": "cases",
+  "period": "2025, 2024, 2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Key Data Comparison table: Large Cases (≥$1M) | 11 | 30 | 13 | -63.3%"
+ },
+ {
+  "metric": "Largest single theft by year (2025 / 2024 / 2023)",
+  "value": [
+   6500000,
+   55480000,
+   24050000
+  ],
+  "unit": "USD",
+  "period": "2025, 2024, 2023",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Key Data Comparison table: Largest Theft | $6.5M | $55.48M | $24.05M | -88.3%"
+ },
+ {
+  "metric": "Drainer thefts of $1M or more: total",
+  "value": 22980000,
+  "unit": "USD (27% of 2025 total)",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Total large-case losses: $22.98M (27% of yearly total)"
+ },
+ {
+  "metric": "Drainer phishing losses, Q1 2025",
+  "value": 21940000,
+  "unit": "USD (22,654 victims)",
+  "period": "2025-Q1",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Q1: $21.94M (22,654 victims, $969 avg/victim)"
+ },
+ {
+  "metric": "Drainer phishing losses, Q2 2025",
+  "value": 17780000,
+  "unit": "USD (20,974 victims)",
+  "period": "2025-Q2",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Q2: $17.78M (20,974 victims, $848 avg/victim)"
+ },
+ {
+  "metric": "Drainer phishing losses, Q3 2025 (yearly high)",
+  "value": 31040000,
+  "unit": "USD (39,886 victims)",
+  "period": "2025-Q3",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Q3: $31.04M (39,886 victims, $778 avg/victim)"
+ },
+ {
+  "metric": "Drainer phishing losses, Q4 2025",
+  "value": 13090000,
+  "unit": "USD (22,592 victims)",
+  "period": "2025-Q4",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Q4: $13.09M (22,592 victims, $580 avg/victim)"
+ },
+ {
+  "metric": "Drainer phishing losses, H1 2025 [computed: Q1 + Q2 from the annual report; no standalone Scam Sniffer H1 2025 report found]",
+  "value": 39720000,
+  "unit": "USD",
+  "period": "2025-H1",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Q1: $21.94M ... Q2: $17.78M"
+ },
+ {
+  "metric": "Monthly drainer phishing losses range (December low, August high)",
+  "value": [
+   2040000,
+   12170000
+  ],
+  "unit": "USD [min, max]",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Monthly losses ranged from $2.04M (December) to $12.17M (August), correlating with market cycles."
+ },
+ {
+  "metric": "Large-case (>=$1M) losses by signature: Permit / Permit2",
+  "value": 8720000,
+  "unit": "USD (3 cases; 38% of large-case losses)",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Permit/Permit2: 3 cases, $8.72M ... Permit/Permit2 signatures accounted for 38% of large-case losses."
+ },
+ {
+  "metric": "Large-case (>=$1M) losses by signature: Approve / increaseApproval",
+  "value": 5620000,
+  "unit": "USD (3 cases)",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Approve/increaseApproval: 3 cases, $5.62M"
+ },
+ {
+  "metric": "Large-case (>=$1M) losses by signature: Transfer",
+  "value": 4870000,
+  "unit": "USD (2 cases)",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Transfer: 2 cases, $4.87M"
+ },
+ {
+  "metric": "Large-case (>=$1M) losses by signature: EIP-7702 batch",
+  "value": 2540000,
+  "unit": "USD (2 cases, both August 2025)",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "EIP-7702 batch: 2 cases, $2.54M ... August saw the largest cases ($2.54M from 2 incidents)."
+ },
+ {
+  "metric": "Large-case (>=$1M) losses by signature: setApprovalForAll",
+  "value": 1230000,
+  "unit": "USD (1 case, Uniswap V3 NFTs)",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "setApprovalForAll: 1 case, $1.23M"
+ },
+ {
+  "metric": "2025 large drainer case: WBTC, May, increaseApproval",
+  "value": 3130000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $3.13M (WBTC, May, increaseApproval)"
+ },
+ {
+  "metric": "2025 large drainer case: aEthUSDT, August, Transfer",
+  "value": 3050000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $3.05M (aEthUSDT, August, Transfer)"
+ },
+ {
+  "metric": "2025 large drainer case: cUSDCv3, March, Transfer",
+  "value": 1820000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.82M (cUSDCv3, March, Transfer)"
+ },
+ {
+  "metric": "2025 large drainer case: Multiple, August, EIP-7702 batch",
+  "value": 1540000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.54M (Multiple, August, EIP-7702 batch)"
+ },
+ {
+  "metric": "2025 large drainer case: Multiple, April, Approve",
+  "value": 1430000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.43M (Multiple, April, Approve)"
+ },
+ {
+  "metric": "2025 large drainer case: Uniswap V3 NFTs, July, setApprovalForAll",
+  "value": 1230000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.23M (Uniswap V3 NFTs, July, setApprovalForAll)"
+ },
+ {
+  "metric": "2025 large drainer case: aPlaUSDT0, November, Permit",
+  "value": 1220000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.22M (aPlaUSDT0, November, Permit)"
+ },
+ {
+  "metric": "2025 large drainer case: sUSDf/USDe, July, Approve",
+  "value": 1060000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.06M (sUSDf/USDe, July, Approve)"
+ },
+ {
+  "metric": "2025 large drainer case: Multiple, August, EIP-7702 batch",
+  "value": 1000000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.00M (Multiple, August, EIP-7702 batch)"
+ },
+ {
+  "metric": "2025 large drainer case: RLB, January, Uniswap Permit2",
+  "value": 1000000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $1.00M (RLB, January, Uniswap Permit2)"
+ },
+ {
+  "metric": "EIP-7702 drainer phishing emergence after Pectra",
+  "value": 2,
+  "unit": "large cases (>=$1M)",
+  "period": "2025-08",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Permit remained primary; EIP-7702 malicious signatures emerged after the Pectra upgrade, with 2 large cases in August"
+ },
+ {
+  "metric": "Bybit cited as the main non-signature-phishing loss of 2025",
+  "value": 1460000000,
+  "unit": "USD",
+  "period": "2025-02",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Lazarus compromised a Safe{Wallet} developer machine, injecting malicious code that spoofed the multisig signing interface"
+ },
+ {
+  "metric": "Signature-phishing losses, January 2026",
+  "value": 6270000,
+  "unit": "USD",
+  "period": "2026-01",
+  "source_name": "Decrypt, 'Signature Phishing Up 200% As January Losses Pass $6M' (secondary; cites Scam Sniffer X post https://twitter.com/realScamSniffer/status/2020343088523407836, 2026-02-08)",
+  "source_url": "https://decrypt.co/357450/signature-phishing-up-200-as-january-losses-pass-6m",
+  "published": "2026-02-09",
+  "quote": "$6.27 million stolen, blockchain security firm Scam Sniffer warned"
+ },
+ {
+  "metric": "Change in signature-phishing losses, January 2026 vs December 2025",
+  "value": 207,
+  "unit": "percent increase",
+  "period": "2026-01",
+  "source_name": "Decrypt, 'Signature Phishing Up 200% As January Losses Pass $6M' (secondary; cites Scam Sniffer X post https://twitter.com/realScamSniffer/status/2020343088523407836, 2026-02-08)",
+  "source_url": "https://decrypt.co/357450/signature-phishing-up-200-as-january-losses-pass-6m",
+  "published": "2026-02-09",
+  "quote": "4,700 wallets drained in January—an increase of 207% from December"
+ },
+ {
+  "metric": "Largest January 2026 signature-phishing case (permit + increaseAllowance; SLV and XAUt tokens)",
+  "value": 3020000,
+  "unit": "USD",
+  "period": "2026-01",
+  "source_name": "Decrypt, 'Signature Phishing Up 200% As January Losses Pass $6M' (secondary; cites Scam Sniffer X post https://twitter.com/realScamSniffer/status/2020343088523407836, 2026-02-08)",
+  "source_url": "https://decrypt.co/357450/signature-phishing-up-200-as-january-losses-pass-6m",
+  "published": "2026-02-09",
+  "quote": "$3.02 million taken through a permit and increaseAllowance attack involving SLV and XAUt tokens"
+ },
+ {
+  "metric": "Second-largest January 2026 case (permit)",
+  "value": 1080000,
+  "unit": "USD",
+  "period": "2026-01",
+  "source_name": "Decrypt, 'Signature Phishing Up 200% As January Losses Pass $6M' (secondary; cites Scam Sniffer X post https://twitter.com/realScamSniffer/status/2020343088523407836, 2026-02-08)",
+  "source_url": "https://decrypt.co/357450/signature-phishing-up-200-as-january-losses-pass-6m",
+  "published": "2026-02-09",
+  "quote": "$1.08 million drained via a permit attack"
+ },
+ {
+  "metric": "Share of January 2026 signature-phishing losses from two wallets",
+  "value": 65,
+  "unit": "percent (approx.)",
+  "period": "2026-01",
+  "source_name": "Decrypt, 'Signature Phishing Up 200% As January Losses Pass $6M' (secondary; cites Scam Sniffer X post https://twitter.com/realScamSniffer/status/2020343088523407836, 2026-02-08)",
+  "source_url": "https://decrypt.co/357450/signature-phishing-up-200-as-january-losses-pass-6m",
+  "published": "2026-02-09",
+  "quote": "Two wallets accounted for roughly 65% of the total stolen"
+ },
+ {
+  "metric": "Signature-phishing victims, January 2026",
+  "value": 4741,
+  "unit": "victims",
+  "period": "2026-01",
+  "source_name": "Cointelegraph, 'Two Victims Lose $62 Million To Address Poisoning Since December' (secondary; cites Scam Sniffer)",
+  "source_url": "https://cointelegraph.com/news/over-62m-lost-address-poisoning-since-december-scam-sniffer",
+  "published": "2026-02-09",
+  "quote": "signature phishing also surged recently, with $6.27 million stolen from 4,741 victims in January"
+ },
+ {
+  "metric": "Address-poisoning loss, single victim, January 2026",
+  "value": 12200000,
+  "unit": "USD (≈$12.25M / ~4,556 ETH per crypto.news)",
+  "period": "2026-01",
+  "source_name": "Cointelegraph, 'Two Victims Lose $62 Million To Address Poisoning Since December' (secondary; cites Scam Sniffer)",
+  "source_url": "https://cointelegraph.com/news/over-62m-lost-address-poisoning-since-december-scam-sniffer",
+  "published": "2026-02-09",
+  "quote": "Just one victim lost $12.2 million in January by copying the wrong address from their transaction history"
+ },
+ {
+  "metric": "Address-poisoning loss, single victim, December 2025",
+  "value": 50000000,
+  "unit": "USD",
+  "period": "2025-12",
+  "source_name": "Cointelegraph, 'Two Victims Lose $62 Million To Address Poisoning Since December' (secondary; cites Scam Sniffer)",
+  "source_url": "https://cointelegraph.com/news/over-62m-lost-address-poisoning-since-december-scam-sniffer",
+  "published": "2026-02-09",
+  "quote": "a similar $50 million attack in December"
+ },
+ {
+  "metric": "Safe multisig wallets losing funds to address poisoning in one week",
+  "value": 2050000,
+  "unit": "USD (about 10 Safe wallets)",
+  "period": "late Nov 2023 (one week)",
+  "source_name": "Scam Sniffer, 'Multiple Safe Wallets Lose $2 Million to Address Poisoning Attacks'",
+  "source_url": "https://drops.scamsniffer.io/multiple-safe-wallets-lose-2-million-to-address-poisoning-attacks/",
+  "published": "2023-12-03",
+  "quote": "about 10 Safe wallets have lost $2.05 million in the past week"
+ },
+ {
+  "metric": "Same attacker's address-poisoning haul against Safe users",
+  "value": 5050000,
+  "unit": "USD (21 victims)",
+  "period": "Aug-Dec 2023 (4 months)",
+  "source_name": "Scam Sniffer, 'Multiple Safe Wallets Lose $2 Million to Address Poisoning Attacks'",
+  "source_url": "https://drops.scamsniffer.io/multiple-safe-wallets-lose-2-million-to-address-poisoning-attacks/",
+  "published": "2023-12-03",
+  "quote": "$5.05 million from 21 victims in the past 4 months"
+ },
+ {
+  "metric": "Loss from a transaction-simulation-spoofing attack (state changed ~30s between wallet simulation and signing)",
+  "value": 460895,
+  "unit": "USD (143.45 ETH)",
+  "period": "2025-01",
+  "source_name": "Scam Sniffer, 'Transaction Simulation Spoofing: A New Threat in Web3'",
+  "source_url": "https://drops.scamsniffer.io/transaction-simulation-spoofing-a-new-threat-in-web3/",
+  "published": "2025-01-10",
+  "quote": "143.45 ETH (approximately $460,895)"
+ },
+ {
+  "metric": "Inferno Drainer victims and losses, Sep 2024-Mar 2025",
+  "value": 9000000,
+  "unit": "USD (exceeding; over 30,000 victims)",
+  "period": "2024-09 to 2025-03",
+  "source_name": "Check Point Research, 'Inferno Drainer Reloaded: Deep Dive into the Return of the Most Sophisticated Crypto Drainer'",
+  "source_url": "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/",
+  "published": "2025-05-07",
+  "quote": "over 30,000 users fell victim to Inferno Drainer scams, resulting in losses exceeding $9 million"
+ },
+ {
+  "metric": "Inferno Drainer lifetime theft (as of May 2024)",
+  "value": 250000000,
+  "unit": "USD (over)",
+  "period": "to 2024-05",
+  "source_name": "Check Point Research, 'Inferno Drainer Reloaded: Deep Dive into the Return of the Most Sophisticated Crypto Drainer'",
+  "source_url": "https://research.checkpoint.com/2025/inferno-drainer-reloaded-deep-dive-into-the-return-of-the-most-sophisticated-crypto-drainer/",
+  "published": "2025-05-07",
+  "quote": "by May 2024, their drainer was responsible for stealing over $250 million throughout its entire operational history"
+ },
+ {
+  "metric": "DeFiLlama total value hacked, 2023",
+  "value": 1626253369,
+  "unit": "USD (197 incidents)",
+  "period": "2023",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed: sum of 'amount' for entries dated 2023 (no quote; dataset)"
+ },
+ {
+  "metric": "DeFiLlama total value hacked, 2024",
+  "value": 1669697215,
+  "unit": "USD (217 incidents)",
+  "period": "2024",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed: sum of 'amount' for entries dated 2024; 'Social Engineering' class 38.1%, 'Key Compromise' 30.9% (dataset of 1,293 records; no quote)"
+ },
+ {
+  "metric": "DeFiLlama total value hacked, 2025",
+  "value": 2715021619,
+  "unit": "USD (148 incidents)",
+  "period": "2025",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed: sum of 'amount' for entries dated 2025; 'Social Engineering' class = $1,546,200,000 (56.9%; 8 incidents, incl. Bybit $1.4B)"
+ },
+ {
+  "metric": "DeFiLlama total value hacked, 2026 to 2026-10-01",
+  "value": 2242313291,
+  "unit": "USD (286 incidents)",
+  "period": "2026-01-01 to 2026-10-01",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed: sum of 'amount' for entries dated 2026; 'Key Compromise' $703.8M (31.4%), 'Bridge & Cross-Chain' $699.9M (31.2%), 'Access Control' $369.6M (16.5%)"
+ },
+ {
+  "metric": "Retail signature-phishing / address-poisoning cases present in DeFiLlama list (Aug 2024 $55M setOwner, Sep 2024 $32.5M, May 2024 WBTC poisoning, Dec 2025 $50M and Jan 2026 $12.25M poisoning)",
+  "value": 0,
+  "unit": "cases found",
+  "period": "2024-2026",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed: no entry within the matching month and amount range; only one 'Address Poisoning' entry exists since 2023 (Florence Finance, $1.45M, 2023-11-30)"
+ },
+ {
+  "metric": "Funds stolen in crypto hacks",
+  "value": 1700000000,
+  "unit": "USD",
+  "period": "2023",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "In 2023, however, funds stolen decreased by approximately 54.3% to $1.7 billion, though the number of individual hacking incidents actually grew, from 219 in 2022 to 231 in 2023."
+ },
+ {
+  "metric": "Number of hacking incidents (as first published; restated as 282 in the Dec 2024 report)",
+  "value": 231,
+  "unit": "incidents",
+  "period": "2023",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "...the number of individual hacking incidents actually grew, from 219 in 2022 to 231 in 2023."
+ },
+ {
+  "metric": "Funds stolen in crypto hacks",
+  "value": 3700000000,
+  "unit": "USD",
+  "period": "2022",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "As we revealed in last year's Crypto Crime Report, 2022 was the biggest year ever for crypto theft with $3.7 billion stolen."
+ },
+ {
+  "metric": "Funds stolen from DeFi protocols",
+  "value": 1100000000,
+  "unit": "USD",
+  "period": "2023",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "But in 2023, hackers stole just $1.1 billion from DeFi protocols."
+ },
+ {
+  "metric": "DPRK-linked theft (as first published; revised to $660.50M in Dec 2024)",
+  "value": 1000000000,
+  "unit": "USD (slightly over), 20 hacks",
+  "period": "2023",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "In 2023, we estimate that the total amount stolen is slightly over $1.0 billion, but as we see below, the number of hacks rose to 20 — the highest number on record."
+ },
+ {
+  "metric": "Top-50 DeFi hacks: share of losses from compromised private keys (Halborn data quoted by Chainalysis)",
+  "value": 47.8,
+  "unit": "percent (up from 22.0%)",
+  "period": "2023 top-50 vs earlier top-50",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "Doing the same comparison as before, losses related to compromised private keys increased from 22.0% to 47.8%."
+ },
+ {
+  "metric": "Top-50 DeFi hacks: share of losses from smart-contract vulnerabilities (Halborn data quoted by Chainalysis)",
+  "value": 18.2,
+  "unit": "percent (down from 47.0%)",
+  "period": "2023 top-50 vs earlier top-50",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "...there is a reduction in percentage of losses from 47.0% of the total to 18.2%."
+ },
+ {
+  "metric": "Top-50 DeFi hacks: share of losses from price manipulation (Halborn data quoted by Chainalysis)",
+  "value": 20.0,
+  "unit": "percent (approx.)",
+  "period": "2023",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "Price manipulation attacks, nevertheless, remain almost constant with around 20.0% of the total value lost."
+ },
+ {
+  "metric": "Atomic Wallet (non-custodial wallet) user losses, attributed to DPRK TraderTraitor",
+  "value": 129000000,
+  "unit": "USD",
+  "period": "2023-06",
+  "source_name": "Chainalysis, 'Funds Stolen from Crypto Platforms Fall More Than 50% in 2023, but Hacking Remains a Significant Threat as Number of Incidents Rises' (2024 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2024/",
+  "published": "2024-01-24",
+  "quote": "In June 2023, thousands of users of Atomic Wallet, a non-custodial cryptocurrency wallet service, were targeted by a hacker, leading to estimated losses of $129 million."
+ },
+ {
+  "metric": "Funds stolen in crypto heists, January to end of July",
+  "value": 1580000000,
+  "unit": "USD (vs $857M same period 2023)",
+  "period": "2024-01 to 2024-07",
+  "source_name": "Chainalysis, '2024 Crypto Crime Mid-year Update Part 1: Cybercrime Climbs as Exchange Thieves and Ransomware Attackers Grow Bolder'",
+  "source_url": "https://www.chainalysis.com/blog/2024-crypto-crime-mid-year-update-part-1/",
+  "published": "2024-08-15",
+  "quote": "Funds stolen in crypto heists increased Year-over-Year (YoY), nearly doubling from $857M to $1.58B through the end of July."
+ },
+ {
+  "metric": "Average value stolen per hacking incident",
+  "value": 10600000,
+  "unit": "USD (up 79.46% from $5.9M)",
+  "period": "2024-01 to 2024-07",
+  "source_name": "Chainalysis, '2024 Crypto Crime Mid-year Update Part 1: Cybercrime Climbs as Exchange Thieves and Ransomware Attackers Grow Bolder'",
+  "source_url": "https://www.chainalysis.com/blog/2024-crypto-crime-mid-year-update-part-1/",
+  "published": "2024-08-15",
+  "quote": "The average amount of value compromised per event has increased by 79.46%, rising from $5.9M per event from January to July of 2023 to $10.6M per event thus far in 2024..."
+ },
+ {
+  "metric": "Funds stolen from crypto platforms",
+  "value": 2200000000,
+  "unit": "USD (303 incidents; +21.07% YoY)",
+  "period": "2024",
+  "source_name": "Chainalysis, '$2.2 Billion Stolen from Crypto Platforms in 2024, but Hacked Volumes Stagnate Toward Year-End as DPRK Slows Activity Post-July' (2025 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2025/",
+  "published": "2024-12-19",
+  "quote": "In 2024, funds stolen increased by approximately 21.07% year-over-year (YoY) to $2.2 billion, and the number of individual hacking incidents increased from 282 in 2023 to 303 in 2024."
+ },
+ {
+  "metric": "Share of stolen crypto from private key compromises",
+  "value": 43.8,
+  "unit": "percent",
+  "period": "2024",
+  "source_name": "Chainalysis, '$2.2 Billion Stolen from Crypto Platforms in 2024, but Hacked Volumes Stagnate Toward Year-End as DPRK Slows Activity Post-July' (2025 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2025/",
+  "published": "2024-12-19",
+  "quote": "Private key compromises accounted for the largest share of stolen crypto in 2024, at 43.8%."
+ },
+ {
+  "metric": "DPRK-linked theft",
+  "value": 1340000000,
+  "unit": "USD (47 incidents)",
+  "period": "2024",
+  "source_name": "Chainalysis, '$2.2 Billion Stolen from Crypto Platforms in 2024, but Hacked Volumes Stagnate Toward Year-End as DPRK Slows Activity Post-July' (2025 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2025/",
+  "published": "2024-12-19",
+  "quote": "In 2023, North Korea-affiliated hackers stole approximately $660.50 million across 20 incidents; in 2024, this number increased to $1.34 billion stolen across 47 incidents — a 102.88% increase in value stolen."
+ },
+ {
+  "metric": "DPRK share of value stolen / of incidents",
+  "value": [
+   61,
+   20
+  ],
+  "unit": "percent [value, incidents]",
+  "period": "2024",
+  "source_name": "Chainalysis, '$2.2 Billion Stolen from Crypto Platforms in 2024, but Hacked Volumes Stagnate Toward Year-End as DPRK Slows Activity Post-July' (2025 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2025/",
+  "published": "2024-12-19",
+  "quote": "These figures represent 61% of the total amount stolen for the year, and 20% of total incidents."
+ },
+ {
+  "metric": "DPRK-linked theft, 2023 (restated)",
+  "value": 660500000,
+  "unit": "USD (20 incidents)",
+  "period": "2023",
+  "source_name": "Chainalysis, '$2.2 Billion Stolen from Crypto Platforms in 2024, but Hacked Volumes Stagnate Toward Year-End as DPRK Slows Activity Post-July' (2025 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2025/",
+  "published": "2024-12-19",
+  "quote": "In 2023, North Korea-affiliated hackers stole approximately $660.50 million across 20 incidents..."
+ },
+ {
+  "metric": "Funds stolen from crypto services, 2025 year to date",
+  "value": 2170000000,
+  "unit": "USD (over)",
+  "period": "2025-01 to mid-2025",
+  "source_name": "Chainalysis, '2025 Crypto Crime Mid-year Update: Stolen Funds Surge as DPRK Sets New Records'",
+  "source_url": "https://www.chainalysis.com/blog/2025-crypto-crime-mid-year-update/",
+  "published": "2025-07-17",
+  "quote": "With over $2.17 billion stolen from cryptocurrency services so far in 2025, this year is more devastating than the entirety of 2024."
+ },
+ {
+  "metric": "Bybit share of service losses",
+  "value": 69,
+  "unit": "percent (Bybit = $1.5B)",
+  "period": "2025 YTD (July)",
+  "source_name": "Chainalysis, '2025 Crypto Crime Mid-year Update: Stolen Funds Surge as DPRK Sets New Records'",
+  "source_url": "https://www.chainalysis.com/blog/2025-crypto-crime-mid-year-update/",
+  "published": "2025-07-17",
+  "quote": "At $1.5 billion, this single incident not only represents the largest crypto theft in history, but also accounts for approximately 69% of all funds stolen from services this year."
+ },
+ {
+  "metric": "Personal wallet compromises share of all stolen funds",
+  "value": 23.35,
+  "unit": "percent",
+  "period": "2025 YTD (July)",
+  "source_name": "Chainalysis, '2025 Crypto Crime Mid-year Update: Stolen Funds Surge as DPRK Sets New Records'",
+  "source_url": "https://www.chainalysis.com/blog/2025-crypto-crime-mid-year-update/",
+  "published": "2025-07-17",
+  "quote": "Personal wallet compromises now represent a growing share of total ecosystem theft, with attackers increasingly targeting individual users, making up 23.35% of all stolen fund activity YTD in 2025."
+ },
+ {
+  "metric": "Bybit: ETH moved after signers approved a disguised transaction",
+  "value": 401000,
+  "unit": "ETH (approx.; nearly $1.5B)",
+  "period": "2025-02-21",
+  "source_name": "Chainalysis, 'Bybit Hack: Leveraging Transparency for Collaboration in the Wake of Record-Breaking Theft'",
+  "source_url": "https://www.chainalysis.com/blog/bybit-exchange-hack-february-2025-crypto-security-dprk/",
+  "published": "2025-02-24",
+  "quote": "During what appeared to be a routine transfer from Bybit's Ethereum cold wallet to a hot wallet, Bybit unknowingly signed the malicious transaction, enabling the attackers to move approximately 401,000 ETH"
+ },
+ {
+  "metric": "Crypto theft, January to early December",
+  "value": 3400000000,
+  "unit": "USD (over; Bybit $1.5B of it)",
+  "period": "2025-01 to 2025-12 (early Dec)",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "The cryptocurrency industry witnessed over $3.4 billion in theft from January through early December 2025, with the February compromise of Bybit alone accounting for $1.5 billion of that total."
+ },
+ {
+  "metric": "DPRK-linked theft",
+  "value": 2020000000,
+  "unit": "USD (at least; +51% YoY)",
+  "period": "2025",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "In 2025, North Korean hackers stole at least $2.02 billion in cryptocurrency ($681 million more than 2024), representing a 51% increase year-over-year."
+ },
+ {
+  "metric": "DPRK share of service compromises",
+  "value": 76,
+  "unit": "percent",
+  "period": "2025",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "...with DPRK attacks also accounting for a record 76% of all service compromises."
+ },
+ {
+  "metric": "Top three hacks' share of service losses",
+  "value": 69,
+  "unit": "percent",
+  "period": "2025",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "The top three hacks in 2025 account for 69% of all service losses, creating a landscape where individual incidents have an outsized impact on yearly totals."
+ },
+ {
+  "metric": "Personal wallet compromises share of all value stolen (2025 / 2024)",
+  "value": [
+   20,
+   44
+  ],
+  "unit": "percent [2025, 2024]",
+  "period": "2025, 2024",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "Based on our lower bound estimates, personal wallet compromises now account for 20% of all value stolen in 2025, down from 44% of the total in 2024..."
+ },
+ {
+  "metric": "Personal wallet compromises share excluding Bybit effect",
+  "value": 37,
+  "unit": "percent",
+  "period": "2025",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "In 2025, the share would have been 37% if it weren't for the outsized impact of the Bybit attack."
+ },
+ {
+  "metric": "Personal wallet theft incidents",
+  "value": 158000,
+  "unit": "incidents (vs 54,000 in 2022)",
+  "period": "2025",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "Total theft incidents surged to 158,000 in 2025, nearly triple the 54,000 recorded in 2022."
+ },
+ {
+  "metric": "Personal wallet theft unique victims",
+  "value": 80000,
+  "unit": "victims (at least; vs 40,000 in 2022)",
+  "period": "2025",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "Unique victims increased from 40,000 in 2022 to at least 80,000 in 2025."
+ },
+ {
+  "metric": "Value stolen from individual (personal wallet) victims (2025 / 2024)",
+  "value": [
+   713000000,
+   1500000000
+  ],
+  "unit": "USD [2025, 2024]",
+  "period": "2025, 2024",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "The total USD value stolen from individual victims actually declined from 2024's peak of $1.5 billion to $713 million in 2025."
+ },
+ {
+  "metric": "CeFi losses from attacks on private-key infrastructure and signing processes",
+  "value": 88,
+  "unit": "percent of losses",
+  "period": "2025-Q1",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "...accounting for 88% of losses in Q1 2025. Many attackers have developed methods to exploit third-party wallet integrations and trick legitimate signers into authorizing malicious transactions."
+ },
+ {
+  "metric": "Venus Protocol user: delegate status granted after compromised Zoom client",
+  "value": 13000000,
+  "unit": "USD (account value at risk)",
+  "period": "2025-09",
+  "source_name": "Chainalysis, 'North Korea Drives Record $2 Billion Crypto Theft Year, Pushing All-Time Total to $6.75 Billion' (2026 Crypto Crime Report, hacking chapter)",
+  "source_url": "https://www.chainalysis.com/blog/crypto-hacking-stolen-funds-2026/",
+  "published": "2025-12-18",
+  "quote": "When attackers used a compromised Zoom client to gain system access and manipulate a user into granting delegate status over a $13 million account..."
+ },
+ {
+  "metric": "Drift Protocol (Solana) drained after Security Council signers blind-signed admin-transfer transactions",
+  "value": 285000000,
+  "unit": "USD (estimated)",
+  "period": "2026-04-01",
+  "source_name": "Chainalysis, 'The Drift Protocol Hack: How Privileged Access Led to a $285 Million Loss'",
+  "source_url": "https://www.chainalysis.com/blog/lessons-from-the-drift-hack/",
+  "published": "2026-04-09",
+  "quote": "Through social engineering, at least two council members signed transactions they did not fully understand (a classic case of blind signing)."
+ },
+ {
+  "metric": "Bitget theft (method not disclosed); DPRK 2026 YTD passes $1B",
+  "value": 387000000,
+  "unit": "USD",
+  "period": "2026-09-24",
+  "source_name": "Chainalysis, 'How AI Helped Chainalysis Investigators Trace the $387 Million North Korea Stole from Bitget'",
+  "source_url": "https://www.chainalysis.com/blog/387m-bitget-theft-2026/",
+  "published": "2026-10-01",
+  "quote": "On September 24, 2026, DPRK-attributed threat actors stole $387 million from cryptocurrency exchange Bitget."
+ },
+ {
+  "metric": "KelpDAO LayerZero bridge exploit (compromised RPC nodes / 1-of-1 DVN; no signer deception)",
+  "value": 292000000,
+  "unit": "USD (~116,500 rsETH)",
+  "period": "2026-04-18",
+  "source_name": "Chainalysis, 'Inside the KelpDAO Bridge Exploit: How ~$292 Million in rsETH Was Released Against a Non-Existent Burn'",
+  "source_url": "https://www.chainalysis.com/blog/kelpdao-bridge-exploit-april-2026/",
+  "published": "2026-04-23",
+  "quote": "On April 18, 2026, attackers linked to North Korea's Lazarus Group stole ~$292 million (116,500 rsETH) from KelpDAO's LayerZero bridge."
+ },
+ {
+  "metric": "Value stolen in violent (wrench) attacks",
+  "value": [
+   58000000,
+   30000000
+  ],
+  "unit": "USD [2025 full year, 2026 through mid-year]",
+  "period": "2025; 2026-H1",
+  "source_name": "Chainalysis, 'Estimated $30 Million Stolen in Violent Crypto Attacks in 2026 as France Records Emerges as Hotspot'",
+  "source_url": "https://www.chainalysis.com/blog/violent-crypto-wrench-attacks-2026/",
+  "published": "2026-08-06",
+  "quote": "Annual value stolen in violent attacks peaked at $58 million in 2025, the highest on record, with 2026 already at $30 million through mid-year."
+ },
+ {
+  "metric": "Approval phishing losses (targeted/pig-butchering-style approval scams)",
+  "value": [
+   516800000,
+   374600000
+  ],
+  "unit": "USD [2022, 2023 through November]",
+  "period": "2022; 2023-01 to 2023-11",
+  "source_name": "Chainalysis, 'Targeted Approval Phishing Scams See Explosive Growth Over Last Two Years, With At Least $374 Million Suspected Stolen in 2023'",
+  "source_url": "https://www.chainalysis.com/blog/approval-phishing-cryptocurrency-scams-2023/",
+  "published": "2023-12-14",
+  "quote": "Overall, 2022 saw victims lose an estimated $516.8 million to approval phishing, versus just $374.6 million in 2023 through November."
+ },
+ {
+  "metric": "Cumulative approval phishing losses since May 2021",
+  "value": 1000000000,
+  "unit": "USD (approx.)",
+  "period": "2021-05 to 2023-11",
+  "source_name": "Chainalysis, 'Targeted Approval Phishing Scams See Explosive Growth Over Last Two Years, With At Least $374 Million Suspected Stolen in 2023'",
+  "source_url": "https://www.chainalysis.com/blog/approval-phishing-cryptocurrency-scams-2023/",
+  "published": "2023-12-14",
+  "quote": "...have lost approximately $1.0 billion to approval phishing scams since the start of our dataset in May 2021."
+ },
+ {
+  "metric": "Crypto drainer revenue growth",
+  "value": 170,
+  "unit": "percent YoY (nearly)",
+  "period": "2024",
+  "source_name": "Chainalysis, 'Crypto Scam Revenue 2024: Pig Butchering Grows Nearly 40% YoY as Fraud Industry Leverages AI and Increases in Sophistication'",
+  "source_url": "https://www.chainalysis.com/blog/2024-pig-butchering-scam-revenue-grows-yoy/",
+  "published": "2025-02-13",
+  "quote": "...crypto drainers continued to proliferate and grew across the board — nearly 170% YoY revenue growth, almost 55% YoY increase in deposit size, and 75% YoY growth in number of deposits."
+ },
+ {
+  "metric": "Scam revenue received on-chain (first estimate; later revised to $12B)",
+  "value": 9900000000,
+  "unit": "USD (at least)",
+  "period": "2024",
+  "source_name": "Chainalysis, 'Crypto Scam Revenue 2024: Pig Butchering Grows Nearly 40% YoY as Fraud Industry Leverages AI and Increases in Sophistication'",
+  "source_url": "https://www.chainalysis.com/blog/2024-pig-butchering-scam-revenue-grows-yoy/",
+  "published": "2025-02-13",
+  "quote": "In 2024, cryptocurrency scams received at least $9.9 billion on-chain..."
+ },
+ {
+  "metric": "Scam revenue received on-chain (at least $14B; projected to exceed $17B)",
+  "value": 14000000000,
+  "unit": "USD (at least)",
+  "period": "2025",
+  "source_name": "Chainalysis, 'Record $17 Billion Estimated Stolen in Crypto Scams and Fraud in 2025 as Impersonation Tactics and AI Enablement Surge'",
+  "source_url": "https://www.chainalysis.com/blog/crypto-scams-2026/",
+  "published": "2026-01-13",
+  "quote": "In 2025, cryptocurrency scams received at least $14 billion on-chain, a significant increase from the $9.9 billion we first reported in 2024, which reached $12 billion at our recalculation..."
+ },
+ {
+  "metric": "Near-loss of WBTC to one address-poisoning campaign (funds later returned)",
+  "value": 68000000,
+  "unit": "USD",
+  "period": "2024-05",
+  "source_name": "Chainalysis, 'Anatomy of an Address Poisoning Scam'",
+  "source_url": "https://www.chainalysis.com/blog/address-poisoning-scam/",
+  "published": "2024-10-23",
+  "quote": "This incident nearly cost an unknown crypto whale $68 million in wrapped bitcoin (WBTC) before the attacker returned the funds to the victim."
+ },
+ {
+  "metric": "Typical 2024 address-poisoning campaign median take",
+  "value": 400,
+  "unit": "USD (median, approx.)",
+  "period": "2024",
+  "source_name": "Chainalysis, 'Anatomy of an Address Poisoning Scam'",
+  "source_url": "https://www.chainalysis.com/blog/address-poisoning-scam/",
+  "published": "2024-10-23",
+  "quote": "The typical scam campaign from 2024 made a median amount of about $400 according to our data."
+ },
+ {
+  "metric": "Bybit: value stolen after multisig signers approved a disguised Safe transaction",
+  "value": 1400000000,
+  "unit": "USD (over; incl. 401,347 ETH)",
+  "period": "2025-02-21",
+  "source_name": "Verichains (for Bybit), 'Bybit Incident Investigation Preliminary Report' v1.0 (third-party mirror of the PDF)",
+  "source_url": "https://coinacademy.fr/wp-content/uploads/2025/02/Bybit-Incident-Investigation-Report.pdf",
+  "published": "2025-02-24",
+  "quote": "On February 21, 2025, Bybit experienced a security breach resulting in the theft of over $1.4 billion in cryptocurrencies, including 401,347 Ether."
+ },
+ {
+  "metric": "Bybit: signers whose machines carried the malicious Safe{Wallet} JavaScript",
+  "value": 3,
+  "unit": "signers (incl. the CEO)",
+  "period": "2025-02-21",
+  "source_name": "Verichains (for Bybit), 'Bybit Incident Investigation Preliminary Report' v1.0 (third-party mirror of the PDF)",
+  "source_url": "https://coinacademy.fr/wp-content/uploads/2025/02/Bybit-Incident-Investigation-Report.pdf",
+  "published": "2025-02-24",
+  "quote": "By examining the machines of three Signers from Bybit, malicious JavaScript payload from app.safe.global was discovered in the Google Chrome cache files."
+ },
+ {
+  "metric": "Bybit: what was signed",
+  "value": "Safe transaction upgrading Cold Wallet 1 to a malicious implementation (operation switched to delegatecall)",
+  "unit": "description",
+  "period": "2025-02-21",
+  "source_name": "Verichains (for Bybit), 'Bybit Incident Investigation Preliminary Report' v1.0 (third-party mirror of the PDF)",
+  "source_url": "https://coinacademy.fr/wp-content/uploads/2025/02/Bybit-Incident-Investigation-Report.pdf",
+  "published": "2025-02-24",
+  "quote": "This transaction upgraded Bybit's multi-signature contract for Cold Wallet 1 (0x1Db92e2EbE8E0c075a02BeA49a2935BcD2dFCF4) on Safe.Global, pointing to a malicious contract"
+ },
+ {
+  "metric": "Bybit: ETH transferred from the cold wallet after the signed upgrade",
+  "value": 400000,
+  "unit": "ETH (over)",
+  "period": "2025-02-21",
+  "source_name": "Sygnia, 'Sygnia investigation of the Bybit hack' (blog)",
+  "source_url": "https://www.sygnia.co/blog/sygnia-investigation-bybit-hack/",
+  "published": "2025-03-16",
+  "quote": "The malicious contract introduced sweepETH and sweepERC20 functions to the smart contract, allowing the attackers to transfer over 400,000 ETH from Bybit's cold wallet without requiring additional multisig approval."
+ },
+ {
+  "metric": "Bybit: UI showed legitimate data while a malicious transaction was signed",
+  "value": "signer deception via compromised Safe{Wallet} frontend",
+  "unit": "description",
+  "period": "2025-02-21",
+  "source_name": "Sygnia, 'Sygnia investigation of the Bybit hack' (blog)",
+  "source_url": "https://www.sygnia.co/blog/sygnia-investigation-bybit-hack/",
+  "published": "2025-03-16",
+  "quote": "The Safe{Wallet} user interface displayed legitimate transaction data while malicious transactions were signed and executed in the background"
+ },
+ {
+  "metric": "Bybit root cause per Safe",
+  "value": "compromised Safe{Wallet} developer machine; disguised malicious transaction proposed",
+  "unit": "description",
+  "period": "2025-02",
+  "source_name": "Safe Ecosystem Foundation, 'Safe Ecosystem Foundation Statement'",
+  "source_url": "https://safefoundation.org/blog/safe-ecosystem-foundation-statement",
+  "published": "2025-02-28",
+  "quote": "...compromised Safe{Wallet} developer machine resulting in the proposal of a disguised malicious transaction"
+ },
+ {
+  "metric": "WazirX: loss from multisig wallet after signers approved a transaction that differed from what the custody interface showed",
+  "value": 230000000,
+  "unit": "USD (exceeding)",
+  "period": "2024-07-18",
+  "source_name": "WazirX, 'Preliminary report: Cyber attack on WazirX multisig wallet'",
+  "source_url": "https://wazirx.com/blog/preliminary-report-cyber-attack-on-wazirx-multisig-wallet/",
+  "published": "2024-07-18",
+  "quote": "A cyber attack occurred in one of our multisig wallets involving a loss of funds exceeding $230 million."
+ },
+ {
+  "metric": "WazirX: multisig signatories",
+  "value": 6,
+  "unit": "signers (5 WazirX, 1 Liminal)",
+  "period": "2024-07",
+  "source_name": "WazirX, 'Preliminary report: Cyber attack on WazirX multisig wallet'",
+  "source_url": "https://wazirx.com/blog/preliminary-report-cyber-attack-on-wazirx-multisig-wallet/",
+  "published": "2024-07-18",
+  "quote": "The wallet had six signatories—five from our WazirX team and one from Liminal"
+ },
+ {
+  "metric": "WazirX: display vs signed payload",
+  "value": "discrepancy between Liminal interface and actual transaction; payload suspected replaced to transfer wallet control",
+  "unit": "description",
+  "period": "2024-07",
+  "source_name": "WazirX, 'Preliminary report: Cyber attack on WazirX multisig wallet'",
+  "source_url": "https://wazirx.com/blog/preliminary-report-cyber-attack-on-wazirx-multisig-wallet/",
+  "published": "2024-07-18",
+  "quote": "...a discrepancy between the data displayed on Liminal's interface and the transaction's actual contents ... the payload was replaced to transfer wallet control to an attacker"
+ },
+ {
+  "metric": "Radiant Capital: loss after malware on signers' devices relayed malicious transferOwnership signatures",
+  "value": 50000000,
+  "unit": "USD (approx.)",
+  "period": "2024-10-16",
+  "source_name": "Radiant Capital, 'Radiant Post-Mortem' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://medium.com/@RadiantCapital/radiant-post-mortem-fecd6cd38081",
+  "published": "2024-10-18",
+  "quote": "On October 16, 2024, Radiant Capital experienced a security breach resulting in the loss of approximately $50 million USD."
+ },
+ {
+  "metric": "Radiant: compromised signer devices",
+  "value": "at least three core contributors",
+  "unit": "description",
+  "period": "2024-10",
+  "source_name": "Radiant Capital, 'Radiant Post-Mortem' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://medium.com/@RadiantCapital/radiant-post-mortem-fecd6cd38081",
+  "published": "2024-10-18",
+  "quote": "...at least three core contributors... obtain three multi-signature approvals from hardware wallets to authorize a transferOwnership action"
+ },
+ {
+  "metric": "Radiant: Safe UI and Tenderly simulation showed legitimate transactions",
+  "value": "front-end and simulation both deceived; hardware wallets blind-signed",
+  "unit": "description",
+  "period": "2024-10",
+  "source_name": "Radiant Capital, 'Radiant Post-Mortem' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://medium.com/@RadiantCapital/radiant-post-mortem-fecd6cd38081",
+  "published": "2024-10-18",
+  "quote": "Each transaction was simulated for accuracy on Tenderly and individually reviewed by multiple developers at each signature stage"
+ },
+ {
+  "metric": "DMM Bitcoin: loss after attackers manipulated a legitimate transaction request (via compromised wallet-provider Ginco employee)",
+  "value": 308000000,
+  "unit": "USD (4,502.9 BTC)",
+  "period": "2024-05 (late May)",
+  "source_name": "FBI / DC3 / Japan NPA press release on TraderTraitor and DMM Bitcoin (read via r.jina.ai reader)",
+  "source_url": "https://www.fbi.gov/news/press-releases/fbi-dc3-and-npa-identification-of-north-korean-cyber-actors-tracked-as-tradertraitor-responsible-for-theft-of-308-million-from-bitcoindmmcom",
+  "published": "2024-12-23",
+  "quote": "the actors likely used this access to manipulate a legitimate transaction request by a DMM employee, resulting in the loss of 4,502.9 BTC, worth $308 million at the time of the attack"
+ },
+ {
+  "metric": "Drift: Security Council signers induced to pre-sign routine-looking transactions with hidden admin authorizations (Solana durable nonces; 2/5 multisig, zero timelock)",
+  "value": 285000000,
+  "unit": "USD (approx.)",
+  "period": "2026-04-01",
+  "source_name": "TRM Labs, 'North Korean Hackers Attack Drift Protocol in $285 Million Heist'",
+  "source_url": "https://www.trmlabs.com/resources/blog/north-korean-hackers-attack-drift-protocol-in-285-million-heist",
+  "published": "2026-04-02",
+  "quote": "The attacker used social engineering to induce Drift Security Council multisig signers into pre-signing transactions that appeared routine but carried hidden authorizations for critical admin actions."
+ },
+ {
+  "metric": "SwissBorg/Kiln: approved 'unstaking' transaction hid 8 stake-authority transfer instructions (Kiln API compromised)",
+  "value": 42000000,
+  "unit": "USD (approx.; ~192,600 SOL)",
+  "period": "2025-09-08",
+  "source_name": "Halborn, 'Explained: The SwissBorg Hack (September 2025)'",
+  "source_url": "https://www.halborn.com/blog/post/explained-the-swissborg-hack-september-2025",
+  "published": "2025-09-15",
+  "quote": "The attacker performed a standard unstaking transaction that concealed malicious logic several days before the attack"
+ },
+ {
+  "metric": "SUPERFORTUNE AI: multisig airdrop transfer sent to a lookalike address (root cause unconfirmed)",
+  "value": 15180000,
+  "unit": "USD (GUA tokens, estimated)",
+  "period": "2026-05-27",
+  "source_name": "Halborn, 'Explained: The SUPERFORTUNE AI Hack (May 2026)'",
+  "source_url": "https://www.halborn.com/blog/post/explained-the-superfortune-ai-hack-may-2026",
+  "published": "2026-06-01",
+  "quote": "The source wallet for the transfer was protected by a multisig wallet and various address verification controls"
+ },
+ {
+  "metric": "Losses in Q2 2026 (67 incidents)",
+  "value": 763900000,
+  "unit": "USD",
+  "period": "2026-Q2",
+  "source_name": "Hacken, 'Q2 2026 Security Report' (read via r.jina.ai reader)",
+  "source_url": "https://hacken.io/insights/q2-2026-security-report/",
+  "published": "2026-07-22",
+  "quote": "Across 67 incidents, adversaries extracted $763.9 million"
+ },
+ {
+  "metric": "Share of Q2 2026 losses traced to compromised keys, signers and infrastructure",
+  "value": 88.3,
+  "unit": "percent",
+  "period": "2026-Q2",
+  "source_name": "Hacken, 'Q2 2026 Security Report' (read via r.jina.ai reader)",
+  "source_url": "https://hacken.io/insights/q2-2026-security-report/",
+  "published": "2026-07-22",
+  "quote": "88.3% of the total was traced to compromised keys, signers, and infrastructure"
+ },
+ {
+  "metric": "Share of Q2 2026 losses from smart-contract vulnerabilities",
+  "value": 11,
+  "unit": "percent (about)",
+  "period": "2026-Q2",
+  "source_name": "Hacken, 'Q2 2026 Security Report' (read via r.jina.ai reader)",
+  "source_url": "https://hacken.io/insights/q2-2026-security-report/",
+  "published": "2026-07-22",
+  "quote": "they account for only about 11% of the losses"
+ },
+ {
+  "metric": "Funds stolen in crypto hacks, H1 2026 (207 hacks)",
+  "value": 972000000,
+  "unit": "USD",
+  "period": "2026-H1",
+  "source_name": "TRM Labs, 'H1 2026 Crypto Hacks Reach Record High as Losses Fall Below USD 1 Billion'",
+  "source_url": "https://www.trmlabs.com/resources/blog/h1-2026-crypto-hacks-reach-record-high-as-losses-fall-below-usd-1-billion",
+  "published": "2026-07-01",
+  "quote": "207 separate hacks but stole USD 972 million, less than half of the USD 2.3 billion stolen during the first half of 2025."
+ },
+ {
+  "metric": "Share of H1 2026 stolen funds from infrastructure and operational compromises (about 15% of incidents)",
+  "value": 76,
+  "unit": "percent (approx.)",
+  "period": "2026-H1",
+  "source_name": "TRM Labs, 'H1 2026 Crypto Hacks Reach Record High as Losses Fall Below USD 1 Billion'",
+  "source_url": "https://www.trmlabs.com/resources/blog/h1-2026-crypto-hacks-reach-record-high-as-losses-fall-below-usd-1-billion",
+  "published": "2026-07-01",
+  "quote": "Infrastructure and operational compromises accounted for approximately 76% of all funds stolen, despite representing only about 15% of incidents."
+ },
+ {
+  "metric": "DPRK-attributed share of H1 2026 stolen funds",
+  "value": 643000000,
+  "unit": "USD (about 66%)",
+  "period": "2026-H1",
+  "source_name": "TRM Labs, 'H1 2026 Crypto Hacks Reach Record High as Losses Fall Below USD 1 Billion'",
+  "source_url": "https://www.trmlabs.com/resources/blog/h1-2026-crypto-hacks-reach-record-high-as-losses-fall-below-usd-1-billion",
+  "published": "2026-07-01",
+  "quote": "TRM assesses that approximately USD 643 million, or about 66% of all funds stolen during H1 2026, is attributable to North Korea linked activity."
+ },
+ {
+  "metric": "DeFiLlama records labelled 'Signer Phishing' or 'Blind Signing' (all years)",
+  "value": 1687090000,
+  "unit": "USD (6 records: Llamascape 2022, PeopleDAO 2023, WazirX 2024, Radiant 2024, Bybit 2025, OlaXBT 2025)",
+  "period": "2022-2026",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed from dataset technique labels (no quote)"
+ },
+ {
+  "metric": "Signer-deceived incidents as share of DeFiLlama yearly totals [researcher classification: DMM, WazirX, Radiant (2024); Bybit, OlaXBT, SwissBorg (2025); Drift, SUPERFORTUNE AI (2026)]",
+  "value": [
+   35.33,
+   53.17,
+   13.83
+  ],
+  "unit": "percent of DeFiLlama USD total [2024 $589.9M, 2025 $1,443.5M, 2026 YTD $310.18M]",
+  "period": "2024; 2025; 2026-01-01 to 2026-10-01",
+  "source_name": "DeFiLlama hacks dataset (computed by researcher from the public API; retrieved 2026-10-05)",
+  "source_url": "https://api.llama.fi/hacks",
+  "published": "2026-10-05",
+  "quote": "Computed using DeFiLlama amounts (no quote); classification by researcher from post-mortems listed in this file"
+ },
+ {
+  "metric": "Total lost in on-chain security incidents (CertiK; includes phishing of individuals)",
+  "value": 2362748975.83,
+  "unit": "USD (760 incidents)",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (blog + full PDF)",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2024",
+  "published": "2025-01-02",
+  "quote": "A total of $2,362,748,975.83 was lost across 760 on-chain security incidents in 2024."
+ },
+ {
+  "metric": "Phishing losses (CertiK 'phishing' = drainers, address poisoning, social engineering of individuals, etc.)",
+  "value": 1050129498,
+  "unit": "USD (296 incidents; 39.1% of incidents)",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (blog + full PDF)",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2024",
+  "published": "2025-01-02",
+  "quote": "Phishing was the most costly attack vector in 2024, with $1,050,129,498 lost across 296 incidents"
+ },
+ {
+  "metric": "Private key compromise losses",
+  "value": 855385570,
+  "unit": "USD (65 incidents)",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (blog + full PDF)",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2024",
+  "published": "2025-01-02",
+  "quote": "Private key compromises followed, with $855,385,570 stolen across 65 incidents."
+ },
+ {
+  "metric": "Code vulnerability losses (chart label '2024 Incident Type & Amount')",
+  "value": 170900000,
+  "unit": "USD (218 incidents)",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/733ec833-8311-4c15-b27a-96561ccdef59/wiic/publication-web-resources/pdf/2024_Q4__Hack3d_Report.pdf",
+  "published": "2025-01-02",
+  "quote": "Chart: Code Vulnerability — 218 incidents — 170.9M"
+ },
+ {
+  "metric": "Phishing losses net of returned funds",
+  "value": 836801668,
+  "unit": "USD ($213,327,829 returned)",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/733ec833-8311-4c15-b27a-96561ccdef59/wiic/publication-web-resources/pdf/2024_Q4__Hack3d_Report.pdf",
+  "published": "2025-01-02",
+  "quote": "Hackers returned $213,327,829, placing adjusted losses at $836,801,668."
+ },
+ {
+  "metric": "DMM Bitcoin counted by CertiK as phishing (address poisoning) — FBI later attributed it to a manipulated transaction request",
+  "value": 304000000,
+  "unit": "USD (4,502.9 BTC)",
+  "period": "2024-05-31",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/733ec833-8311-4c15-b27a-96561ccdef59/wiic/publication-web-resources/pdf/2024_Q4__Hack3d_Report.pdf",
+  "published": "2025-01-02",
+  "quote": "The loss was likely the result of address poisoning, a phishing method by which a wallet with a similar address ... inserts itself"
+ },
+ {
+  "metric": "Social-engineering theft from a single Genesis creditor (fake Google/Gemini support, 2FA reset)",
+  "value": 243000000,
+  "unit": "USD",
+  "period": "2024-08",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/733ec833-8311-4c15-b27a-96561ccdef59/wiic/publication-web-resources/pdf/2024_Q4__Hack3d_Report.pdf",
+  "published": "2025-01-02",
+  "quote": "In August 2024, a sophisticated social engineering attack led to the theft of $243 million in crypto from a single Genesis creditor"
+ },
+ {
+  "metric": "Address-poisoning victim (funds returned within an hour)",
+  "value": 129000000,
+  "unit": "USD",
+  "period": "2024-11-20",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/733ec833-8311-4c15-b27a-96561ccdef59/wiic/publication-web-resources/pdf/2024_Q4__Hack3d_Report.pdf",
+  "published": "2025-01-02",
+  "quote": "On November 20, 2024, a crypto user fell victim to an address poisoning scam, resulting in the temporary loss of $129 million."
+ },
+ {
+  "metric": "Total lost (CertiK)",
+  "value": 2472777618,
+  "unit": "USD (344 incidents)",
+  "period": "2025-H1",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Quarterly Report - Q2 + H1 2025'",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-quarterly-report-q2-h1-2025",
+  "published": "2025-06-30",
+  "quote": "A total of $2,472,777,618 was lost across 344 incidents in H1 2025."
+ },
+ {
+  "metric": "Wallet compromise losses (incl. Bybit)",
+  "value": 1706937700,
+  "unit": "USD (34 incidents)",
+  "period": "2025-H1",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Quarterly Report - Q2 + H1 2025'",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-quarterly-report-q2-h1-2025",
+  "published": "2025-06-30",
+  "quote": "Wallet compromise was the most costly attack vector in H1 2025, with $1,706,937,700 stolen across 34 incidents."
+ },
+ {
+  "metric": "Phishing losses",
+  "value": 410747038,
+  "unit": "USD (132 incidents)",
+  "period": "2025-H1",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Quarterly Report - Q2 + H1 2025'",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-quarterly-report-q2-h1-2025",
+  "published": "2025-06-30",
+  "quote": "Phishing was the second most costly, with $410,747,038 stolen across 132 security incidents."
+ },
+ {
+  "metric": "Total lost (CertiK; published before year-end)",
+  "value": 3352850816,
+  "unit": "USD (630 incidents)",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/d21da0b0-06c4-4f38-a82b-c7757971064b/jh85/publication-web-resources/pdf/2025-eoy-skynet-hack3d-report.pdf",
+  "published": "2025-12-23",
+  "quote": "A total of $3,352,850,816 was lost across 630 on-chain security incidents in 2025."
+ },
+ {
+  "metric": "Supply-chain losses (CertiK files Bybit here)",
+  "value": 1450914902,
+  "unit": "USD (2 incidents)",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2025",
+  "published": "2025-12-23",
+  "quote": "Supply Chain was the most costly attack vector in 2025, with $1,450,914,902 lost across 2 incidents."
+ },
+ {
+  "metric": "Phishing losses",
+  "value": 722885398,
+  "unit": "USD (248 incidents; most incidents of any vector)",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2025",
+  "published": "2025-12-23",
+  "quote": "Phishing compromises followed, with $722,885,398 stolen across 248 incidents."
+ },
+ {
+  "metric": "Code vulnerability losses",
+  "value": 554646929,
+  "unit": "USD (240 incidents; >47% frozen or returned)",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/d21da0b0-06c4-4f38-a82b-c7757971064b/jh85/publication-web-resources/pdf/2025-eoy-skynet-hack3d-report.pdf",
+  "published": "2025-12-23",
+  "quote": "Code vulnerabilities closely follows, with $554,646,929 stolen in 240 incidents."
+ },
+ {
+  "metric": "CertiK restated 2024 total",
+  "value": 2446285251,
+  "unit": "USD",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2025",
+  "published": "2025-12-23",
+  "quote": "Total losses in 2025 amounted to $3,352,850,816, versus $2,446,285,251 in 2024"
+ },
+ {
+  "metric": "Bybit, as described by CertiK",
+  "value": "Safe{Wallet} UI altered transactions approved by Bybit employees",
+  "unit": "description",
+  "period": "2025-02-21",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/d21da0b0-06c4-4f38-a82b-c7757971064b/jh85/publication-web-resources/pdf/2025-eoy-skynet-hack3d-report.pdf",
+  "published": "2025-12-23",
+  "quote": "Bybit's internal security systems were not breached; the attack exploited the user interface of the Safe{Wallet} system, leading signers to unknowingly approve malicious transactions."
+ },
+ {
+  "metric": "CertiK phishing scope note",
+  "value": "excludes pig butchering, wrench attacks, high-pressure investment scams and off-chain social engineering",
+  "unit": "description",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/d21da0b0-06c4-4f38-a82b-c7757971064b/jh85/publication-web-resources/pdf/2025-eoy-skynet-hack3d-report.pdf",
+  "published": "2025-12-23",
+  "quote": "Our dataset in this report does not include pig butchering schemes, wrench attacks, high-pressure investment scams, or social engineering fraud conducted entirely off-chain"
+ },
+ {
+  "metric": "CertiK on how phishing succeeds",
+  "value": "signature prompts disguised as routine approvals",
+  "unit": "description",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (blog + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/d21da0b0-06c4-4f38-a82b-c7757971064b/jh85/publication-web-resources/pdf/2025-eoy-skynet-hack3d-report.pdf",
+  "published": "2025-12-23",
+  "quote": "Phishing attacks succeed through signature prompts disguised as routine approvals."
+ },
+ {
+  "metric": "Total lost (CertiK)",
+  "value": 1315676432,
+  "unit": "USD (344 incidents)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://www.certik.com/skynet-report/certik-hack3d-h1-2026-report",
+  "published": "2026-07-06",
+  "quote": "In the first half of 2026, the Web3 ecosystem recorded $1.316 billion in losses across 344 security incidents."
+ },
+ {
+  "metric": "Wallet compromise losses",
+  "value": 444531691,
+  "unit": "USD (33 incidents)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://www.certik.com/skynet-report/certik-hack3d-h1-2026-report",
+  "published": "2026-07-06",
+  "quote": "Wallet compromise was the most costly attack vector in H1 2026, with $444,531,691 stolen across 33 incidents."
+ },
+ {
+  "metric": "Phishing losses",
+  "value": 366312027,
+  "unit": "USD (63 incidents)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://www.certik.com/skynet-report/certik-hack3d-h1-2026-report",
+  "published": "2026-07-06",
+  "quote": "Phishing was the second most costly, with $366,312,027 stolen across 63 incidents."
+ },
+ {
+  "metric": "Code vulnerability losses",
+  "value": 151591472,
+  "unit": "USD (204 incidents)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://www.certik.com/skynet-report/certik-hack3d-h1-2026-report",
+  "published": "2026-07-06",
+  "quote": "Code vulnerability accounted for $151,591,472 stolen across 204 incidents, the highest incident count of any single vector."
+ },
+ {
+  "metric": "Phishing trend: incidents -52.3% vs H1 2025, losses -10.8%",
+  "value": [
+   -52.3,
+   -10.8
+  ],
+  "unit": "percent [incidents, losses]",
+  "period": "2026-H1 vs 2025-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://www.certik.com/skynet-report/certik-hack3d-h1-2026-report",
+  "published": "2026-07-06",
+  "quote": "While phishing incident volume dropped from 132 in H1 2025 (a 52.3% decrease), losses declined by only 10.8%"
+ },
+ {
+  "metric": "Phishing sub-type: social engineering",
+  "value": 310107510,
+  "unit": "USD (4 incidents; nearly 85% of phishing losses)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "In H1 2026, social engineering attacks ... accounted for just 4 incidents but produced $310,107,510 in losses, nearly 85% of all phishing-attributed funds stolen."
+ },
+ {
+  "metric": "Largest single phishing loss: social-engineering victim, January 10, 2026",
+  "value": 284785689,
+  "unit": "USD",
+  "period": "2026-01-10",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "On January 10, an unidentified victim lost $284,785,689 across multiple chains in a social engineering attack"
+ },
+ {
+  "metric": "Phishing sub-type: wallet drainers",
+  "value": 11400000,
+  "unit": "USD (27 incidents; most common sub-type)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "By contrast, wallet drainers, the most common sub-type by incident count at 27 events, generated a comparatively modest $11.4 million."
+ },
+ {
+  "metric": "Phishing sub-type: address poisoning",
+  "value": 15600000,
+  "unit": "USD (17 incidents)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "Address poisoning attacks numbered 17 incidents for $15.6 million in losses."
+ },
+ {
+  "metric": "Phishing sub-type: wallet-compromise-type phishing",
+  "value": 28474825,
+  "unit": "USD (11 incidents)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "Wallet compromise-type phishing accounted for $28,474,825 across 11 incidents."
+ },
+ {
+  "metric": "Phishing losses, Q1 2026",
+  "value": 347286540,
+  "unit": "USD (37 incidents; 68.3% of Q1 losses)",
+  "period": "2026-Q1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "Phishing was the dominant attack vector in Q1 2026, with $347,286,540 stolen across 37 incidents, accounting for 68.3% of all Q1 losses."
+ },
+ {
+  "metric": "Phishing losses, Q2 2026",
+  "value": 19025487,
+  "unit": "USD (26 incidents)",
+  "period": "2026-Q2",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (web report + full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "Q2 recorded $19,025,487 across 26 incidents, a 94.5% decline in losses quarter over quarter"
+ },
+ {
+  "metric": "Total losses (Immunefi)",
+  "value": 1495487055,
+  "unit": "USD (232 incidents)",
+  "period": "2024",
+  "source_name": "Immunefi, 'Immunefi Crypto Losses 2024 Report'",
+  "source_url": "https://immunefi.com/blog/research/immunefi-crypto-losses-2024-report/",
+  "published": "2025-01-01",
+  "quote": "In total, we have seen a loss of $1,495,487,055 across the web3 ecosystem in 2024"
+ },
+ {
+  "metric": "Losses to hacks vs fraud",
+  "value": [
+   1467448336,
+   28038719
+  ],
+  "unit": "USD [hacks: 192 incidents, fraud: 40 incidents]",
+  "period": "2024",
+  "source_name": "Immunefi, 'Immunefi Crypto Losses 2024 Report'",
+  "source_url": "https://immunefi.com/blog/research/immunefi-crypto-losses-2024-report/",
+  "published": "2025-01-01",
+  "quote": "$1,467,448,336 was lost to hacks in 2024 across 192 specific incidents and $28,038,719 was lost to fraud in across 40 specific incidents."
+ },
+ {
+  "metric": "DeFi vs CeFi losses",
+  "value": [
+   769287055,
+   726200000
+  ],
+  "unit": "USD [DeFi 221 incidents (51.4%), CeFi 11 incidents (48.6%)]",
+  "period": "2024",
+  "source_name": "Immunefi, 'Immunefi Crypto Losses 2024 Report'",
+  "source_url": "https://immunefi.com/blog/research/immunefi-crypto-losses-2024-report/",
+  "published": "2025-01-01",
+  "quote": "DeFi has suffered $769,287,055 in total losses in 2024 across 221 incidents ... CeFi has suffered $726,200,000 in total losses in 2024 across 11 incidents"
+ },
+ {
+  "metric": "DMM Bitcoin + WazirX share of 2024 losses",
+  "value": 36,
+  "unit": "percent ($540M)",
+  "period": "2024",
+  "source_name": "Immunefi, 'Immunefi Crypto Losses 2024 Report'",
+  "source_url": "https://immunefi.com/blog/research/immunefi-crypto-losses-2024-report/",
+  "published": "2025-01-01",
+  "quote": "The two major exploits of the year, DMM Bitcoin and WazirX, alone accounted for $540,000,000, representing 36% of all losses in 2024."
+ },
+ {
+  "metric": "Total crypto losses (PeckShield): hacks + scams",
+  "value": 3010000000,
+  "unit": "USD (over; $2.15B hacks + $834.5M scams)",
+  "period": "2024",
+  "source_name": "PeckShield, 2024 annual summary (X post, read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/PeckShieldAlert/status/1877258501623525797",
+  "published": "2025-01-09",
+  "quote": "The total value of loss in 2024 has exceeded $3.01B, reflecting a ~15% increase over the $2.61B stolen in 2023. This total includes $2.15B stolen from crypto hacks and $834.5M stolen from scams."
+ },
+ {
+  "metric": "Total crypto losses (PeckShield): hacks + scams",
+  "value": 4040000000,
+  "unit": "USD (over; $2.67B hacks + $1.37B scams)",
+  "period": "2025",
+  "source_name": "PeckShield, 'Crypto Security Annual Report' 2025 (X post + infographic, read via api.fxtwitter.com and pbs.twimg.com)",
+  "source_url": "https://x.com/PeckShieldAlert/status/2010960699766563200",
+  "published": "2026-01-13",
+  "quote": "The total loss in 2025 exceeded $4.04B, reflecting a ~34.2% increase from the $3.01B stolen in 2024."
+ },
+ {
+  "metric": "PeckShield 2025 split: Exploits / Scams / Social Engineering",
+  "value": [
+   66,
+   22,
+   12
+  ],
+  "unit": "percent of total loss",
+  "period": "2025",
+  "source_name": "PeckShield, 'Crypto Security Annual Report' 2025 (X post + infographic, read via api.fxtwitter.com and pbs.twimg.com)",
+  "source_url": "https://pbs.twimg.com/media/G-hdbzfbUAAm1W5.jpg",
+  "published": "2026-01-13",
+  "quote": "Infographic: 'Social Engineering (12%): User-targeted attacks via phishing, permit signature manipulation, & impersonation.' 'Exploits (66%): Smart contract vulnerabilities, protocol-level flaws, & private key compromises.'"
+ },
+ {
+  "metric": "Total losses (Hacken)",
+  "value": 2914629674,
+  "unit": "USD",
+  "period": "2024",
+  "source_name": "Hacken, 'The Hacken 2024 Web3 Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/2024/12/2024-Web3-Security-Report.pdf",
+  "published": "2024-12-24",
+  "quote": "Total 2024 losses $2,914,629,674"
+ },
+ {
+  "metric": "Access control exploit losses (Hacken; 'closely tied to private key compromises')",
+  "value": 1721000000,
+  "unit": "USD (78% of hacks)",
+  "period": "2024",
+  "source_name": "Hacken, 'The Hacken 2024 Web3 Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/2024/12/2024-Web3-Security-Report.pdf",
+  "published": "2024-12-24",
+  "quote": "Access control exploits caused nearly $1.7 billion in losses, accounting for 78% of all crypto hacks – a sharp rise from 50% in 2023. [Chart: Access control $1.721B]"
+ },
+ {
+  "metric": "Phishing losses (Hacken; sourced primarily from ScamSniffer)",
+  "value": 607500000,
+  "unit": "USD",
+  "period": "2024",
+  "source_name": "Hacken, 'The Hacken 2024 Web3 Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/2024/12/2024-Web3-Security-Report.pdf",
+  "published": "2024-12-24",
+  "quote": "Phishing $607.5M ... Information on phishing-related losses was primarily sourced from ScamSniffer reports."
+ },
+ {
+  "metric": "Total losses (Hacken)",
+  "value": 3093946000,
+  "unit": "USD",
+  "period": "2025-H1",
+  "source_name": "Hacken, 'The Hacken 2025 Half Year Web3 Security Report' (PDF)",
+  "source_url": "https://storage.ghost.io/c/d1/14/d114cb3d-6b95-4710-8c36-fdcbff0ed991/content/files/2025/07/hacken-2025-h1-web3-security-report-1.pdf",
+  "published": "2025-07-24",
+  "quote": "Total 2025 loss: $3,093,946,000"
+ },
+ {
+  "metric": "Total losses (Hacken; incl. phishing)",
+  "value": 4004090000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Hacken, 'The Hacken 2025 Yearly Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/Hacken-2025-Yearly-Security-Report.pdf",
+  "published": "2025-12-29",
+  "quote": "Total 2025 loss $4,004,090,000"
+ },
+ {
+  "metric": "Access control exploit losses",
+  "value": 2123633000,
+  "unit": "USD (53.0%)",
+  "period": "2025",
+  "source_name": "Hacken, 'The Hacken 2025 Yearly Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/Hacken-2025-Yearly-Security-Report.pdf",
+  "published": "2025-12-29",
+  "quote": "Access control exploits $2,123,633,000 53.0%"
+ },
+ {
+  "metric": "Phishing scam losses",
+  "value": 951577000,
+  "unit": "USD (23.8%)",
+  "period": "2025",
+  "source_name": "Hacken, 'The Hacken 2025 Yearly Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/Hacken-2025-Yearly-Security-Report.pdf",
+  "published": "2025-12-29",
+  "quote": "Phishing scams $951,577,000 23.8%"
+ },
+ {
+  "metric": "Smart-contract vulnerability losses",
+  "value": 512028000,
+  "unit": "USD (12.8%)",
+  "period": "2025",
+  "source_name": "Hacken, 'The Hacken 2025 Yearly Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/Hacken-2025-Yearly-Security-Report.pdf",
+  "published": "2025-12-29",
+  "quote": "Smart contract vulnerabilities $512,028,000 12.8%"
+ },
+ {
+  "metric": "DPRK thefts relying on social engineering rather than contract exploits",
+  "value": 100,
+  "unit": "percent",
+  "period": "recent years (to 2025)",
+  "source_name": "Hacken, 'The Hacken 2025 Yearly Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/Hacken-2025-Yearly-Security-Report.pdf",
+  "published": "2025-12-29",
+  "quote": "In recent years, 100% of crypto thefts attributed to North Korean actors have relied on social engineering and advanced phishing rather than smart contract exploitation."
+ },
+ {
+  "metric": "Total losses (Hacken)",
+  "value": 482661580,
+  "unit": "USD (44 incidents)",
+  "period": "2026-Q1",
+  "source_name": "Hacken, 'Q1 2026 Security & Compliance Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/q1-2026-security-report.pdf",
+  "published": "2026-04-14",
+  "quote": "Total losses $482,661,580"
+ },
+ {
+  "metric": "Phishing losses, driven by a $282M hardware-wallet social-engineering attack and a $24M address-poisoning theft",
+  "value": 306000000,
+  "unit": "USD",
+  "period": "2026-Q1",
+  "source_name": "Hacken, 'Q1 2026 Security & Compliance Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/q1-2026-security-report.pdf",
+  "published": "2026-04-14",
+  "quote": "Phishing losses hit $306 million, driven by a single $282 million hardware-wallet social-engineering attack and a $24 million address-poisoning theft."
+ },
+ {
+  "metric": "Funds stolen in hacks and exploits (TRM)",
+  "value": 2200000000,
+  "unit": "USD (+17% vs 2023)",
+  "period": "2024",
+  "source_name": "TRM Labs, 'Category deep dive: $2.2 billion was stolen in crypto-related hacks in 2024'",
+  "source_url": "https://www.trmlabs.com/resources/blog/category-deep-dive-2-2-billion-was-stolen-in-crypto-related-hacks-in-2024",
+  "published": "2025-03-17",
+  "quote": "USD 2.2 billion was stolen in hacks and exploits — a 17% increase from 2023"
+ },
+ {
+  "metric": "Share of stolen funds from infrastructure attacks (primarily private key and seed phrase compromises)",
+  "value": 70,
+  "unit": "percent (nearly)",
+  "period": "2024",
+  "source_name": "TRM Labs, 'Category deep dive: $2.2 billion was stolen in crypto-related hacks in 2024'",
+  "source_url": "https://www.trmlabs.com/resources/blog/category-deep-dive-2-2-billion-was-stolen-in-crypto-related-hacks-in-2024",
+  "published": "2025-03-17",
+  "quote": "Infrastructure attacks (primarily private key and seed phrase compromises) accounted for nearly 70% of stolen funds in 2024"
+ },
+ {
+  "metric": "Funds stolen in hacks and exploits (TRM; later restated ~$2.3B / 83)",
+  "value": 2100000000,
+  "unit": "USD (over; at least 75 hacks)",
+  "period": "2025-H1",
+  "source_name": "TRM Labs, 'H1 2025 Crypto Hacks and Exploits: A New Record Amid Evolving Threats'",
+  "source_url": "https://www.trmlabs.com/resources/blog/h1-2025-crypto-hacks-and-exploits-a-new-record-amid-evolving-threats",
+  "published": "2025-06-26",
+  "quote": "over USD 2.1 billion stolen across at least 75 distinct hacks and exploits"
+ },
+ {
+  "metric": "Share of stolen funds from infrastructure attacks (keys, seed phrases, front-end compromises) vs protocol exploits",
+  "value": [
+   80,
+   12
+  ],
+  "unit": "percent [infrastructure (over), protocol exploits]",
+  "period": "2025-H1",
+  "source_name": "TRM Labs, 'H1 2025 Crypto Hacks and Exploits: A New Record Amid Evolving Threats'",
+  "source_url": "https://www.trmlabs.com/resources/blog/h1-2025-crypto-hacks-and-exploits-a-new-record-amid-evolving-threats",
+  "published": "2025-06-26",
+  "quote": "Infrastructure attacks — such as private key and seed phrase thefts, and front-end compromises — accounted for over 80% of stolen funds in H1 2025 ... Protocol exploits ... made up another 12%"
+ },
+ {
+  "metric": "Funds stolen in hacks (TRM)",
+  "value": 2870000000,
+  "unit": "USD (nearly 150 hacks; Bybit $1.46B = 51%)",
+  "period": "2025",
+  "source_name": "TRM Labs, '2026 Crypto Crime Report' (hacks and exploits chapter)",
+  "source_url": "https://www.trmlabs.com/reports-and-whitepapers/2026-crypto-crime-report",
+  "published": "2026-01-28",
+  "quote": "In 2025, illicit actors stole USD 2.87 billion across nearly 150 hacks — fewer incidents than last year — but the Bybit breach alone drove USD 1.46 billion (51%)"
+ },
+ {
+  "metric": "Infrastructure attacks (keys/seed phrases, wallet infrastructure, privileged access, front-ends)",
+  "value": 2200000000,
+  "unit": "USD (76%; 45 incidents)",
+  "period": "2025",
+  "source_name": "TRM Labs, '2026 Crypto Crime Report' (hacks and exploits chapter)",
+  "source_url": "https://www.trmlabs.com/reports-and-whitepapers/2026-crypto-crime-report",
+  "published": "2026-01-28",
+  "quote": "Infrastructure Attacks ... drove USD 2.2 billion in losses (76%) across 45 incidents, averaging approximately USD 48.5 million per incident."
+ },
+ {
+  "metric": "Code exploits",
+  "value": 350000000,
+  "unit": "USD (12.1%; 52 incidents)",
+  "period": "2025",
+  "source_name": "TRM Labs, '2026 Crypto Crime Report' (hacks and exploits chapter)",
+  "source_url": "https://www.trmlabs.com/reports-and-whitepapers/2026-crypto-crime-report",
+  "published": "2026-01-28",
+  "quote": "While Code Exploits were the most frequent category (52 incidents), they accounted for a comparatively smaller share of total losses (USD 350 million, 12.1%)"
+ },
+ {
+  "metric": "Protocol attacks",
+  "value": 277000000,
+  "unit": "USD (9.6%; 25 incidents)",
+  "period": "2025",
+  "source_name": "TRM Labs, '2026 Crypto Crime Report' (hacks and exploits chapter)",
+  "source_url": "https://www.trmlabs.com/reports-and-whitepapers/2026-crypto-crime-report",
+  "published": "2026-01-28",
+  "quote": "Protocol Attacks were less frequent (25 incidents) but more severe on average (USD 277 million, 9.6%)"
+ },
+ {
+  "metric": "DPRK-attributed theft (TRM)",
+  "value": 1920000000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "TRM Labs, '2026 Crypto Crime Report' (hacks and exploits chapter)",
+  "source_url": "https://www.trmlabs.com/reports-and-whitepapers/2026-crypto-crime-report",
+  "published": "2026-01-28",
+  "quote": "TRM Labs attributes USD 1.92 billion to North Korea-linked actors (DPRK) in 2025."
+ },
+ {
+  "metric": "Bitget: automated withdrawal-approval process fed spoofed transaction data (no human signer; keys not stolen per Bitget)",
+  "value": 351600000,
+  "unit": "USD (estimated; Bitget itself says ~$388M)",
+  "period": "2026-09-24",
+  "source_name": "TRM Labs, 'Bitget Loses USD 351.6 Million in Hot Wallet Breach in Likely North Korea Attack'",
+  "source_url": "https://www.trmlabs.com/resources/blog/bitget-loses-usd-3516-million-in-hot-wallet-breach-in-likely-north-korea-attack",
+  "published": "2026-09-25",
+  "quote": "an attacker gained access to a backend system connected to its wallet infrastructure, spoofed transaction data, and triggered that approval process"
+ },
+ {
+  "metric": "Security incidents and losses (SlowMist; excludes individual users)",
+  "value": 2373000000,
+  "unit": "USD (approx.; 121 incidents)",
+  "period": "2025-H1",
+  "source_name": "SlowMist, '2025 Mid-year Blockchain Security and AML Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2025-mid-year-blockchain-security-and-aml-report-3dfc535971fb",
+  "published": "2025-07-02",
+  "quote": "there were 121 reported security incidents, resulting in an estimated $2.373 billion in losses."
+ },
+ {
+  "metric": "Phishing (drainer) losses reproduced from ScamSniffer",
+  "value": 39730000,
+  "unit": "USD (approx.; 43,628 victim addresses)",
+  "period": "2025-H1",
+  "source_name": "SlowMist, '2025 Mid-year Blockchain Security and AML Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2025-mid-year-blockchain-security-and-aml-report-3dfc535971fb",
+  "published": "2025-07-02",
+  "quote": "In H1 2025, the Web3 ecosystem faced significant phishing threats, leading to ~$39.73 million in losses across 43,628 victim addresses."
+ },
+ {
+  "metric": "Security incidents and losses (SlowMist)",
+  "value": 2935000000,
+  "unit": "USD (approx.; 200 incidents)",
+  "period": "2025",
+  "source_name": "SlowMist, '2025 Blockchain Security and AML Annual Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/2025-blockchain-security-and-aml-annual-report-9f85183d5461",
+  "published": "2025-12-30",
+  "quote": "a total of 200 security incidents occurred during the year, resulting in approximately $2.935 billion in losses"
+ },
+ {
+  "metric": "Exchange-related incidents and losses (Bybit ~$1.46B of it)",
+  "value": 1809000000,
+  "unit": "USD (12 incidents)",
+  "period": "2025",
+  "source_name": "SlowMist, '2025 Blockchain Security and AML Annual Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/2025-blockchain-security-and-aml-annual-report-9f85183d5461",
+  "published": "2025-12-30",
+  "quote": "Exchange-related incidents numbered only 12 but caused staggering losses of up to USD 1.809 billion"
+ },
+ {
+  "metric": "Security incidents and losses (SlowMist)",
+  "value": 956000000,
+  "unit": "USD (approx.; 182 incidents)",
+  "period": "2026-H1",
+  "source_name": "SlowMist, '2026 Mid-year Blockchain Security and AML Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2026-mid-year-blockchain-security-and-aml-report-75e0862179ef",
+  "published": "2026-07-07",
+  "quote": "a total of 182 security incidents occurred during the first half of the year, resulting in approximately US$956 million in losses"
+ },
+ {
+  "metric": "Losses by cause: supply chain / contract & logic / private key & credential",
+  "value": [
+   298000000,
+   152000000,
+   130000000
+  ],
+  "unit": "USD (approx.) [supply chain (Kelp DAO ~$292M), contract & logic (85 incidents), key & credential (17 incidents)]",
+  "period": "2026-H1",
+  "source_name": "SlowMist, '2026 Mid-year Blockchain Security and AML Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2026-mid-year-blockchain-security-and-aml-report-75e0862179ef",
+  "published": "2026-07-07",
+  "quote": "supply chain attacks ranked first, with approximately $298 million ... Contract and logic vulnerabilities and private key and credential compromise followed, with losses of approximately $152 million and $130 million respectively"
+ },
+ {
+  "metric": "Share of EIP-7702 delegations to identical-code sweeper contracts (Ethereum, first ~3 weeks after Pectra)",
+  "value": 97,
+  "unit": "percent (over)",
+  "period": "2025-05-07 to 2025-05-30",
+  "source_name": "Wintermute, X post on EIP-7702 delegations / CrimeEnjoyor (read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/wintermute_t/status/1928501765865091400",
+  "published": "2025-05-30",
+  "quote": "Our Research team found that over 97% of all EIP-7702 delegations were authorized to multiple contracts using the same exact code. These are sweepers, used to automatically drain incoming ETH from compromised addresses."
+ },
+ {
+  "metric": "What the sweeper ('Crime') delegations are",
+  "value": "auto-sweep contracts installed on EOAs whose private keys had already leaked",
+  "unit": "description",
+  "period": "2025-05",
+  "source_name": "Wintermute, X post on EIP-7702 delegations / CrimeEnjoyor (read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/wintermute_t/status/1928501765865091400",
+  "published": "2025-05-30",
+  "quote": "These are mostly delegate contracts designed to auto-sweep funds from EOAs with leaked private keys."
+ },
+ {
+  "metric": "EIP-7702 activations on Ethereum since Pectra",
+  "value": 1580930,
+  "unit": "activations",
+  "period": "2025-05-07 to ~2025-09-22",
+  "source_name": "Protos, '48% of Ethereum EIP-7702 uses linked to crime, says Wintermute' (secondary; cites Wintermute Dune queries 5145294, 5239323/8611171)",
+  "source_url": "https://protos.com/48-of-ethereum-eip-7702-uses-linked-to-crime-says-wintermute/",
+  "published": "2025-09-22",
+  "quote": "Since May 7 this year, users have activated the feature 1,580,930 times, with Wintermute's team tagging 768,275 or 48% of them as crime-related."
+ },
+ {
+  "metric": "Crime-tagged share of EIP-7702 activations (Ethereum)",
+  "value": 48,
+  "unit": "percent (768,275 activations)",
+  "period": "2025-05-07 to ~2025-09-22",
+  "source_name": "Protos, '48% of Ethereum EIP-7702 uses linked to crime, says Wintermute' (secondary; cites Wintermute Dune queries 5145294, 5239323/8611171)",
+  "source_url": "https://protos.com/48-of-ethereum-eip-7702-uses-linked-to-crime-says-wintermute/",
+  "published": "2025-09-22",
+  "quote": "...with Wintermute's team tagging 768,275 or 48% of them as crime-related."
+ },
+ {
+  "metric": "Daily EIP-7702 transactions on Ethereum",
+  "value": 6285,
+  "unit": "transactions/day (about 0.37% of ETH transactions)",
+  "period": "2025-05 to 2025-09",
+  "source_name": "Protos, '48% of Ethereum EIP-7702 uses linked to crime, says Wintermute' (secondary; cites Wintermute Dune queries 5145294, 5239323/8611171)",
+  "source_url": "https://protos.com/48-of-ethereum-eip-7702-uses-linked-to-crime-says-wintermute/",
+  "published": "2025-09-22",
+  "quote": "On average, 6,285 transactions use EIP-7702 per day — about 0.37% of total ETH transactions."
+ },
+ {
+  "metric": "EIP-7702 authorization transactions studied (Ethereum, BSC, Polygon, Arbitrum, Optimism, Base, Gnosis)",
+  "value": 3664166,
+  "unit": "authorization transactions",
+  "period": "to 2025-07-15",
+  "source_name": "Huang, Liu, Yang, Wu, Wang, 'Revealing the Dark Side of Smart Accounts: An Empirical Study of EIP-7702 Incurred Risks in Blockchain Ecosystem' (USENIX Security 2026, prepublication PDF)",
+  "source_url": "https://www.usenix.org/system/files/conference/usenixsecurity26/sec26_prepub_huang-mingyuan.pdf",
+  "published": "2026 (prepublication; exact date NOT FOUND)",
+  "quote": "...3,664,166 EIP-7702 authorization transactions before July 15th, 2025."
+ },
+ {
+  "metric": "Share of EIP-7702 authorization transactions associated with malicious contracts",
+  "value": 63,
+  "unit": "percent (2,322,548 transactions)",
+  "period": "to 2025-07-15",
+  "source_name": "Huang, Liu, Yang, Wu, Wang, 'Revealing the Dark Side of Smart Accounts: An Empirical Study of EIP-7702 Incurred Risks in Blockchain Ecosystem' (USENIX Security 2026, prepublication PDF)",
+  "source_url": "https://www.usenix.org/system/files/conference/usenixsecurity26/sec26_prepub_huang-mingyuan.pdf",
+  "published": "2026 (prepublication; exact date NOT FOUND)",
+  "quote": "...these malicious contracts are associated with 2,322,548 EIP-7702 authorization transactions, accounting for 63% of all 3,664,166 authorization transactions"
+ },
+ {
+  "metric": "Confirmed asset loss from malicious EIP-7702 contracts (793 EOA-targeted, 124 CA-targeted, 7 composite)",
+  "value": 2362848,
+  "unit": "USD",
+  "period": "to 2025-07-15",
+  "source_name": "Huang, Liu, Yang, Wu, Wang, 'Revealing the Dark Side of Smart Accounts: An Empirical Study of EIP-7702 Incurred Risks in Blockchain Ecosystem' (USENIX Security 2026, prepublication PDF)",
+  "source_url": "https://www.usenix.org/system/files/conference/usenixsecurity26/sec26_prepub_huang-mingyuan.pdf",
+  "published": "2026 (prepublication; exact date NOT FOUND)",
+  "quote": "...confirming 793 malicious contracts in EOA-targeted attacks, 124 in CA-targeted attacks, and 7 in composite attacks, resulting in a total asset loss of 2,362,848 USD."
+ },
+ {
+  "metric": "Victim smart accounts authorized to one family of malicious transfer-on-receipt contracts",
+  "value": 100000,
+  "unit": "accounts (over)",
+  "period": "to 2025-07-15",
+  "source_name": "Huang, Liu, Yang, Wu, Wang, 'Revealing the Dark Side of Smart Accounts: An Empirical Study of EIP-7702 Incurred Risks in Blockchain Ecosystem' (USENIX Security 2026, prepublication PDF)",
+  "source_url": "https://www.usenix.org/system/files/conference/usenixsecurity26/sec26_prepub_huang-mingyuan.pdf",
+  "published": "2026 (prepublication; exact date NOT FOUND)",
+  "quote": "...authorized through malicious EIP-7702 upgrade requests affecting over 100,000 victim SAs."
+ },
+ {
+  "metric": "How malicious authorizations occurred, per Huang et al. (conflicts with Wintermute's leaked-key explanation)",
+  "value": "after users interacted with phishing websites or copied transaction data from untrusted channels",
+  "unit": "description",
+  "period": "2025",
+  "source_name": "Huang, Liu, Yang, Wu, Wang, 'Revealing the Dark Side of Smart Accounts: An Empirical Study of EIP-7702 Incurred Risks in Blockchain Ecosystem' (USENIX Security 2026, prepublication PDF)",
+  "source_url": "https://www.usenix.org/system/files/conference/usenixsecurity26/sec26_prepub_huang-mingyuan.pdf",
+  "published": "2026 (prepublication; exact date NOT FOUND)",
+  "quote": "In the incidents we observed, this authorization typically occurred after users interacted with phishing websites or copied transaction data from untrusted channels"
+ },
+ {
+  "metric": "EIP-7702 authorization and execution events analysed",
+  "value": 150000,
+  "unit": "events (over; 26k addresses, hundreds of delegator contracts)",
+  "period": "2025",
+  "source_name": "Qi, Wang, Li, Zhu, Chen, 'EIP-7702 Phishing Attack' (arXiv 2512.12174)",
+  "source_url": "https://arxiv.org/abs/2512.12174",
+  "published": "2025-12-13",
+  "quote": "over 150k authorization and execution events involving 26k addresses and hundreds of delegator contracts"
+ },
+ {
+  "metric": "EIP-7702 batch-transaction phishing loss, first named case (Ethereum; attributed to Inferno Drainer by SlowMist)",
+  "value": 146551,
+  "unit": "USD",
+  "period": "2025-05-23",
+  "source_name": "Scam Sniffer, X alert (read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/realScamSniffer/status/1926296681198326254",
+  "published": "2025-05-24",
+  "quote": "🚨 ALERT: An address upgraded to EIP-7702 lost $146,551 through malicious batched transactions in phishing attack."
+ },
+ {
+  "metric": "Largest named EIP-7702 batch phishing loss (Base, per on-chain check)",
+  "value": 1540000,
+  "unit": "USD (approx.)",
+  "period": "2025-08-23",
+  "source_name": "Scam Sniffer, X alert (read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/realScamSniffer/status/1959423000752820374",
+  "published": "2025-08-24",
+  "quote": "🚨 ALERT: Someone lost ~$1.54M due to signing EIP-7702 phishing batch transactions."
+ },
+ {
+  "metric": "Drainer phishing losses, August 2025 (EIP-7702 batch signatures cited as driver)",
+  "value": 12170000,
+  "unit": "USD (15,230 victims; 3 whale hits $5.62M = 46%)",
+  "period": "2025-08",
+  "source_name": "Scam Sniffer, X alert (read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/realscamsniffer/status/1964235400593178793",
+  "published": "2025-09-06",
+  "quote": "August losses: $12.17M | 15,230 victims ... Key insight: Sharp escalation driven by EIP-7702 batch-signature scams and direct transfers to phishing contracts. 3 whale hits totaled $5.62M (46%)."
+ },
+ {
+  "metric": "Delegate used in the May 2025 EIP-7702 phishing case",
+  "value": "MetaMask: EIP-7702 Delegator 0x63c0c19a282a1B52b07dD5a65b58948A07DAE32B (not a phishing contract)",
+  "unit": "description",
+  "period": "2025-05-23",
+  "source_name": "SlowMist, X post on the first EIP-7702 phishing case (read via api.fxtwitter.com mirror)",
+  "source_url": "https://x.com/SlowMist_Team/status/1927279062822641772",
+  "published": "2025-05-27",
+  "quote": "Unlike typical phishing, the delegated address is not a phishing address, but MetaMask: EIP-7702 Delegator 0x63c0c19a282a1B52b07dD5a65b58948A07DAE32B"
+ },
+ {
+  "metric": "What the $146,551 victim signed (Ethereum tx 0x1ddc8cecbcaad5396fdf59ff8cddd8edd15f82f1e26779e581b7a4785a5f5e06)",
+  "value": "ordinary type-2 tx from victim to itself calling execute(bytes32,bytes) [0xe9ae5c53] on its MetaMask delegator; 10 Approval events, all to spender 0x00008c22f9f6f3101533f520e229bbb54be90000; no authorization list",
+  "unit": "description",
+  "period": "2025-05-23 (block 22546176)",
+  "source_name": "Researcher on-chain check via public JSON-RPC (ethereum-rpc.publicnode.com, mainnet.base.org), 2026-10-05",
+  "source_url": "https://etherscan.io/tx/0x1ddc8cecbcaad5396fdf59ff8cddd8edd15f82f1e26779e581b7a4785a5f5e06",
+  "published": "2026-10-05",
+  "quote": "RPC: type 0x2, from = to = 0xc6d289d55fe64227a09e3120855ccba0d2e606dc, input 0xe9ae5c53..., receipt 10 Approval logs; eth_getCode = 0xef0100 63c0c19a282a1b52b07dd5a65b58948a07dae32b"
+ },
+ {
+  "metric": "What the ~$1.54M victim signed (Base tx 0xa984840a3a6322fc0a51650a71870bc493bf1d7e1ca15945a82c37c603139bba)",
+  "value": "ordinary type-2 tx from victim to itself calling execute(bytes32,bytes) on its MetaMask delegator; 15 Transfer events, 0 approvals; no authorization list",
+  "unit": "description",
+  "period": "2025-08-23 (Base block 34588154)",
+  "source_name": "Researcher on-chain check via public JSON-RPC (ethereum-rpc.publicnode.com, mainnet.base.org), 2026-10-05",
+  "source_url": "https://basescan.org/tx/0xa984840a3a6322fc0a51650a71870bc493bf1d7e1ca15945a82c37c603139bba",
+  "published": "2026-10-05",
+  "quote": "RPC: type 0x2, from = to = 0x96892b8fbd24e0ac40bd98a304095a6c485a6a68, input 0xe9ae5c53..., receipt 15 Transfer logs (recipients incl. 0x0000b3812f3912259374da1329ca1eecef370000); eth_getCode = MetaMask delegator"
+ },
+ {
+  "metric": "Spec guidance on dapp-requested authorizations",
+  "value": "wallets must not offer an interface for apps to request authorizations",
+  "unit": "description",
+  "period": "n/a",
+  "source_name": "EIP-7702 specification (ethereum/EIPs), Security Considerations",
+  "source_url": "https://raw.githubusercontent.com/ethereum/EIPs/master/EIPS/eip-7702.md",
+  "published": "2024-05-07 (created; status Final)",
+  "quote": "There is no safe way to provide this interface. The code specified by an authorization has unrestricted access to the account and must always be closely audited by the wallet."
+ },
+ {
+  "metric": "Address-poisoning attack attempts (Ethereum + BSC)",
+  "value": 270000000,
+  "unit": "on-chain attacks (targeting 17M victims)",
+  "period": "2022-07-01 to 2024-06-30",
+  "source_name": "Tsuchiya, Dong, Soska, Christin, 'Blockchain Address Poisoning' (USENIX Security 2025; arXiv 2501.16681)",
+  "source_url": "https://arxiv.org/abs/2501.16681",
+  "published": "2025-01-28",
+  "quote": "270M on-chain attacks targeting 17M victims"
+ },
+ {
+  "metric": "Address-poisoning incidents and losses (Ethereum + BSC; excludes the May 2024 $68M WBTC case)",
+  "value": 83800000,
+  "unit": "USD (at least; 6,633 incidents)",
+  "period": "2022-07-01 to 2024-06-30",
+  "source_name": "Tsuchiya, Dong, Soska, Christin, 'Blockchain Address Poisoning' (USENIX Security 2025; arXiv 2501.16681)",
+  "source_url": "https://arxiv.org/abs/2501.16681",
+  "published": "2025-01-28",
+  "quote": "6,633 incidents have caused at least 83.8M USD in losses"
+ },
+ {
+  "metric": "Address-poisoning transactions flagged by Blockaid since January 2025",
+  "value": 65400000,
+  "unit": "transactions (over)",
+  "period": "2025-01 to ~2026-03",
+  "source_name": "Blockaid, 'Address Poisoning: The Growing Threat Draining Millions from Crypto Users'",
+  "source_url": "https://www.blockaid.io/blog/address-poisoning-the-growing-threat-draining-millions-from-crypto-users",
+  "published": "2026-03-09",
+  "quote": "Since January 2025, Blockaid has flagged over 65.4 million address poisoning transactions on-chain"
+ },
+ {
+  "metric": "Confirmed address-poisoning attacks (victim actually sent funds)",
+  "value": 316000,
+  "unit": "attacks (approx.; ~1 in 200 attempts)",
+  "period": "2025-01 to ~2026-03",
+  "source_name": "Blockaid, 'Address Poisoning: The Growing Threat Draining Millions from Crypto Users'",
+  "source_url": "https://www.blockaid.io/blog/address-poisoning-the-growing-threat-draining-millions-from-crypto-users",
+  "published": "2026-03-09",
+  "quote": "approximately 316,000 were confirmed attacks where victims actually sent funds to a poisoned address, meaning roughly 1 in every 200 poisoning attempts succeeds"
+ },
+ {
+  "metric": "Monthly address-poisoning attempts, Nov 2025 vs Jan 2026",
+  "value": [
+   628000,
+   3400000
+  ],
+  "unit": "attempts [Nov 2025, Jan 2026]",
+  "period": "2025-11, 2026-01",
+  "source_name": "Blockaid, 'Address Poisoning: The Growing Threat Draining Millions from Crypto Users'",
+  "source_url": "https://www.blockaid.io/blog/address-poisoning-the-growing-threat-draining-millions-from-crypto-users",
+  "published": "2026-03-09",
+  "quote": "poisoning attempts spike from 628,000 in November 2025 to 3.4 million in January 2026 — a 5.5× increase in just two months"
+ },
+ {
+  "metric": "December 2025 address-poisoning loss after a $50 test transfer",
+  "value": 49999950,
+  "unit": "USDT",
+  "period": "2025-12",
+  "source_name": "Blockaid, 'Address Poisoning: The Growing Threat Draining Millions from Crypto Users'",
+  "source_url": "https://www.blockaid.io/blog/address-poisoning-the-growing-threat-draining-millions-from-crypto-users",
+  "published": "2026-03-09",
+  "quote": "the attacker detected a $50 test transaction, planted a spoofed address, and the victim sent 49,999,950 USDT to the poisoned address just 26 minutes later"
+ },
+ {
+  "metric": "Malicious Safe proxy addresses in a Safe{Wallet} address-poisoning campaign",
+  "value": 15000,
+  "unit": "addresses (approx.)",
+  "period": "2025-2026",
+  "source_name": "Blockaid, 'Address Poisoning: The Growing Threat Draining Millions from Crypto Users'",
+  "source_url": "https://www.blockaid.io/blog/address-poisoning-the-growing-threat-draining-millions-from-crypto-users",
+  "published": "2026-03-09",
+  "quote": "Blockaid's research team identified approximately 15,000 malicious proxy addresses created through this campaign"
+ },
+ {
+  "metric": "Address-poisoning losses on Ethereum, 73 days before vs after Fusaka",
+  "value": [
+   4900000,
+   63300000
+  ],
+  "unit": "USD [Sep 21-Dec 2 2025, Dec 3 2025-Feb 13 2026]",
+  "period": "2025-09-21 to 2026-02-13",
+  "source_name": "Andrey Sergeenkov, address-poisoning losses before and after Ethereum's Fusaka upgrade (independent researcher)",
+  "source_url": "https://sergeenkov.com/fusaka-poison-attacks-ethereum/",
+  "published": "2026-02-18",
+  "quote": "Pre-Fusaka (Sep 21 – Dec 2): $4.9M stolen ... Post-Fusaka (Dec 3 – Feb 13): $63.3M stolen"
+ },
+ {
+  "metric": "Address-poisoning dust transactions per day on Ethereum, before vs after Fusaka",
+  "value": [
+   30000,
+   167000
+  ],
+  "unit": "transactions/day",
+  "period": "2025-09 to 2026-02",
+  "source_name": "Andrey Sergeenkov, address-poisoning losses before and after Ethereum's Fusaka upgrade (independent researcher)",
+  "source_url": "https://sergeenkov.com/fusaka-poison-attacks-ethereum/",
+  "published": "2026-02-18",
+  "quote": "attackers were sending an average of 30,000 dust transactions per day ... this jumped to 167,000 per day, a 5.6 times increase"
+ },
+ {
+  "metric": "One 2024 address-poisoning campaign: seeded lookalike addresses and victim payments",
+  "value": 69720993,
+  "unit": "USD (2,774 sending addresses; 82,031 seeded addresses)",
+  "period": "2024-02-28 to 2024-05-04",
+  "source_name": "Chainalysis, 'Anatomy of an Address Poisoning Scam'",
+  "source_url": "https://www.chainalysis.com/blog/address-poisoning-scam/",
+  "published": "2024-10-23",
+  "quote": "A total of 2,774 addresses sent funds (totaling $69,720,993) to the aforementioned 82,031 addresses, representing the victim pool."
+ },
+ {
+  "metric": "Single social-engineering theft of Bitcoin from one person (seed/account takeover, not a signing deception)",
+  "value": 330000000,
+  "unit": "USD",
+  "period": "2025-04 (late April)",
+  "source_name": "Hacken, 'The Hacken 2025 Half Year Web3 Security Report' (PDF)",
+  "source_url": "https://storage.ghost.io/c/d1/14/d114cb3d-6b95-4710-8c36-fdcbff0ed991/content/files/2025/07/hacken-2025-h1-web3-security-report-1.pdf",
+  "published": "2025-07-24",
+  "quote": "In late April, a scammer tricked one person into handing over $330 million worth of Bitcoin"
+ },
+ {
+  "metric": "Phishing victims in CertiK's 2025 top-10 losses (bc1qxjp; bc1qhd4; 0xcb807)",
+  "value": [
+   330700000,
+   91127110,
+   49982750.02
+  ],
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025' (full PDF, top-10 chart)",
+  "source_url": "https://indd.adobe.com/view/publication/d21da0b0-06c4-4f38-a82b-c7757971064b/jh85/publication-web-resources/pdf/2025-eoy-skynet-hack3d-report.pdf",
+  "published": "2025-12-23",
+  "quote": "Top-10 chart labels: Phishing Victim (bc1qxjp) $330,700,000; Phishing Victim (bc1qhd4) $91,127,110; Phishing Victim (0xcb807) $49,982,750.02"
+ },
+ {
+  "metric": "EIP-7702 adoption across chains: live smart accounts / total authorizations / set-code transactions",
+  "value": [
+   63328609,
+   261266473,
+   109861042
+  ],
+  "unit": "[accounts, authorizations, set-code txns]",
+  "period": "2025-05 to 2026-10-05",
+  "source_name": "BundleBear, EIP-7702 overview dashboard (live; all chains)",
+  "source_url": "https://www.bundlebear.com/eip7702-overview/all",
+  "published": "live dashboard, read 2026-10-05",
+  "quote": "Currently Live Smart Accounts: 63,328,609; Total Authorizations: 261,266,473; Total Set Code Txns: 109,861,042"
+ },
+ {
+  "metric": "Wallets (of 53 popular Ethereum wallets) that explicitly warn when sending to a poisoned address",
+  "value": 3,
+  "unit": "wallets (16 of 53 rated high risk)",
+  "period": "2025",
+  "source_name": "Guan & Li, 'Ethereum Crypto Wallets under Address Poisoning: How Usable and Secure Are They?' (arXiv 2508.12107)",
+  "source_url": "https://arxiv.org/abs/2508.12107",
+  "published": "2025-08-16",
+  "quote": "only three wallets throw an explicit warning message when users attempt to transfer to the phishing address"
+ },
+ {
+  "metric": "Losses attributed to blind signing (no specific figure given)",
+  "value": "billions (unquantified)",
+  "unit": "USD (order of magnitude only)",
+  "period": "cumulative",
+  "source_name": "Chainalysis, 'Strengthening Crypto Operations: Advanced Approaches to Transaction Signing and Approval'",
+  "source_url": "https://www.chainalysis.com/blog/transaction-signing-and-approval-hexagate-gatesigner/",
+  "published": "2025-06-17",
+  "quote": "This vulnerability, also known as blind signing, has resulted in billions of losses."
+ },
+ {
+  "metric": "DMM Bitcoin share of value hacked in 2024 (to end of July)",
+  "value": 19,
+  "unit": "percent (roughly)",
+  "period": "2024-01 to 2024-07",
+  "source_name": "Chainalysis, '2024 Crypto Crime Mid-year Update Part 1: Cybercrime Climbs as Exchange Thieves and Ransomware Attackers Grow Bolder'",
+  "source_url": "https://www.chainalysis.com/blog/2024-crypto-crime-mid-year-update-part-1/",
+  "published": "2024-08-15",
+  "quote": "In the DMM hack, which accounts for roughly 19% of hacked value in 2024, some 4500 BTC was reportedly stolen."
+ },
+ {
+  "metric": "Security incidents and losses (SlowMist; excludes individual users)",
+  "value": 2013000000,
+  "unit": "USD (410 incidents)",
+  "period": "2024",
+  "source_name": "SlowMist, 'SlowMist 2024 Blockchain Security and Anti-Money Laundering Annual Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2024-blockchain-security-and-anti-money-laundering-annual-report-d7fc94ccf624",
+  "published": "2025-01-04",
+  "quote": "a total of 410 security incidents were recorded in 2024, resulting in losses amounting to $2.013 billion"
+ },
+ {
+  "metric": "Smart-contract vulnerability incidents and losses",
+  "value": 214000000,
+  "unit": "USD (approx.; 99 incidents)",
+  "period": "2024",
+  "source_name": "SlowMist, 'SlowMist 2024 Blockchain Security and Anti-Money Laundering Annual Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2024-blockchain-security-and-anti-money-laundering-annual-report-d7fc94ccf624",
+  "published": "2025-01-04",
+  "quote": "smart contract vulnerabilities were the most common, with 99 reported incidents resulting in approximately $214 million in losses"
+ },
+ {
+  "metric": "Cumulative known losses from phishing-signature attacks",
+  "value": 790000000,
+  "unit": "USD",
+  "period": "to end of 2024",
+  "source_name": "SlowMist, 'SlowMist 2024 Blockchain Security and Anti-Money Laundering Annual Report' (Medium; read via r.jina.ai reader)",
+  "source_url": "https://slowmist.medium.com/slowmist-2024-blockchain-security-and-anti-money-laundering-annual-report-d7fc94ccf624",
+  "published": "2025-01-04",
+  "quote": "known losses from phishing signature attacks have reached $790 million"
+ },
+ {
+  "metric": "Access control / exit scam / price manipulation losses (chart '2024 Incident Type & Amount')",
+  "value": [
+   86400000,
+   85400000,
+   50400000
+  ],
+  "unit": "USD [access control 38 incidents, exit scam 91, price manipulation 33]",
+  "period": "2024",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2024' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/733ec833-8311-4c15-b27a-96561ccdef59/wiic/publication-web-resources/pdf/2024_Q4__Hack3d_Report.pdf",
+  "published": "2025-01-02",
+  "quote": "Chart: Access Control 38 / 86.4M; Exit Scam 91 / 85.4M; Price Manipulation 33 / 50.4M"
+ },
+ {
+  "metric": "Bybit loss as counted by CertiK",
+  "value": 1447063421,
+  "unit": "USD",
+  "period": "2025-02-21",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Report 2025'",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-report-2025",
+  "published": "2025-12-23",
+  "quote": "...when isolating the impact of the Bybit incident, which accounted for a disproportionately large share of annual losses at $1,447,063,421"
+ },
+ {
+  "metric": "Code vulnerability losses, Q2 2025",
+  "value": 235783844,
+  "unit": "USD (47 incidents)",
+  "period": "2025-Q2",
+  "source_name": "CertiK, 'Hack3d: The Web3 Security Quarterly Report - Q2 + H1 2025'",
+  "source_url": "https://www.certik.com/resources/blog/hack3d-the-web3-security-quarterly-report-q2-h1-2025",
+  "published": "2025-06-30",
+  "quote": "Code vulnerability followed, with $235,783,844 stolen across 47 incidents."
+ },
+ {
+  "metric": "Kelp DAO RPC compromise and Drift wallet compromise: combined share of H1 2026 losses",
+  "value": [
+   291300000,
+   285300000
+  ],
+  "unit": "USD [Kelp DAO, Drift] (together ~$576.6M, nearly 44% of H1)",
+  "period": "2026-H1",
+  "source_name": "CertiK, 'CertiK Hack3D: H1 2026 Report' (full PDF)",
+  "source_url": "https://indd.adobe.com/view/publication/9f1c777d-8d9f-4b14-b417-e4a29ee5359a/931z/publication-web-resources/pdf/English.pdf",
+  "published": "2026-07-06",
+  "quote": "The Kelp DAO RPC compromise ($291.3 million) and the Drift Protocol wallet compromise ($285.3 million) together account for approximately $576.6 million, nearly 44% of all H1 losses."
+ },
+ {
+  "metric": "Rug-pull losses (Hacken)",
+  "value": 316852000,
+  "unit": "USD (7.9%)",
+  "period": "2025",
+  "source_name": "Hacken, 'The Hacken 2025 Yearly Security Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/Hacken-2025-Yearly-Security-Report.pdf",
+  "published": "2025-12-29",
+  "quote": "Rug pulls $316,852,000 7.9%"
+ },
+ {
+  "metric": "Access control vs smart-contract vulnerability losses (Hacken)",
+  "value": [
+   71900000,
+   86173580
+  ],
+  "unit": "USD [access control, SC vulnerability]",
+  "period": "2026-Q1",
+  "source_name": "Hacken, 'Q1 2026 Security & Compliance Report' (PDF)",
+  "source_url": "https://assets.hacken.io/assets/q1-2026-security-report.pdf",
+  "published": "2026-04-14",
+  "quote": "SC vulnerability losses $86,173,580 ... Access control losses $71,900,000"
+ },
+ {
+  "metric": "Large-case losses by asset type: Aave collateral / Pendle yield tokens",
+  "value": [
+   10.7,
+   9.3
+  ],
+  "unit": "percent",
+  "period": "2024",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2024: Web3 Phishing Attacks - Wallet Drainers Drain $494 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2024-web3-phishing-attacks-wallet-drainers-drain-494-million/",
+  "published": "2025-01-03",
+  "quote": "Aave Collateral（10.7%） ... Pendle Yield (9.3%)"
+ },
+ {
+  "metric": "2025 large drainer case: stETH, aEthWBTC, September, Permit",
+  "value": 6500000,
+  "unit": "USD",
+  "period": "2025",
+  "source_name": "Scam Sniffer, 'Scam Sniffer 2025: Crypto Phishing Losses Fall 83% to $84 Million' (annual report)",
+  "source_url": "https://drops.scamsniffer.io/scam-sniffer-2025-crypto-phishing-losses-fall-83-to-84-million/",
+  "published": "2026-01-03",
+  "quote": "Major Thefts (≥$1M) list: $6.50M (stETH, aEthWBTC, September, Permit)"
+ }
+]

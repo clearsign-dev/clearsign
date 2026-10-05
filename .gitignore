@@ -1,5 +1,6 @@
 # build output
 signing-core/target/
+signing-core/bench/target/
 # VM images and runtime state are large and reproducible from vm/fetch scripts
 vm/images/
 vm/run/

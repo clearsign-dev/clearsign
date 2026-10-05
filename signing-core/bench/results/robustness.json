@@ -1,0 +1,216 @@
+{
+ "fuzz": {
+  "tx_bytes": {
+   "executions": 104341332,
+   "seconds": 2701,
+   "coverage_edges": 1167,
+   "failures": 0
+  },
+  "typed_data": {
+   "executions": 71702543,
+   "seconds": 2701,
+   "coverage_edges": 3273,
+   "failures": 0
+  },
+  "calldata": {
+   "executions": 22779961,
+   "seconds": 2701,
+   "coverage_edges": 1350,
+   "failures": 0
+  },
+  "safe_tx": {
+   "executions": 16823943,
+   "seconds": 2701,
+   "coverage_edges": 924,
+   "failures": 0
+  }
+ },
+ "fuzz_final": {
+  "tx_bytes": {
+   "executions": 38281587,
+   "seconds": 481,
+   "coverage_edges": 1180,
+   "failures": 0
+  },
+  "typed_data": {
+   "executions": 21179816,
+   "seconds": 481,
+   "coverage_edges": 3357,
+   "failures": 0
+  },
+  "calldata": {
+   "executions": 8386938,
+   "seconds": 481,
+   "coverage_edges": 1549,
+   "failures": 0
+  },
+  "safe_tx": {
+   "executions": 6200358,
+   "seconds": 481,
+   "coverage_edges": 988,
+   "failures": 0
+  },
+  "typed_data (inputs up to 256 KiB, for 10 minutes)": {
+   "executions": 20706996,
+   "seconds": 601,
+   "coverage_edges": 3399,
+   "failures": 0
+  }
+ },
+ "fuzz_total_executions": 310403474,
+ "fuzz_failures": 0,
+ "mutants_before": {
+  "total": 332,
+  "caught": 223,
+  "missed": 42,
+  "timeout": 12,
+  "unviable": 55,
+  "score": 84.2,
+  "missed_list": [
+   "crates/clearsign/src/abi.rs:117:18: replace match guard n < end with false in Args<'a>::expect_end",
+   "crates/clearsign/src/abi.rs:117:18: replace match guard n < end with true in Args<'a>::expect_end",
+   "crates/clearsign/src/abi.rs:117:20: replace < with == in Args<'a>::expect_end",
+   "crates/clearsign/src/abi.rs:117:20: replace < with > in Args<'a>::expect_end",
+   "crates/clearsign/src/abi.rs:27:9: replace Args<'a>::len -> usize with 0",
+   "crates/clearsign/src/abi.rs:27:9: replace Args<'a>::len -> usize with 1",
+   "crates/clearsign/src/abi.rs:31:9: replace Args<'a>::is_empty -> bool with false",
+   "crates/clearsign/src/abi.rs:31:9: replace Args<'a>::is_empty -> bool with true",
+   "crates/clearsign/src/abi.rs:69:18: replace match guard n < expected with false in Args<'a>::expect_static_len",
+   "crates/clearsign/src/abi.rs:69:18: replace match guard n < expected with true in Args<'a>::expect_static_len",
+   "crates/clearsign/src/abi.rs:69:20: replace < with <= in Args<'a>::expect_static_len",
+   "crates/clearsign/src/abi.rs:69:20: replace < with == in Args<'a>::expect_static_len",
+   "crates/clearsign/src/abi.rs:69:20: replace < with > in Args<'a>::expect_static_len",
+   "crates/clearsign/src/calls.rs:248:22: replace > with == in review_call",
+   "crates/clearsign/src/calls.rs:248:22: replace > with >= in review_call",
+   "crates/clearsign/src/calls.rs:355:28: delete ! in review_batch",
+   "crates/clearsign/src/calls.rs:366:20: replace > with < in review_batch",
+   "crates/clearsign/src/calls.rs:366:20: replace > with == in review_batch",
+   "crates/clearsign/src/calls.rs:366:20: replace > with >= in review_batch",
+   "crates/clearsign/src/calls.rs:372:8: delete ! in review_batch",
+   "crates/clearsign/src/calls.rs:391:14: replace > with == in review_batch",
+   "crates/clearsign/src/calls.rs:391:14: replace > with >= in review_batch",
+   "crates/clearsign/src/calls.rs:438:31: replace > with < in review_batch",
+   "crates/clearsign/src/calls.rs:438:31: replace > with == in review_batch",
+   "crates/clearsign/src/calls.rs:438:31: replace > with >= in review_batch",
+   "crates/clearsign/src/calls.rs:502:5: replace list_positions -> String with \"xyzzy\".into()",
+   "crates/clearsign/src/calls.rs:510:13: replace > with < in list_positions",
+   "crates/clearsign/src/calls.rs:510:13: replace > with == in list_positions",
+   "crates/clearsign/src/calls.rs:510:13: replace > with >= in list_positions",
+   "crates/clearsign/src/calls.rs:834:30: replace == with != in refund_finding",
+   "crates/clearsign/src/calls.rs:839:39: replace == with != in refund_finding",
+   "crates/clearsign/src/calls.rs:872:25: replace == with != in note_selector_is_not_behaviour",
+   "crates/clearsign/src/calls.rs:890:5: replace note_raw_units with ()",
+   "crates/clearsign/src/calls.rs:890:8: delete ! in note_raw_units",
+   "crates/clearsign/src/calls.rs:905:17: replace match guard data.is_empty() with true in selector_text",
+   "crates/clearsign/src/error.rs:33:9: replace <impl fmt::Display for Error>::fmt -> fmt::Result with Ok(Default::default())",
+   "crates/clearsign/src/evm.rs:103:50: replace || with && in parse_unsigned_transaction",
+   "crates/clearsign/src/evm.rs:186:19: replace == with != in review_evm_transaction",
+   "crates/clearsign/src/evm.rs:198:31: replace > with < in review_evm_transaction",
+   "crates/clearsign/src/evm.rs:198:31: replace > with == in review_evm_transaction",
+   "crates/clearsign/src/evm.rs:198:31: replace > with >= in review_evm_transaction",
+   "crates/clearsign/src/safe.rs:118:9: replace || with && in review_safe_transaction"
+  ]
+ },
+ "mutants_after": {
+  "total": 718,
+  "caught": 617,
+  "missed": 12,
+  "timeout": 2,
+  "unviable": 87,
+  "score": 98.1,
+  "missed_list": [
+   "crates/clearsign/src/abi.rs:262:20: replace < with <= in Args<'a>::expect_static_len",
+   "crates/clearsign/src/abi.rs:310:20: replace < with <= in Args<'a>::expect_end",
+   "crates/clearsign/src/calls.rs:601:31: replace > with < in review_batch",
+   "crates/clearsign/src/calls.rs:601:31: replace > with == in review_batch",
+   "crates/clearsign/src/calls.rs:601:31: replace > with >= in review_batch",
+   "crates/clearsign/src/calls.rs:751:21: delete field operation from struct CallContext expression in review_inner_calls",
+   "crates/clearsign/src/calls.rs:757:31: replace > with < in review_inner_calls",
+   "crates/clearsign/src/calls.rs:757:31: replace > with == in review_inner_calls",
+   "crates/clearsign/src/calls.rs:757:31: replace > with >= in review_inner_calls",
+   "crates/clearsign/src/calls.rs:803:17: delete field operation from struct CallContext expression in review_inner_calls",
+   "crates/clearsign/src/hex.rs:54:28: replace | with ^ in decode",
+   "crates/clearsign/src/typed.rs:440:29: replace match guard digits.len() % 2 == 0 with true in bytes_value"
+  ]
+ },
+ "mutants_json_readers": {
+  "total": 63,
+  "caught": 43,
+  "missed": 5,
+  "timeout": 0,
+  "unviable": 15,
+  "score": 89.6,
+  "missed_list": [
+   "crates/clearsign-safe-json/src/lib.rs:102:39: replace match guard s.is_empty() with false in parse",
+   "crates/clearsign-safe-json/src/strict_json.rs:21:9: replace <impl Visitor<'de> for UniqueVisitor>::expecting -> fmt::Result with Ok(Default::default())",
+   "crates/clearsign-safe-json/src/typed_data.rs:126:33: replace < with <= in convert",
+   "crates/clearsign-safe-json/src/typed_data.rs:42:24: replace > with == in parse",
+   "crates/clearsign-safe-json/src/typed_data.rs:42:24: replace > with >= in parse"
+  ]
+ },
+ "fuzz_summary": "310,403,474 fuzzing executions across 4 targets, 0 failures.",
+ "mutation_summary": "98.1% of mutants caught (84.2% before); every survivor is equivalent.",
+ "lines": [
+  "**Fuzzing, 45 minutes per target on 5 Oct 2026**, on the targets the new code runs through:",
+  "",
+  "| Target | Executions | Coverage edges | Failures |",
+  "|---|---:|---:|---:|",
+  "| `tx_bytes` | 104,341,332 | 1167 | 0 |",
+  "| `typed_data` | 71,702,543 | 3273 | 0 |",
+  "| `calldata` | 22,779,961 | 1350 | 0 |",
+  "| `safe_tx` | 16,823,943 | 924 | 0 |",
+  "",
+  "**Again on the final code**, after a review of the new decoders led to five more fixes, 8 minutes per target:",
+  "",
+  "| Target | Executions | Coverage edges | Failures |",
+  "|---|---:|---:|---:|",
+  "| `tx_bytes` | 38,281,587 | 1180 | 0 |",
+  "| `typed_data` | 21,179,816 | 3357 | 0 |",
+  "| `calldata` | 8,386,938 | 1549 | 0 |",
+  "| `safe_tx` | 6,200,358 | 988 | 0 |",
+  "| `typed_data` (inputs up to 256 KiB, for 10 minutes) | 20,706,996 | 3399 | 0 |",
+  "",
+  "**Mutation testing** (`cargo mutants -p clearsign`, with every test in the workspace): the decoder as it was before this work had 223 mutants caught and 42 missed, a score of 84.2% (12 more timed out and 55 did not compile). After the new decoders and the tests written for the survivors: 617 caught and 12 missed of 718, 98.1% (2 timed out, 87 did not compile). Each of the 12 survivors was examined and is equivalent: no input tells it from the original, so no test can kill it. They are listed with the reason for each in `crates/clearsign/tests/mutation_gaps.rs`.",
+  "",
+  "The JSON readers (`cargo mutants -p clearsign-safe-json`), which take Safe records and typed-data requests from files nobody vouches for: 43 caught and 5 missed of 63, 89.6% (15 did not compile). The survivors are equivalent too; `crates/clearsign-safe-json/tests/strict_input.rs` says why for each."
+ ],
+ "facts": [
+  [
+   "310 million",
+   "fuzzing executions across 4 targets, 0 failures"
+  ],
+  [
+   "98.1%",
+   "mutation score of the new decoder (was 84.2% before the gap tests)"
+  ]
+ ],
+ "cli": {
+  "median_ms": 2.34,
+  "runs": 1800,
+  "binary_bytes": 949568,
+  "wasm_bytes": 275967,
+  "note": "measured while the machine was in use"
+ },
+ "arena": [
+  {
+   "what": "a malformed transaction filling the request",
+   "bytes": 1572768
+  },
+  {
+   "what": "a plan with every step full",
+   "bytes": 1495254
+  },
+  {
+   "what": "a request-sized multicall of transferOwnership calls",
+   "bytes": 1413065
+  },
+  {
+   "what": "a request-sized multicall of acceptOwnership calls",
+   "bytes": 1310947
+  },
+  {
+   "what": "a MultiSend batch of 32 calls carrying 1,800 bytes each",
+   "bytes": 200805
+  }
+ ]
+}
