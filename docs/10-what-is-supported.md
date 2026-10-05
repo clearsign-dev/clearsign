@@ -30,7 +30,7 @@ apart here:
 | `0x04` EIP-7702 | Listed, tested, compared with `alloy` | Each authorization is CRITICAL: it hands an account to code |
 | Chain-specific types | **Refused** | OP Stack deposits and Arbitrum internal transactions are made by the system; Celo `0x7b` and zkSync `0x71` are signed by people and are not read |
 
-All five Ethereum types, checked live: no live comparison recorded.
+All five Ethereum types, checked live: on 9,998 real transactions from 31 chains, the digest was exactly what the sender signed in 9,998 ([11](11-benchmarks.md)).
 
 ## Calldata
 
@@ -64,7 +64,7 @@ field by field and is BLIND.
 | MultiSend deployments | **11**, from `safe-global/safe-deployments` |
 | Address-chain pairs listed | **2089**, across **561** distinct chain IDs |
 | Pairs tested | The ones the batch tests exercise, not all 2089 |
-| Live-record comparisons | **Ethereum mainnet only.** See [09-against-real-transactions.md](09-against-real-transactions.md) |
+| Live-record comparisons | **10,851 of 10,851** real Safe transactions across **27 chains** agreed with Safe's service. See [11-benchmarks.md](11-benchmarks.md) |
 
 The allowlist determines where batch decoding is enabled. It does not establish
 that every deployment, network or wallet integration has been tested.

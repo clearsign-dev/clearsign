@@ -1,0 +1,132 @@
+{
+  "corpus_throughput": {
+    "evm_seconds": 0.094984084,
+    "evm_transactions": 9815,
+    "safe_records": 10850,
+    "safe_seconds": 0.303574833
+  },
+  "machine": {
+    "arch": "aarch64",
+    "logical_cores": 10,
+    "os": "macos"
+  },
+  "scenarios": [
+    {
+      "bytes_allocated": 5249,
+      "input_bytes": 51,
+      "iterations": 200000,
+      "max_us": 10065.417,
+      "name": "eth_transfer",
+      "p50_us": 5.208,
+      "p95_us": 9.625,
+      "p99_us": 13.583,
+      "peak_bytes_held": 2950,
+      "reviews_per_second": 131583.550195653,
+      "what": "EIP-1559 native transfer"
+    },
+    {
+      "bytes_allocated": 11529,
+      "input_bytes": 113,
+      "iterations": 194989,
+      "max_us": 17358.125,
+      "name": "erc20_transfer",
+      "p50_us": 6.417,
+      "p95_us": 11.875,
+      "p99_us": 23.209,
+      "peak_bytes_held": 6880,
+      "reviews_per_second": 98672.84889199214,
+      "what": "EIP-1559 ERC-20 transfer"
+    },
+    {
+      "bytes_allocated": 11922,
+      "input_bytes": 113,
+      "iterations": 200000,
+      "max_us": 7662.459,
+      "name": "unlimited_approve",
+      "p50_us": 6.542,
+      "p95_us": 11.709,
+      "p99_us": 13.875,
+      "peak_bytes_held": 6918,
+      "reviews_per_second": 111610.8475650034,
+      "what": "EIP-1559 unlimited ERC-20 approval"
+    },
+    {
+      "bytes_allocated": 140261,
+      "input_bytes": 131125,
+      "iterations": 4489,
+      "max_us": 7907.75,
+      "name": "unknown_128k",
+      "p50_us": 319.459,
+      "p95_us": 617.791,
+      "p99_us": 829.083,
+      "peak_bytes_held": 133052,
+      "reviews_per_second": 2244.444644139522,
+      "what": "EIP-1559 with 128 KiB of calldata to an unknown function"
+    },
+    {
+      "bytes_allocated": 15087,
+      "input_bytes": 679,
+      "iterations": 94749,
+      "max_us": 15708.542,
+      "name": "safe_json_bybit",
+      "p50_us": 15.125,
+      "p95_us": 27.667,
+      "p99_us": 39.625,
+      "peak_bytes_held": 7107,
+      "reviews_per_second": 47496.86705729527,
+      "what": "Bybit's Safe record: strict JSON read, domain settled from the hash, review, render"
+    },
+    {
+      "bytes_allocated": 12391,
+      "input_bytes": 68,
+      "iterations": 176262,
+      "max_us": 10728.082999999999,
+      "name": "safe_bybit",
+      "p50_us": 8.084,
+      "p95_us": 15.665999999999999,
+      "p99_us": 22.0,
+      "peak_bytes_held": 7039,
+      "reviews_per_second": 88551.51471707554,
+      "what": "Bybit's Safe transaction: review and render (v1.1.x domain)"
+    },
+    {
+      "bytes_allocated": 0,
+      "input_bytes": 68,
+      "iterations": 200000,
+      "max_us": 262.375,
+      "name": "safe_hash_only",
+      "p50_us": 1.541,
+      "p95_us": 2.9170000000000003,
+      "p99_us": 2.959,
+      "peak_bytes_held": 0,
+      "reviews_per_second": 507645.5222997548,
+      "what": "Safe transaction hash alone"
+    },
+    {
+      "bytes_allocated": 118318,
+      "input_bytes": 4964,
+      "iterations": 13581,
+      "max_us": 7274.208,
+      "name": "multisend_32",
+      "p50_us": 108.75,
+      "p95_us": 207.917,
+      "p99_us": 284.875,
+      "peak_bytes_held": 60657,
+      "reviews_per_second": 6793.010125929684,
+      "what": "Safe MultiSend batch of 32 ERC-20 transfers (all shown)"
+    },
+    {
+      "bytes_allocated": 2764299,
+      "input_bytes": 156740,
+      "iterations": 511,
+      "max_us": 31984.332999999995,
+      "name": "multisend_1024",
+      "p50_us": 3512.084,
+      "p95_us": 5325.5,
+      "p99_us": 9521.708999999999,
+      "peak_bytes_held": 111573,
+      "reviews_per_second": 254.90371152219927,
+      "what": "Safe MultiSend batch of 1,024 calls, the most it will parse"
+    }
+  ]
+}

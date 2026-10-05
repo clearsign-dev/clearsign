@@ -1,0 +1,25 @@
+{
+  "by_kind": {
+    "erc2612": 33,
+    "permit2_batch": 2,
+    "permit2_single": 223
+  },
+  "proven": {
+    "erc2612": 33,
+    "permit2_batch": 2,
+    "permit2_single": 223
+  },
+  "not_proven": {},
+  "outcome": {
+    "critical": 227,
+    "warning": 31
+  },
+  "findings": {
+    "SIGNATURE_NEEDS_NO_TRANSACTION": 258,
+    "TOKEN_APPROVAL": 31,
+    "UNLIMITED_APPROVAL": 227
+  },
+  "nonce_searched_max": 172,
+  "unlimited": 227,
+  "bounded": 31
+}
