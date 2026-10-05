@@ -181,7 +181,7 @@
   ],
   [
    "98.1%",
-   "mutation score of the new decoder (was 84.2% before the gap tests)"
+   "of the extended decoder's mutants caught by its tests (84.2% of the old decoder's)"
   ]
  ],
  "cli": {

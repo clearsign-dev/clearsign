@@ -144,7 +144,7 @@ def main():
     if fuzz:
         facts.append([f"{total / 1e6:.0f} million", f"fuzzing executions across {targets} targets, {failures} failures"])
     if before and after:
-        facts.append([f"{after['score']}%", f"mutation score of the new decoder (was {before['score']}% before the gap tests)"])
+        facts.append([f"{after['score']}%", f"of the extended decoder's mutants caught by its tests ({before['score']}% of the old decoder's)"])
 
     out = {
         "fuzz": fuzz,
