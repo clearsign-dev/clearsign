@@ -306,6 +306,8 @@ The share has not been constant:
 | 2025 | $2.72B | $1.44B (53.1%) | 19.7% | 24.5% |
 | 2026 | $2.24B | $299.8M (13.4%) | 31.7% | 50.9% |
 
+The $931.8M lost before 2018 is left out of the table, none of it through a deceived signer.
+
 Before 2024 almost nothing reached the money this way. In 2025 more than half did — Bybit
 alone — and the industry's own reports agree on the direction: TRM attributes 76% of 2025's
 stolen funds to infrastructure attacks and 12% to code exploits; Chainalysis puts private-key

@@ -106,6 +106,10 @@ def main(out):
     for y, a in land["by_year"].items():
         if int(y) >= 2018:
             years.append({"year": y, "all": a["all"]["usd"], "path": a["on_signing_path"]["usd"]})
+    # Everything before the chart's first year, from the totals: the yearly
+    # breakdown itself does not reach back to the list's earliest incidents.
+    early = {"usd": lt["usd"] - sum(y["all"] for y in years),
+             "path_usd": land["on_signing_path"]["usd"] - sum(y["path"] for y in years)}
 
     outcomes = [
         {"label": "Plain transactions, 31 chains", "o": merged(ec, "outcome")},
@@ -132,7 +136,7 @@ def main(out):
         "named_before": sum(1 for a in attacks if a["before"][0] == "named"),
         "land": {"incidents": lt["incidents"], "usd": lt["usd"], "path_usd": land["on_signing_path"]["usd"],
                  "path_n": land["on_signing_path"]["incidents"]},
-        "money": money, "years": years, "outcomes": outcomes,
+        "money": money, "years": years, "years_early": early, "outcomes": outcomes,
         "evm_rows": evm_rows, "safe_rows": safe_rows, "perf": perf_rows,
         "throughput": perf["corpus_throughput"],
         "robust": robust, "permits": permits,
@@ -240,6 +244,9 @@ code, .mono { font-family: var(--font-mono); font-size: .9em; }
 .col .yr { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; height: 18px; line-height: 18px; flex: none; }
 .share-path { font-size: 11px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
 .years-legend { margin-top: 4px; }
+/* Too narrow for a dollar figure over every bar: keep the share labels, which
+   carry the point, and let the axis give the size. */
+@media (max-width: 560px) { .col .val { display: none; } }
 
 /* attack table */
 .tablewrap { overflow-x: auto; min-width: 0; }
@@ -332,7 +339,7 @@ footer { font-size: 13px; color: var(--ink-faint); display: grid; gap: 6px; bord
         <div class="path"><i style="background:var(--accent)"></i><span>Through a deceived signer</span><b></b></div>
         <div><i style="background:var(--gray-2)"></i><span>Everything else</span><b></b></div>
       </div>
-      <p class="note">2020 is dominated by one $3.5B theft from keys generated with a weak random number generator.</p>
+      <p class="note">2020 is dominated by one $3.5B theft from keys generated with a weak random number generator. <span id="years-early"></span></p>
     </div>
   </section>
 
@@ -501,6 +508,12 @@ for (const y of D.years) {
   col.append(st, el("div", "yr", y.year));
   attachTip(col, usd(y.all) + " lost in " + y.year, `${usd(y.path)} (${pct(y.path, y.all)}) through a deceived signer`);
   Y.append(col);
+}
+const E = D.years_early;
+if (E.usd > 1) {
+  document.getElementById("years-early").textContent =
+    `The chart starts in 2018: the ${usd(E.usd)} lost before then is left out` +
+    (E.path_usd >= 1 ? `, ${usd(E.path_usd)} of it through a deceived signer.` : ", none of it through a deceived signer.");
 }
 const yl = document.querySelectorAll(".years-legend b");
 yl[0].textContent = usd(pathTotal); yl[1].textContent = usd(allTotal - pathTotal);

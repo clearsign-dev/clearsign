@@ -389,13 +389,21 @@ def main():
     w("")
     w("| Year | Lost | Through a deceived signer | Key theft | Contract bugs |")
     w("|---|---:|---:|---:|---:|")
+    shown_usd = shown_path = 0
     for y, a in land["by_year"].items():
         if int(y) < 2018:
             continue
         tot = a["all"]["usd"]
+        shown_usd += tot
+        shown_path += a["on_signing_path"]["usd"]
         w(f"| {y} | {usd(tot)} | {usd(a['on_signing_path']['usd'])} ({pct(a['on_signing_path']['usd'], tot)}) | "
           f"{pct(a['key_theft']['usd'], tot)} | {pct(a['contract_bug']['usd'], tot)} |")
     w("")
+    early_usd, early_path = land_t["usd"] - shown_usd, op["usd"] - shown_path
+    if early_usd > 1:
+        w(f"The {usd(early_usd)} lost before 2018 is left out of the table"
+          + (f", {usd(early_path)} of it through a deceived signer." if early_path >= 1 else ", none of it through a deceived signer."))
+        w("")
     w("Before 2024 almost nothing reached the money this way. In 2025 more than half did — Bybit")
     w("alone — and the industry's own reports agree on the direction: TRM attributes 76% of 2025's")
     w("stolen funds to infrastructure attacks and 12% to code exploits; Chainalysis puts private-key")
