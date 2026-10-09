@@ -230,6 +230,9 @@ fn parse_evm_call(to: [u8; 20], data: Vec<u8>) -> clearsign::EvmTransaction {
         value: U256::ZERO,
         data,
         access_list_entries: 0,
+        max_fee_per_blob_gas: None,
+        blob_versioned_hashes: Vec::new(),
+        authorizations: Vec::new(),
         signing_hash: [0; 32],
     }
 }

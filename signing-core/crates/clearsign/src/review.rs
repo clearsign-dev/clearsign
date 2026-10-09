@@ -117,6 +117,12 @@ impl Review {
         self.signing_target = Some(target);
     }
 
+    /// Make the review display-only, for a review built by a path that signs
+    /// but shown where nothing may be signed.
+    pub(crate) fn clear_signing_target(&mut self) {
+        self.signing_target = None;
+    }
+
     /// Everything the review found, in the order it was found.
     pub fn findings(&self) -> &[Finding] {
         &self.findings

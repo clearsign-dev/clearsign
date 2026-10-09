@@ -33,11 +33,12 @@ pub mod review;
 pub mod rlp;
 pub mod safe;
 pub mod text;
+pub mod typed;
 pub mod u256;
 
 pub use error::Error;
 pub use evm::{
-    EvmTransaction, TxType, parse_unsigned_transaction, review_evm_transaction,
+    Authorization, EvmTransaction, TxType, parse_unsigned_transaction, review_evm_transaction,
     review_transaction_bytes,
 };
 pub use review::{

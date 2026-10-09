@@ -7,5 +7,5 @@
 # reproducible in practice rather than sealed.
 # Anything built elsewhere, including on the maintainer's own machine, may
 # differ: rustc does not promise identical output across compiler hosts.
-51fad607017a064e55118d887a6672fbf1186abf6ced4d7f0021433deeb76ab3  clearsign
-e44d934ebd2fff6ed4f4d1062080a3da3c42169f0e152d44124019759ac63e47  clearsign-device
+2f5082d5501b639d4e3436d499526c0173cd4dc02b59065e0510d350580ecfea  clearsign
+d93b95f2f65d6ca7fd88d564dc68a583566c9589c0405cdcede99f7a026b7455  clearsign-device

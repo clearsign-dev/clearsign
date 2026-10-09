@@ -60,6 +60,36 @@ fn selectors_match_cast_sig() {
         ("0xf08a0323", "setFallbackHandler(address)"),
         ("0x7de7edef", "changeMasterCopy(address)"),
         ("0x8d80ff0a", "multiSend(bytes)"),
+        // Added 5 Oct 2026, each printed by `cast sig` (Foundry 1.7.1).
+        ("0x39509351", "increaseAllowance(address,uint256)"),
+        ("0xa457c2d7", "decreaseAllowance(address,uint256)"),
+        ("0xa22cb465", "setApprovalForAll(address,bool)"),
+        ("0x87517c45", "approve(address,address,uint160,uint48)"),
+        ("0xf2fde38b", "transferOwnership(address)"),
+        ("0x715018a6", "renounceOwnership()"),
+        ("0x79ba5097", "acceptOwnership()"),
+        ("0x2f2ff15d", "grantRole(bytes32,address)"),
+        ("0xd547741f", "revokeRole(bytes32,address)"),
+        ("0x36568abe", "renounceRole(bytes32,address)"),
+        ("0x3659cfe6", "upgradeTo(address)"),
+        ("0x4f1ef286", "upgradeToAndCall(address,bytes)"),
+        ("0x8f283970", "changeAdmin(address)"),
+        ("0x99a88ec4", "upgrade(address,address)"),
+        ("0x9623609d", "upgradeAndCall(address,address,bytes)"),
+        ("0x7eff275e", "changeProxyAdmin(address,address)"),
+        ("0xac9650d8", "multicall(bytes[])"),
+        (
+            "0x01d5062a",
+            "schedule(address,uint256,bytes,bytes32,bytes32,uint256)",
+        ),
+        (
+            "0x134008d3",
+            "execute(address,uint256,bytes,bytes32,bytes32)",
+        ),
+        ("0x13af4035", "setOwner(address)"),
+        ("0xd73dd623", "increaseApproval(address,uint256)"),
+        ("0x66188463", "decreaseApproval(address,uint256)"),
+        ("0xe9ae5c53", "execute(bytes32,bytes)"),
     ];
     assert_eq!(from_cast.len(), KNOWN_SIGNATURES.len());
     for (expected, sig) in from_cast {
