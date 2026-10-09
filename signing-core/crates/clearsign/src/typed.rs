@@ -715,6 +715,7 @@ fn review_with(
     if encoded == crate::safe::SAFE_TX_TYPE {
         let mut review = safe_tx(td, verifying, hashes)?;
         review.sections.insert(0, d);
+        unverified_typed_contract(&mut review, verifying, "SafeTx");
         no_transaction_finding(&mut review);
         return Ok(review);
     }
@@ -741,8 +742,14 @@ fn review_with(
                 String::from("This signs the domain alone, with no message. What a contract does with that is not established here."),
             );
         }
-        e if e == PERMIT => permit(&mut review, verifying, m)?,
-        e if e == DAI_PERMIT => dai_permit(&mut review, verifying, m)?,
+        e if e == PERMIT => {
+            permit(&mut review, verifying, m)?;
+            unverified_typed_contract(&mut review, verifying, "ERC-2612 Permit");
+        }
+        e if e == DAI_PERMIT => {
+            dai_permit(&mut review, verifying, m)?;
+            unverified_typed_contract(&mut review, verifying, "DAI-style Permit");
+        }
         e if e
             == alloc::format!(
                 "PermitSingle(PermitDetails details,address spender,uint256 sigDeadline){PERMIT_DETAILS}"
@@ -798,6 +805,19 @@ fn no_transaction_finding(review: &mut Review) {
         String::from(
             "A typed-data signature is not a transaction. Whoever holds it can submit it later, \
              from any account, until it expires or its nonce is used.",
+        ),
+    );
+}
+
+fn unverified_typed_contract(review: &mut Review, verifying: Option<Address>, structure: &str) {
+    let contract = verifying
+        .map(|address| address::checksummed(&address))
+        .unwrap_or_else(|| String::from("no verifying contract"));
+    review.find(
+        Severity::Blind,
+        "TYPED_SCHEMA_NOT_BEHAVIOUR",
+        format!(
+            "The message has the {structure} field layout, but that layout does not prove what {contract} does with the signature. ClearSign has not verified the contract code."
         ),
     );
 }
@@ -896,7 +916,7 @@ fn dai_permit(
 fn check_permit2_domain(review: &mut Review, verifying: Option<Address>) {
     if verifying != Some(PERMIT2) {
         review.find(
-            Severity::Warning,
+            Severity::Blind,
             "NOT_PERMIT2_ADDRESS",
             format!(
                 "This is the shape of a Permit2 signature, but its verifying contract is not Permit2's \

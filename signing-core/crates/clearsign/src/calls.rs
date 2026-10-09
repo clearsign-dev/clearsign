@@ -1461,6 +1461,7 @@ fn decode_known<'a>(
             s.field("Action", String::from("Matches multicall(bytes[])"));
             s.field("Contract", address::display(&to));
             s.field("Calls bundled", format!("{}", elements.len()));
+            carrier_semantics_unverified(review, &to, "multicall(bytes[])");
             if elements.is_empty() {
                 review.find(
                     Severity::Info,
@@ -1507,6 +1508,15 @@ fn decode_known<'a>(
             s.field("Predecessor", hex::encode_prefixed(predecessor));
             s.field("Salt", hex::encode_prefixed(salt));
             args.expect_end(end)?;
+            carrier_semantics_unverified(
+                review,
+                &to,
+                if scheduling {
+                    "TimelockController schedule"
+                } else {
+                    "TimelockController execute"
+                },
+            );
             if scheduling {
                 review.find(
                     Severity::Warning,
@@ -1657,6 +1667,7 @@ fn account_execute<'a>(
             );
             s.field("Calldata selector", selector_text(data));
             s.field("Calldata length", format!("{} bytes", data.len()));
+            carrier_semantics_unverified(review, &to, "smart-account execute(bytes32,bytes)");
             review.find(
                 Severity::Critical,
                 "ACCOUNT_DELEGATECALL",
@@ -1676,6 +1687,7 @@ fn account_execute<'a>(
         }
     };
     s.field("Calls in batch", format!("{}", calls.len()));
+    carrier_semantics_unverified(review, &to, "smart-account execute(bytes32,bytes)");
     if calls.is_empty() {
         review.find(
             Severity::Info,
@@ -1699,6 +1711,17 @@ fn account_execute<'a>(
         title: "Call made by the account",
         executor: Executor::Contract,
     })
+}
+
+fn carrier_semantics_unverified(review: &mut Review, target: &Address, claimed: &str) {
+    review.find(
+        Severity::Blind,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED",
+        format!(
+            "The calldata matches {claimed}, but a selector and ABI layout do not prove that the contract at {} carries out those calls. Its code was not verified; the inner-call review is best-effort.",
+            address::checksummed(target)
+        ),
+    );
 }
 
 fn upgrade_finding(review: &mut Review, proxy: &Address, implementation: &Address, init: &[u8]) {

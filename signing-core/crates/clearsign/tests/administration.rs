@@ -16,8 +16,10 @@
 
 use clearsign::calls::*;
 use clearsign::multisend::MAX_BATCH_CALLS_PARSED;
-use clearsign::{DomainVersion, Review, SafeTransaction, Severity, U256};
-use clearsign::{hex, review_safe_transaction};
+use clearsign::{
+    Authorization, DomainVersion, EvmTransaction, Review, SafeTransaction, Severity, TxType, U256,
+};
+use clearsign::{hex, review_evm_transaction, review_safe_transaction};
 
 const SAFE: [u8; 20] = [0x11; 20];
 const PROTOCOL: [u8; 20] = [0x22; 20];
@@ -491,8 +493,22 @@ fn an_ownership_transfer_inside_a_multicall_is_still_found() {
     let r = review(PROTOCOL, multicall(&inner));
     assert_eq!(severity_of(&r, "OWNERSHIP_TRANSFER"), Severity::Critical);
     assert!(r.has("OWNERSHIP_ACCEPT"));
+    assert_eq!(
+        severity_of(&r, "CARRIED_CALL_SEMANTICS_UNVERIFIED"),
+        Severity::Blind
+    );
     let text = r.render();
     assert!(text.contains("Call bundled by multicall 2 of 2"), "{text}");
+}
+
+#[test]
+fn an_empty_multicall_at_an_unverified_contract_is_blind() {
+    let r = review(PROTOCOL, multicall(&[]));
+    assert_eq!(
+        severity_of(&r, "CARRIED_CALL_SEMANTICS_UNVERIFIED"),
+        Severity::Blind
+    );
+    assert!(r.has("EMPTY_CALL"));
 }
 
 #[test]
@@ -573,6 +589,10 @@ fn a_call_scheduled_on_a_timelock_is_reviewed_as_though_it_ran_now() {
     );
     assert_eq!(severity_of(&r, "TIMELOCK_SCHEDULE"), Severity::Warning);
     assert_eq!(severity_of(&r, "PROXY_UPGRADE"), Severity::Critical);
+    assert_eq!(
+        severity_of(&r, "CARRIED_CALL_SEMANTICS_UNVERIFIED"),
+        Severity::Blind
+    );
     let text = r.render();
     assert!(
         text.contains("Delay (seconds) .") && text.contains("172_800"),
@@ -841,11 +861,64 @@ fn an_eip7702_batch_is_opened_and_every_call_judged() {
     ]);
     let r = review(SAFE, account_execute(mode(1, 0, [0; 4]), &batch));
     assert!(r.has("SMART_ACCOUNT_BATCH"));
+    assert_eq!(
+        severity_of(&r, "CARRIED_CALL_SEMANTICS_UNVERIFIED"),
+        Severity::Blind
+    );
     assert_eq!(severity_of(&r, "UNLIMITED_APPROVAL"), Severity::Critical);
     assert_eq!(severity_of(&r, "APPROVAL_FOR_ALL"), Severity::Critical);
     let text = r.render();
     assert!(text.contains("Call made by the account 3 of 3"), "{text}");
     assert!(text.contains("the whole batch is undone"));
+}
+
+fn eip7702_with_authorization_nonce(nonce: u64) -> EvmTransaction {
+    EvmTransaction {
+        tx_type: TxType::Eip7702,
+        chain_id: Some(U256::from_u64(1)),
+        nonce: U256::ZERO,
+        gas_price: None,
+        max_priority_fee_per_gas: Some(U256::ZERO),
+        max_fee_per_gas: Some(U256::ZERO),
+        gas_limit: U256::from_u64(21_000),
+        to: Some(SAFE),
+        value: U256::ZERO,
+        data: Vec::new(),
+        access_list_entries: 0,
+        max_fee_per_blob_gas: None,
+        blob_versioned_hashes: Vec::new(),
+        authorizations: vec![Authorization {
+            chain_id: U256::from_u64(1),
+            address: ATTACKER,
+            nonce: U256::from_u64(nonce),
+            y_parity: 0,
+            r: U256::from_u64(1),
+            s: U256::from_u64(1),
+        }],
+        signing_hash: [0; 32],
+    }
+}
+
+#[test]
+fn an_eip7702_authorization_with_the_maximum_nonce_is_shown_as_skipped() {
+    let skipped = review_evm_transaction(&eip7702_with_authorization_nonce(u64::MAX));
+    assert_eq!(
+        severity_of(&skipped, "AUTHORIZATION_WILL_BE_SKIPPED"),
+        Severity::Warning
+    );
+    assert!(!skipped.has("ACCOUNT_DELEGATION"));
+    assert!(
+        skipped
+            .render()
+            .contains("Skipped account authorization 1 of 1")
+    );
+
+    let processed = review_evm_transaction(&eip7702_with_authorization_nonce(u64::MAX - 1));
+    assert_eq!(
+        severity_of(&processed, "ACCOUNT_DELEGATION"),
+        Severity::Critical
+    );
+    assert!(!processed.has("AUTHORIZATION_WILL_BE_SKIPPED"));
 }
 
 #[test]

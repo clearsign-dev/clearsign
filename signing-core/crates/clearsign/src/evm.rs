@@ -519,7 +519,15 @@ fn review_authorizations(review: &mut Review, tx: &EvmTransaction) {
     let total = tx.authorizations.len();
     for (i, a) in tx.authorizations.iter().enumerate() {
         let n = i.saturating_add(1);
-        let mut s = Section::new(&format!("Account delegation {n} of {total}"));
+        let will_skip = a.nonce == U256::from_u64(u64::MAX);
+        let mut s = Section::new(&format!(
+            "{} {n} of {total}",
+            if will_skip {
+                "Skipped account authorization"
+            } else {
+                "Account delegation"
+            }
+        ));
         s.field(
             "Valid on chain ID",
             if a.chain_id.is_zero() {
@@ -528,9 +536,26 @@ fn review_authorizations(review: &mut Review, tx: &EvmTransaction) {
                 a.chain_id.to_decimal()
             },
         );
-        s.field("Delegates to code at", address::display(&a.address));
+        s.field(
+            if will_skip {
+                "Requested code address"
+            } else {
+                "Delegates to code at"
+            },
+            address::display(&a.address),
+        );
         s.field("Authorization nonce", a.nonce.to_decimal());
         review.sections.push(s);
+        if will_skip {
+            review.find(
+                Severity::Warning,
+                "AUTHORIZATION_WILL_BE_SKIPPED",
+                format!(
+                    "Authorization {n} has nonce 2^64 - 1. EIP-7702 processors skip that tuple, so it does not change the account's delegation."
+                ),
+            );
+            continue;
+        }
         if a.address == address::ZERO {
             review.find(
                 Severity::Info,
