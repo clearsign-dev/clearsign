@@ -8,8 +8,8 @@ ClearSign reviews Safe and supported EVM transactions locally. It decodes signed
 
 **Developer preview. Do not use the signing tools with real keys or funds.**
 
-The latest published download is v0.1.1. Later fixes on `main` are not included
-in those assets; consult the [changelog](CHANGELOG.md) when choosing a version.
+The latest published download is v0.1.2. Changes made after that tag are not
+included in its assets; consult the [changelog](CHANGELOG.md) when choosing a version.
 
 The desktop reviewer does not need keys and does not sign transactions. It is a second opinion, not a trusted display: a compromised computer can alter what you see. Compare the recomputed hash with the signing device and follow your existing approval procedure. A successful decode is not a safety assessment of the destination contract.
 

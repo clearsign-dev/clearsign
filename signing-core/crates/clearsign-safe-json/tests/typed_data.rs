@@ -147,6 +147,7 @@ fn a_safe_transaction_as_typed_data_gets_the_safe_review_and_the_safe_hash() {
         "0xb3476d061aeb8fc1d605a873c483a2402d88a68a9cdd1a8b47655dd55ba004f8"
     );
     assert!(r.has("SAFE_DELEGATECALL"));
+    assert!(r.has("TYPED_SCHEMA_NOT_BEHAVIOUR"));
     assert_eq!(r.required_acknowledgements()[0], (1, "SAFE_DELEGATECALL"));
 }
 
@@ -206,12 +207,19 @@ fn an_unlimited_permit_is_critical_a_bounded_one_a_warning() {
     );
     let bounded = codes(&permit("5000000"));
     assert!(bounded.contains(&(Severity::Warning, "TOKEN_APPROVAL")));
-    assert!(!bounded.iter().any(|(s, _)| *s >= Severity::Blind));
+    assert!(bounded.contains(&(Severity::Blind, "TYPED_SCHEMA_NOT_BEHAVIOUR")));
     assert!(
         !codes(&permit("0"))
             .iter()
             .any(|(_, c)| *c == "TOKEN_APPROVAL")
     );
+}
+
+#[test]
+fn a_zero_permit_at_an_unverified_contract_is_still_blind() {
+    let findings = codes(&permit("0"));
+    assert!(findings.contains(&(Severity::Blind, "TYPED_SCHEMA_NOT_BEHAVIOUR")));
+    assert!(!findings.iter().any(|(_, code)| *code == "TOKEN_APPROVAL"));
 }
 
 // Found by mutation testing, 5 Oct 2026: a permit's finding names the token,
@@ -277,7 +285,7 @@ fn permit2_unlimited_is_uint160_max_and_a_fake_permit2_is_called_out() {
     assert!(codes(&permit_single("5")).contains(&(Severity::Warning, "TOKEN_APPROVAL")));
     let mut fake = permit_single("5");
     fake["domain"]["verifyingContract"] = json!("0x6666666666666666666666666666666666666666");
-    assert!(codes(&fake).contains(&(Severity::Warning, "NOT_PERMIT2_ADDRESS")));
+    assert!(codes(&fake).contains(&(Severity::Blind, "NOT_PERMIT2_ADDRESS")));
 }
 
 #[test]

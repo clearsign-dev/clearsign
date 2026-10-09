@@ -102,6 +102,7 @@ fn ordinary_batch_is_readable_and_is_not_critical() {
     assert_eq!(max_severity(&review), Severity::Warning);
     assert!(codes(&review).contains(&"SAFE_MULTISEND_BATCH"));
     assert!(!codes(&review).contains(&"SAFE_DELEGATECALL"));
+    assert!(!codes(&review).contains(&"CARRIED_CALL_SEMANTICS_UNVERIFIED"));
 
     let text = review.render();
     assert!(text.contains("Batch call 1 of 2"), "{text}");
