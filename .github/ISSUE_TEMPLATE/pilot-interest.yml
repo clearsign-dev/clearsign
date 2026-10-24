@@ -1,0 +1,86 @@
+name: Pilot interest
+description: Evaluate ClearSign with public fixtures or a disposable test Safe.
+labels: ["pilot"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ClearSign is recruiting a small number of Safe treasury and custody teams
+        for an observation-mode evaluation. Use public fixtures or a disposable
+        test Safe only. Do not post keys, recovery phrases, unbroadcast
+        transactions or other confidential information.
+
+        This form is public. For a potential security issue, use
+        [private vulnerability reporting](https://github.com/clearsign-dev/clearsign/security/advisories/new).
+  - type: input
+    id: workflow
+    attributes:
+      label: Safe version, chain and approval workflow
+      description: Include only non-sensitive details about the workflow you can test.
+      placeholder: "Safe 1.4.1 on Ethereum; two-person treasury approval"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Test platform
+      placeholder: "macOS 15 on Apple Silicon / Windows 11 / Ubuntu 24.04"
+    validations:
+      required: true
+  - type: input
+    id: wallet
+    attributes:
+      label: Hardware wallet and signing mode
+      description: Include the model and firmware version if known. Do not include device identifiers.
+      placeholder: "Ledger model and firmware; Safe transaction signing"
+  - type: dropdown
+    id: digest
+    attributes:
+      label: Can the signing device or workflow expose the exact digest being approved?
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
+  - type: input
+    id: volume
+    attributes:
+      label: Approximate weekly transaction volume
+      placeholder: "About 10 reviews per week"
+  - type: textarea
+    id: classes
+    attributes:
+      label: Common transaction classes
+      description: Examples include transfers, approvals, Safe administration, batches and protocol governance.
+  - type: textarea
+    id: success
+    attributes:
+      label: Success and stop conditions
+      description: What would make the pilot useful, and what result would make you stop immediately?
+    validations:
+      required: true
+  - type: input
+    id: owner
+    attributes:
+      label: Pilot owner
+      description: A role or public GitHub handle is enough; do not post private contact details.
+    validations:
+      required: true
+  - type: dropdown
+    id: aggregate
+    attributes:
+      label: May ClearSign retain anonymized aggregate results?
+      options:
+        - "No"
+        - "Yes"
+        - "Discuss first"
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Evaluation safety
+      options:
+        - label: I will use public fixtures or a disposable test Safe, not production keys or funds.
+          required: true

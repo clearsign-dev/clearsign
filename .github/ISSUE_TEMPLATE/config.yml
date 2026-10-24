@@ -5,4 +5,4 @@ contact_links:
     about: Privately, so it stays that way until there is a fix. Read SECURITY.md first — it says what is already known.
   - name: What is already known to be missing
     url: https://github.com/clearsign-dev/clearsign/blob/main/docs/03-verification-status.md
-    about: No hardware, no verified boot, no EIP-712, one review. Worth checking before reporting one of them.
+    about: Hardware, release, review and support limits that are already documented.
