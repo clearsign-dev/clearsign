@@ -17,9 +17,10 @@
 //!    fields, and a disagreement is reported loudly, because the only reason
 //!    the two would differ is that something in between is not telling the truth.
 
-use clearsign::{DomainVersion, Review, SafeTransaction, U256, hex};
+use clearsign::{DomainVersion, Review, SafeTransaction, Severity, U256, hex};
 
 mod strict_json;
+pub mod typed_data;
 
 /// The largest record this will look at, checked before anything is parsed.
 ///
@@ -37,6 +38,13 @@ pub struct FromJson {
     pub claimed_hash: Option<[u8; 32]>,
     /// Where the chain ID came from, for the person reading the output.
     pub chain_id_source: &'static str,
+    /// Refund fields the file gave as `null` and that were read as the zero
+    /// address. Safe's service writes `null` this way for some executed
+    /// transactions. The reading is never left as an assumption: a file that
+    /// does this must carry a `safeTxHash`, every caller recomputes the hash
+    /// from the fields and refuses on any disagreement, and so the zero address
+    /// is only ever used when the hash proves it is what was signed.
+    pub null_read_as_zero: Vec<&'static str>,
 }
 
 /// Parse a Safe Transaction Service record, or the equivalent copied out of
@@ -83,6 +91,7 @@ pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String>
         }
     };
 
+    let mut null_read_as_zero = Vec::new();
     let tx = SafeTransaction {
         chain_id: U256::from_u64(chain_id),
         safe: address(&v, "safe")?,
@@ -103,8 +112,8 @@ pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String>
         safe_tx_gas: u256(&v, "safeTxGas")?,
         base_gas: u256(&v, "baseGas")?,
         gas_price: u256(&v, "gasPrice")?,
-        gas_token: address(&v, "gasToken")?,
-        refund_receiver: address(&v, "refundReceiver")?,
+        gas_token: refund_address(&v, "gasToken", &mut null_read_as_zero)?,
+        refund_receiver: refund_address(&v, "refundReceiver", &mut null_read_as_zero)?,
         nonce: u256(&v, "nonce")?,
     };
 
@@ -121,10 +130,19 @@ pub fn parse(json: &str, chain_id_flag: Option<u64>) -> Result<FromJson, String>
         Some(_) => return Err(String::from("safeTxHash should be a hex string")),
     };
 
+    if !null_read_as_zero.is_empty() && claimed_hash.is_none() {
+        return Err(format!(
+            "the file gives {} as null and carries no safeTxHash, so there is nothing to show \
+             what was signed in their place. Copy the record again with its safeTxHash",
+            null_read_as_zero.join(" and ")
+        ));
+    }
+
     Ok(FromJson {
         tx,
         claimed_hash,
         chain_id_source,
+        null_read_as_zero,
     })
 }
 
@@ -162,6 +180,20 @@ fn u256(v: &Value, key: &str) -> Result<U256, String> {
     }
 }
 
+/// `gasToken` and `refundReceiver`: an address, or `null`, which is read as the
+/// zero address and recorded so that the hash check can confirm it.
+fn refund_address(
+    v: &Value,
+    key: &'static str,
+    nulls: &mut Vec<&'static str>,
+) -> Result<[u8; 20], String> {
+    if let Some(Value::Null) = v.get(key) {
+        nulls.push(key);
+        return Ok([0u8; 20]);
+    }
+    address(v, key)
+}
+
 fn address(v: &Value, key: &str) -> Result<[u8; 20], String> {
     let s = match v.get(key) {
         Some(Value::String(s)) => s,
@@ -170,6 +202,25 @@ fn address(v: &Value, key: &str) -> Result<[u8; 20], String> {
     };
     let bytes = hex::decode(s).map_err(|e| format!("{key} is not hexadecimal: {e}"))?;
     <[u8; 20]>::try_from(bytes.as_slice()).map_err(|_| format!("{key} is not a 20-byte address"))
+}
+
+/// Say in the review itself, where every screen that shows the review shows
+/// it, that the file gave these fields as null and they were read as the zero
+/// address. [`parse`] accepts that only from a file that carries a hash, and
+/// the hash is checked against the fields before anything is reviewed.
+pub fn note_null_fields(review: &mut Review, null_read_as_zero: &[&str]) {
+    if null_read_as_zero.is_empty() {
+        return;
+    }
+    review.find(
+        Severity::Info,
+        "NULL_READ_AS_ZERO",
+        format!(
+            "The file gives {} as null. They were read as the zero address, and the file's own \
+             safeTxHash confirms that reading.",
+            null_read_as_zero.join(" and ")
+        ),
+    );
 }
 
 /// A transaction read from JSON, reviewed, with the question of which Safe
@@ -250,8 +301,10 @@ pub fn review_json(
         }
     }
 
+    let mut review = clearsign::review_safe_transaction(&parsed.tx, version);
+    note_null_fields(&mut review, &parsed.null_read_as_zero);
     Ok(Reviewed {
-        review: clearsign::review_safe_transaction(&parsed.tx, version),
+        review,
         tx: parsed.tx,
         hash,
         version,

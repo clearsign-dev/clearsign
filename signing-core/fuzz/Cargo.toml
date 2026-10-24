@@ -12,6 +12,7 @@ libfuzzer-sys = "0.4"
 clearsign = { path = "../crates/clearsign", features = ["std"] }
 clearsign-qr = { path = "../crates/clearsign-qr", features = ["std"] }
 authority = { path = "../crates/authority", features = ["std"] }
+clearsign-safe-json = { path = "../crates/clearsign-safe-json" }
 
 # Not part of the main workspace: fuzzing needs nightly, the product does not.
 [workspace]
@@ -62,6 +63,20 @@ bench = false
 [[bin]]
 name = "plan_wire"
 path = "fuzz_targets/plan_wire.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "typed_data"
+path = "fuzz_targets/typed_data.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "calldata"
+path = "fuzz_targets/calldata.rs"
 test = false
 doc = false
 bench = false

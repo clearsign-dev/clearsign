@@ -35,15 +35,16 @@ impl Signature {
 
     /// The `v` / `y_parity` value to place in the signed transaction.
     ///
-    /// - EIP-1559: `y_parity`, 0 or 1
+    /// - EIP-1559, EIP-2930, EIP-4844, EIP-7702: `y_parity`, 0 or 1
     /// - legacy EIP-155: `recovery_id + chain_id * 2 + 35`
     /// - legacy without chain ID: `27 + recovery_id`
     /// - Safe owner signature: `27 + recovery_id`
     pub fn v(&self) -> Result<u64, KeyError> {
         let rec = u64::from(self.recovery_id);
         match self.kind {
+            // Every typed transaction carries y_parity directly.
             TargetKind::EvmTransaction {
-                tx_type: TxType::Eip1559,
+                tx_type: TxType::Eip1559 | TxType::Eip2930 | TxType::Eip4844 | TxType::Eip7702,
                 ..
             } => Ok(rec),
             TargetKind::EvmTransaction {

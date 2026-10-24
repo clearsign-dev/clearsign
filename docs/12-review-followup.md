@@ -80,12 +80,13 @@ or every supported OS version.
 
 ## Release and deployment
 
-v0.1.1 remains the published release while v0.1.2 is prepared. The release job
-refuses a tag whose versions disagree or whose changelog is still unreleased.
-Before publishing, finish all CI and packaging checks, test installed desktop
+v0.1.2 was published on 4 October 2026 as an unsigned evaluation release. The
+release job refuses a tag whose versions disagree or whose changelog is still
+unreleased. Changes after that tag are not present in its installers. Before a
+later release, finish all CI and packaging checks, test installed desktop
 applications on supported platforms, date the changelog, and verify the exact
 tagged source against the recorded hashes. Independent review is still needed
-before presenting this as suitable for high-value custody.
+before presenting any release as suitable for high-value custody.
 
 For hardware work, choose one supported device and document its boot chain,
 firmware update policy, rollback protection and trusted display/input path.

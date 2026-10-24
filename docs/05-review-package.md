@@ -54,6 +54,8 @@ specific, which is why findings name the destination, the amount and the step.
 |---|---|---|
 | EVM and Safe decoding | The Bybit attack is the motivating case: a delegatecall dressed as a transfer | `signing-core/crates/clearsign/src/{evm,safe,calls,abi,rlp}.rs` |
 | MultiSend batches | The only delegatecall the decoder will look inside, gated on a pinned address *and* a published chain | `crates/clearsign/src/multisend.rs` |
+| Calls that carry calls (added 5 Oct 2026) | `multicall`, timelock operations and smart-account batches are opened and every carried call judged; the parsers for `bytes[]` and `(address,uint256,bytes)[]` enforce canonical offsets. Look for a dangerous call that is carried but not judged, or a layout two decoders read differently | `crates/clearsign/src/calls.rs` (`review_inner_calls`, `account_execute`), `abi.rs` |
+| EIP-712 typed data (added 5 Oct 2026) | A whole new reader for an open-ended format: type parsing, `encodeType`, recursion, number ranges, and the rule that undeclared or missing fields are refused. Look for a request whose displayed fields differ from what is hashed, or one reported as understood that should be BLIND | `crates/clearsign/src/typed.rs`, `crates/clearsign-safe-json/src/typed_data.rs` |
 | The signing-target binding | The digest is attached only by the two functions that recompute it from reviewed bytes; the field is private | `crates/clearsign/src/review.rs`, `evm.rs:244`, `safe.rs:134` |
 | QR transport | Parses a stream from a camera: Bytewords, UR, fountain codes, CBOR, EIP-4527 | `crates/clearsign-qr/src/*.rs` |
 | Plan wire format | An untrusted planner's proposal, decoded on the deciding side | `crates/authority/src/wire.rs` |

@@ -45,6 +45,11 @@ REVIEW (safe on any computer):
       Safe{Wallet}. Only the fields that are signed are read, and the
       safeTxHash in the file is recomputed rather than believed.
 
+  clearsign typed-data <FILE | ->
+      Review an EIP-712 typed-data request (eth_signTypedData_v4): the domain,
+      and for permits, Permit2 and Safe transactions exactly what signing it
+      lets someone do. Any other structure is shown field by field and is BLIND.
+
   clearsign safe-tx --chain-id <N> --safe <ADDR> --to <ADDR> --nonce <N>
                     [--value <N>] [--data <HEX>] [--operation <0|1>]
                     [--safe-tx-gas <N>] [--base-gas <N>] [--gas-price <N>]
@@ -81,6 +86,7 @@ fn main() -> ExitCode {
     let outcome = match args.first().map(String::as_str) {
         Some("tx") => review_tx(rest).map(Outcome::Review),
         Some("safe-json") => review_safe_json(rest).map(Outcome::Review),
+        Some("typed-data") => review_typed_data(rest).map(Outcome::Review),
         Some("safe-tx") => parse_safe_tx(rest)
             .map(|(tx, v)| Outcome::Review(clearsign::review_safe_transaction(&tx, v))),
         Some("sign-tx") => dev_guard().and_then(|()| sign_tx(rest)),
@@ -131,6 +137,24 @@ fn dev_guard() -> Result<(), String> {
     }
 }
 
+/// Review an EIP-712 typed-data request.
+fn review_typed_data(args: &[String]) -> Result<Review, String> {
+    let path = match args {
+        [p] => p.as_str(),
+        _ => {
+            return Err(String::from(
+                "name the typed-data JSON file to read, or - for standard input",
+            ));
+        }
+    };
+    let json = if path == "-" {
+        read_stdin()?.as_str().to_owned()
+    } else {
+        read_file_capped(path)?
+    };
+    safe_json::typed_data::review(&json).map(|(review, _)| review)
+}
+
 /// Review a Safe transaction from the JSON a signer already has in front of them.
 fn review_safe_json(args: &[String]) -> Result<Review, String> {
     let mut path = None;
@@ -149,8 +173,11 @@ fn review_safe_json(args: &[String]) -> Result<Review, String> {
             "--safe-version" => {
                 let v = it.next().ok_or("--safe-version needs 1.1.x or 1.3.0+")?;
                 safe_version = Some(match v.as_str() {
-                    "1.1.x" | "1.1.1" | "1.1" | "legacy" => DomainVersion::Legacy,
-                    "1.3.0+" | "1.3.0" | "1.3" | "1.4.1" | "1.4" => DomainVersion::V1_3Plus,
+                    // v1.2.0 hashes the same domain as v1.1.x: no chain ID.
+                    "1.1.x" | "1.1.1" | "1.1" | "1.2.0" | "1.2" | "legacy" => DomainVersion::Legacy,
+                    "1.3.0+" | "1.3.0" | "1.3" | "1.4.1" | "1.4" | "1.5.0" | "1.5" => {
+                        DomainVersion::V1_3Plus
+                    }
                     other => {
                         return Err(format!("--safe-version {other}: expected 1.1.x or 1.3.0+"));
                     }
@@ -224,7 +251,7 @@ fn review_safe_json(args: &[String]) -> Result<Review, String> {
         }
     };
 
-    let review = clearsign::review_safe_transaction(&parsed.tx, version);
+    let mut review = clearsign::review_safe_transaction(&parsed.tx, version);
     let computed = clearsign::safe_transaction_hash(&parsed.tx, version);
 
     println!("-- Where this came from --");
@@ -255,6 +282,13 @@ fn review_safe_json(args: &[String]) -> Result<Review, String> {
             hex::encode_prefixed(&computed)
         ),
     }
+    if !parsed.null_read_as_zero.is_empty() {
+        println!(
+            "Given as null in the file ........ {}; read as the zero address, which the hash confirms",
+            parsed.null_read_as_zero.join(", ")
+        );
+    }
+    safe_json::note_null_fields(&mut review, &parsed.null_read_as_zero);
     println!();
     println!("Confirm that domain is right for your Safe before you rely on any of this:");
     println!("the version is shown in Safe{{Wallet}} under Settings. Compare the hash above");

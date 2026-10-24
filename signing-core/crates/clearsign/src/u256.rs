@@ -68,7 +68,7 @@ impl U256 {
     /// an allowance of this size is unlimited in every practical sense.
     ///
     /// The threshold is 2^192. The largest plausible supply — a trillion trillion
-    /// tokens with 18 decimals — is about 2^159, so anything above this is not a
+    /// tokens with 18 decimals — is about 2^140, so anything above this is not a
     /// number anyone chose for its value.
     pub fn is_effectively_unlimited(&self) -> bool {
         self.0.iter().take(8).any(|b| *b != 0)

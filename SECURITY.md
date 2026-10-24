@@ -59,14 +59,18 @@ These are real, and reporting them tells me nothing new:
 - **No hardware root of trust, no verified boot, no secure element.** Everything
   runs under emulation. Physical attacks, side channels and fault injection are
   entirely untested.
-- **EIP-712 typed data is not covered**, beyond the Safe transaction type. The
-  reviewer refuses it rather than guessing.
-- **The v1 selector set is closed.** Anything outside it comes back BLIND by
-  design. That is not a gap in coverage, it is the design — but if you can make
-  something come back *decoded* that should have come back BLIND, that very much
-  is a bug.
+- **EIP-712 typed data is reviewed, not signed.** Permits, Permit2 and Safe
+  transactions are interpreted; any other structure is shown field by field and
+  marked BLIND. The window does not read typed data yet, and the signer refuses
+  it. A typed-data request reported as understood that should have been BLIND
+  is a bug worth reporting.
+- **Anything outside the verified selector set comes back BLIND by design**,
+  which is most DeFi activity: swaps, staking, bridging. That is not a gap in
+  coverage, it is the design — but if you can make something come back
+  *decoded* that should have come back BLIND, that very much is a bug.
 - **On a Safe v1.1.x, `SIGNATURE_NOT_CHAIN_BOUND` fires on every transaction.**
-  Correct, and too noisy to be useful; see
+  Correct, and it must still be acknowledged; it is now numbered after the
+  transaction's own findings and says it is about the Safe. See
   [docs/09-against-real-transactions.md](docs/09-against-real-transactions.md).
 - **Builds do not reproduce across compiler hosts.** Measured, documented, and
   not claimed.
