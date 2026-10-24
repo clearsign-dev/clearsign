@@ -17,7 +17,7 @@ build() {
   local dir="$WORK/$1/signing-core"
   mkdir -p "$dir"
   # Copy tracked sources only, not build output.
-  (cd "$SRC" && tar --exclude ./target --exclude ./fuzz -cf - .) | (cd "$dir" && tar -xf -)
+  (cd "$SRC" && tar --exclude ./target --exclude ./fuzz --exclude ./bench -cf - .) | (cd "$dir" && tar -xf -)
   (
     cd "$dir"
     export RUSTFLAGS="--remap-path-prefix=$dir=/build --remap-path-prefix=$CARGO_HOME_DIR=/cargo -C strip=symbols"

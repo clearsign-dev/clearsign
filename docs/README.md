@@ -8,9 +8,13 @@ tidied afterwards. The numbering is the sequence, not a ranking.
 - **[03 — Verification status](03-verification-status.md)** — what has been
   demonstrated, how, and what has not. Written to be read by someone deciding
   whether to rely on this, so it names the gaps rather than only the passes.
+- **[11 — Benchmarks](11-benchmarks.md)** — real transactions from 31 chains,
+  real Safe transactions from 27, the transactions real attacks got people to
+  sign replayed from the chain, and how much of the money lost in crypto hacks
+  went through the step this tool guards. Generated from the measurements.
 - **[09 — Against real transactions](09-against-real-transactions.md)** — the
-  reviewer run over 238 real Safe transactions, what it said about each, and the
-  one finding that run produced about the reviewer itself.
+  first run: 238 real Safe transactions on Ethereum, and the one finding that
+  run produced about the reviewer itself.
 - **[08 — What was checked](08-what-was-checked.md)** — the last full
   verification pass: what was run, and what it found.
 

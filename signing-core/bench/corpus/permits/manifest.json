@@ -1,0 +1,22 @@
+{
+ "collected": "2026-10-05T01:28:57Z",
+ "rpc": "https://ethereum-rpc.publicnode.com",
+ "head_block": 26122703,
+ "blocks_scanned": 20000,
+ "token_domains": {
+  "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
+   "name": "USD Coin",
+   "version": "2"
+  },
+  "0x6b175474e89094c44da98b954eedeac495271d0f": {
+   "name": "Dai Stablecoin",
+   "version": "1"
+  }
+ },
+ "kept": {
+  "erc2612": 33,
+  "permit2_single": 223,
+  "permit2_batch": 2
+ },
+ "candidates": 14943
+}

@@ -2,7 +2,7 @@
 
 ClearSign reviews Safe and supported EVM transactions locally. It decodes signed fields, recomputes transaction hashes and flags operations such as delegatecalls, Safe administration changes, contract ownership and upgrade changes, and unlimited approvals and permits.
 
-[Website](https://clearsign-dev.github.io/clearsign.dev/) · [Downloads](https://github.com/clearsign-dev/clearsign/releases) · [Supported formats](docs/10-what-is-supported.md) · [Verification status](docs/03-verification-status.md)
+[Website](https://clearsign-dev.github.io/clearsign.dev/) · [Downloads](https://github.com/clearsign-dev/clearsign/releases) · [Supported formats](docs/10-what-is-supported.md) · [Verification status](docs/03-verification-status.md) · [Benchmarks](docs/11-benchmarks.md)
 
 ## Status
 
@@ -42,6 +42,14 @@ For transaction review, exit `0` means no BLIND or CRITICAL finding was raised; 
 - An experimental authority engine for reviewing proposed agent actions.
 
 Unsupported formats and unknown calls are refused or marked BLIND — which is most DeFi activity, by design. Bitcoin, Solana and chain-specific transaction types (Celo's fee-currency transactions, zkSync's EIP-712 transactions) are outside the current scope. The [support matrix](docs/10-what-is-supported.md) separates implemented support, test coverage and external comparisons; a listed chain is not a tested wallet integration.
+
+## Measured
+
+[Benchmarks](docs/11-benchmarks.md), generated from the measurements, record what ClearSign does on real data and where it stops:
+
+- On 9,998 real transactions from 31 chains it committed to exactly the digest each sender signed, every time. On 10,851 real Safe transactions from 27 chains its hash agreed with Safe's service and with an independent implementation every time, and every owner signature recovered over it.
+- Replayed from the chain, 13 attacks that deceived signers — Bybit, WazirX, Radiant, Badger and the 2025 EIP-7702 drains among them: the mechanism was named in 9 (up from 3), one more was refused as unreadable, one drew a warning, one plain token transfer was shown faithfully but not flagged, and one used a format ClearSign does not read. Address-poisoning and impersonation cases are not caught: those transactions say exactly what they do.
+- Of $21 billion lost across DeFiLlama's 1,293 recorded hacks, about 10% went through a deceived signer. Most of the rest was key theft or contract bugs, which no signing reviewer can see. ClearSign addresses one layer of the problem, not the whole of it.
 
 ## Network Access
 

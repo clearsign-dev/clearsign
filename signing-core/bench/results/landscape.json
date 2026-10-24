@@ -1,0 +1,763 @@
+{
+ "generated": "2026-10-05",
+ "rules": {
+  "by_classification": {
+   "Protocol Logic": "CONTRACT_OR_PROTOCOL_BUG",
+   "Oracle Manipulation": "CONTRACT_OR_PROTOCOL_BUG",
+   "Token & Share Accounting": "CONTRACT_OR_PROTOCOL_BUG",
+   "Input Validation": "CONTRACT_OR_PROTOCOL_BUG",
+   "Reentrancy": "CONTRACT_OR_PROTOCOL_BUG",
+   "Bridge & Cross-Chain": "CONTRACT_OR_PROTOCOL_BUG",
+   "Market Manipulation": "CONTRACT_OR_PROTOCOL_BUG",
+   "Rugpull": "INSIDER_OR_RUG",
+   "Governance": "GOVERNANCE",
+   "Key Compromise": "KEY_THEFT"
+  },
+  "by_technique": {
+   "Admin Drain": "INSIDER_OR_RUG",
+   "Malware": "KEY_THEFT",
+   "Key Leaked via Infrastructure": "KEY_THEFT",
+   "API Key Compromised": "KEY_THEFT",
+   "Database Breach": "KEY_THEFT",
+   "Session Key Compromised": "KEY_THEFT",
+   "Impersonation Scam": "DECEIVED_INTENT",
+   "Address Poisoning": "DECEIVED_INTENT",
+   "DNS Hijack": "SIGNING_DECEPTION_EOA",
+   "Frontend Compromise": "SIGNING_DECEPTION_EOA",
+   "CDN Compromise": "SIGNING_DECEPTION_EOA",
+   "Supply Chain Attack": "SIGNING_DECEPTION_EOA",
+   "Phishing": "SIGNING_DECEPTION_EOA",
+   "Social Account Takeover": "SIGNING_DECEPTION_EOA",
+   "Signer Phishing": "SIGNING_DECEPTION_MULTISIG",
+   "Blind Signing": "SIGNING_DECEPTION_MULTISIG"
+  }
+ },
+ "total": {
+  "incidents": 1293,
+  "usd": 21065227139.92813
+ },
+ "by_vector": {
+  "CONTRACT_OR_PROTOCOL_BUG": {
+   "incidents": 903,
+   "usd": 6717107552.928132,
+   "researched": 62
+  },
+  "DECEIVED_INTENT": {
+   "incidents": 10,
+   "usd": 349155800,
+   "researched": 9
+  },
+  "GOVERNANCE": {
+   "incidents": 20,
+   "usd": 255039082,
+   "researched": 12
+  },
+  "INSIDER_OR_RUG": {
+   "incidents": 51,
+   "usd": 459660316,
+   "researched": 24
+  },
+  "KEY_THEFT": {
+   "incidents": 245,
+   "usd": 10813423076,
+   "researched": 187
+  },
+  "SIGNING_DECEPTION_EOA": {
+   "incidents": 48,
+   "usd": 161961313,
+   "researched": 11
+  },
+  "SIGNING_DECEPTION_MULTISIG": {
+   "incidents": 7,
+   "usd": 2021590000,
+   "researched": 5
+  },
+  "UNKNOWN": {
+   "incidents": 9,
+   "usd": 287290000,
+   "researched": 9
+  }
+ },
+ "on_signing_path": {
+  "incidents": 55,
+  "usd": 2183551313
+ },
+ "on_signing_path_evm": {
+  "incidents": 50,
+  "usd": 1843721313
+ },
+ "on_signing_path_list": [
+  {
+   "name": "Bybit",
+   "year": 2025,
+   "usd": 1400000000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "SAFE_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Drift Trade",
+   "year": 2026,
+   "usd": 295000000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "SOLANA",
+   "basis": "researched"
+  },
+  {
+   "name": "WazirX: India",
+   "year": 2024,
+   "usd": 234900000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "SAFE_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Badger DAO",
+   "year": 2021,
+   "usd": 120000000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Radiant V2",
+   "year": 2024,
+   "usd": 50000000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "SAFE_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "SwissBorg",
+   "year": 2025,
+   "usd": 41500000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "SOLANA",
+   "basis": "researched"
+  },
+  {
+   "name": "Uniswap (Phishing Attack)",
+   "year": 2022,
+   "usd": 8000000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Nexus Mutual",
+   "year": 2020,
+   "usd": 8000000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Rocket Pool",
+   "year": 2023,
+   "usd": 3800000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "JayPegs Automart",
+   "year": 2021,
+   "usd": 3100000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Polymarket International",
+   "year": 2026,
+   "usd": 3000000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EIP712",
+   "basis": "researched"
+  },
+  {
+   "name": "MM Finance Cronos",
+   "year": 2022,
+   "usd": 2000000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "OpenSea",
+   "year": 2022,
+   "usd": 2000000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "PERSONAL_SIGN",
+   "basis": "researched"
+  },
+  {
+   "name": "KlaySwap",
+   "year": 2022,
+   "usd": 1900000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM_TX",
+   "basis": "researched"
+  },
+  {
+   "name": "Monkey Kingdom",
+   "year": 2021,
+   "usd": 1300000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "SOLANA",
+   "basis": "researched"
+  },
+  {
+   "name": "CoW Swap",
+   "year": 2026,
+   "usd": 1200000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EIP712",
+   "basis": "researched"
+  },
+  {
+   "name": "1inch Swap",
+   "year": 2024,
+   "usd": 723000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Aerodrome V1",
+   "year": 2025,
+   "usd": 700000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Serenity Shield",
+   "year": 2024,
+   "usd": 586000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Curve DEX",
+   "year": 2022,
+   "usd": 575000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Polymarket",
+   "year": 2025,
+   "usd": 500000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Ledger Connect Kit",
+   "year": 2023,
+   "usd": 484000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Bankr",
+   "year": 2026,
+   "usd": 479885,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Premint",
+   "year": 2022,
+   "usd": 375000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Seth Green NFTs",
+   "year": 2022,
+   "usd": 300000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Ledger",
+   "year": 2020,
+   "usd": 271000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Galxe",
+   "year": 2023,
+   "usd": 270000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "KyberSwap Classic",
+   "year": 2022,
+   "usd": 265000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "BAYC/Otherside",
+   "year": 2022,
+   "usd": 257000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Velodrome",
+   "year": 2023,
+   "usd": 250000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Celer cBridge",
+   "year": 2022,
+   "usd": 240000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Balancer V2",
+   "year": 2023,
+   "usd": 238000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "X2Y2",
+   "year": 2022,
+   "usd": 200000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Layer2DAO",
+   "year": 2022,
+   "usd": 190000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Cryptovoxels",
+   "year": 2022,
+   "usd": 171000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "PeopleDAO",
+   "year": 2023,
+   "usd": 120000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Quickswap V3",
+   "year": 2022,
+   "usd": 107600,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Zerion Wallet",
+   "year": 2026,
+   "usd": 100000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "LayerSwap",
+   "year": 2024,
+   "usd": 100000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "CityDAO",
+   "year": 2022,
+   "usd": 95000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Llamascape",
+   "year": 2022,
+   "usd": 70000,
+   "vector": "SIGNING_DECEPTION_MULTISIG",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Stargate Finance",
+   "year": 2023,
+   "usd": 43000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "dYdX V3",
+   "year": 2024,
+   "usd": 31000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "BONK Fun",
+   "year": 2026,
+   "usd": 30000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "OTHER_NONEVM",
+   "basis": "rule"
+  },
+  {
+   "name": "KuCoin",
+   "year": 2023,
+   "usd": 22628,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "SpiritSwap V3",
+   "year": 2022,
+   "usd": 18000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Convex Finance",
+   "year": 2022,
+   "usd": 14000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Ribbon",
+   "year": 2022,
+   "usd": 12000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Robinhood",
+   "year": 2023,
+   "usd": 8200,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "SpookySwap",
+   "year": 2023,
+   "usd": 5000,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Neutrl",
+   "year": 2026,
+   "usd": 0,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Zapper",
+   "year": 2025,
+   "usd": 0,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "PancakeSwap / Cream Finance",
+   "year": 2021,
+   "usd": 0,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Gate",
+   "year": 2018,
+   "usd": 0,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  },
+  {
+   "name": "Ambient",
+   "year": 2024,
+   "usd": 0,
+   "vector": "SIGNING_DECEPTION_EOA",
+   "format": "EVM",
+   "basis": "rule"
+  }
+ ],
+ "by_year": {
+  "2016": {
+   "all": {
+    "incidents": 5,
+    "usd": 135730000
+   },
+   "on_signing_path": {
+    "incidents": 0,
+    "usd": 0
+   },
+   "key_theft": {
+    "incidents": 4,
+    "usd": 75730000
+   },
+   "contract_bug": {
+    "incidents": 1,
+    "usd": 60000000
+   }
+  },
+  "2017": {
+   "all": {
+    "incidents": 8,
+    "usd": 288850010
+   },
+   "on_signing_path": {
+    "incidents": 0,
+    "usd": 0
+   },
+   "key_theft": {
+    "incidents": 5,
+    "usd": 101150010
+   },
+   "contract_bug": {
+    "incidents": 2,
+    "usd": 180000000
+   }
+  },
+  "2018": {
+   "all": {
+    "incidents": 31,
+    "usd": 1123511992
+   },
+   "on_signing_path": {
+    "incidents": 1,
+    "usd": 0
+   },
+   "key_theft": {
+    "incidents": 9,
+    "usd": 931713600
+   },
+   "contract_bug": {
+    "incidents": 20,
+    "usd": 21798392
+   }
+  },
+  "2019": {
+   "all": {
+    "incidents": 26,
+    "usd": 277278529
+   },
+   "on_signing_path": {
+    "incidents": 0,
+    "usd": 0
+   },
+   "key_theft": {
+    "incidents": 15,
+    "usd": 210459029
+   },
+   "contract_bug": {
+    "incidents": 6,
+    "usd": 699500
+   }
+  },
+  "2020": {
+   "all": {
+    "incidents": 46,
+    "usd": 3977460238
+   },
+   "on_signing_path": {
+    "incidents": 2,
+    "usd": 8271000
+   },
+   "key_theft": {
+    "incidents": 13,
+    "usd": 3809873000
+   },
+   "contract_bug": {
+    "incidents": 30,
+    "usd": 146851922
+   }
+  },
+  "2021": {
+   "all": {
+    "incidents": 127,
+    "usd": 2868249772
+   },
+   "on_signing_path": {
+    "incidents": 4,
+    "usd": 124400000
+   },
+   "key_theft": {
+    "incidents": 20,
+    "usd": 820745000
+   },
+   "contract_bug": {
+    "incidents": 93,
+    "usd": 1699179772
+   }
+  },
+  "2022": {
+   "all": {
+    "incidents": 184,
+    "usd": 3633656105
+   },
+   "on_signing_path": {
+    "incidents": 19,
+    "usd": 16789600
+   },
+   "key_theft": {
+    "incidents": 31,
+    "usd": 1544060300
+   },
+   "contract_bug": {
+    "incidents": 122,
+    "usd": 1858691201
+   }
+  },
+  "2023": {
+   "all": {
+    "incidents": 197,
+    "usd": 1626253369
+   },
+   "on_signing_path": {
+    "incidents": 10,
+    "usd": 5240828
+   },
+   "key_theft": {
+    "incidents": 30,
+    "usd": 970208000
+   },
+   "contract_bug": {
+    "incidents": 139,
+    "usd": 579142241
+   }
+  },
+  "2024": {
+   "all": {
+    "incidents": 217,
+    "usd": 1669697215
+   },
+   "on_signing_path": {
+    "incidents": 7,
+    "usd": 286340000
+   },
+   "key_theft": {
+    "incidents": 37,
+    "usd": 598464300
+   },
+   "contract_bug": {
+    "incidents": 156,
+    "usd": 362462515
+   }
+  },
+  "2025": {
+   "all": {
+    "incidents": 148,
+    "usd": 2715021619
+   },
+   "on_signing_path": {
+    "incidents": 5,
+    "usd": 1442700000
+   },
+   "key_theft": {
+    "incidents": 33,
+    "usd": 534798693
+   },
+   "contract_bug": {
+    "incidents": 99,
+    "usd": 665258326
+   }
+  },
+  "2026": {
+   "all": {
+    "incidents": 286,
+    "usd": 2242313290.928132
+   },
+   "on_signing_path": {
+    "incidents": 7,
+    "usd": 299809885
+   },
+   "key_theft": {
+    "incidents": 34,
+    "usd": 710036144
+   },
+   "contract_bug": {
+    "incidents": 231,
+    "usd": 1142003683.928132
+   }
+  }
+ },
+ "replay_outcomes_by_incident": {
+  "flagged, mechanism named": [
+   "Badger DAO",
+   "Bybit",
+   "EIP-7702 batch phishing (Base)",
+   "EIP-7702 batch phishing (Ethereum)",
+   "MM Finance (Cronos)",
+   "Radiant Capital (Arbitrum)",
+   "Radiant Capital (BNB Chain)",
+   "Uniswap V3 LP phishing",
+   "WazirX"
+  ],
+  "shown faithfully, not flagged": [
+   "Nexus Mutual founder"
+  ],
+  "warning": [
+   "POAP founder (listed as Rocket Pool)"
+  ],
+  "flagged, not decoded (BLIND)": [
+   "JayPegs Automart (SushiSwap MISO)"
+  ],
+  "not reviewable": [
+   "KlaySwap (BGP hijack)"
+  ]
+ },
+ "replay_outcomes_by_payload": {
+  "flagged, mechanism named": 11,
+  "shown faithfully, not flagged": 1,
+  "warning": 1,
+  "flagged, not decoded (BLIND)": 2,
+  "not reviewable": 1
+ }
+}

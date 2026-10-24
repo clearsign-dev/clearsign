@@ -1,5 +1,11 @@
 # 09 — The reviewer against real transactions
 
+> **Superseded for breadth by [11-benchmarks.md](11-benchmarks.md)** (5 Oct 2026):
+> 10,851 Safe transactions across 27 chains, every hash agreeing, and the
+> severity-ordering problem described below addressed — on a v1.1.x Safe the
+> transaction's own CRITICAL is now numbered first, ahead of the chain-binding
+> notice. This file records the first run as it happened.
+
 **Run 28 September 2026.** Reproduce with:
 
 ```sh

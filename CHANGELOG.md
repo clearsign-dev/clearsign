@@ -9,6 +9,10 @@ that keeps people on a broken version.
 
 ## Unreleased
 
+Measured against real chains and real attacks before and after; the numbers
+below are from [docs/11-benchmarks.md](docs/11-benchmarks.md), which is
+generated from the measurements.
+
 ### Added — the attacks it was reading as noise
 
 **Calls that take control of a contract are read, not refused.** A Safe that
@@ -36,8 +40,8 @@ EIP-7702 drains, in which victims' own accounts ran batches of approvals.
 Every carried call is judged by the same rules, including the ones past the
 display limit, as MultiSend batches already were.
 
-**EIP-2930, EIP-4844 and EIP-7702 transactions are decoded.** They were refused.
-Each EIP-7702
+**EIP-2930, EIP-4844 and EIP-7702 transactions are decoded.** They were refused:
+2.0% of 9,998 real transactions sampled across 31 chains. Each EIP-7702
 authorization is CRITICAL — it hands an account to code — and one valid on
 every chain says so.
 
@@ -107,6 +111,27 @@ that nothing checked a listing of several Safe transactions is refused rather
 than read as its first. Every survivor a test can kill now has one; the rest
 are equivalent, and `crates/clearsign/tests/mutation_gaps.rs` lists each with
 the reason.
+
+### Measured
+
+- **Real transactions, 31 chains:** clearsign committed to exactly the digest the
+  sender signed in 9,998 of 9,998, and now accepts all of them.
+- **Real Safe transactions, 27 chains:** the hash agreed with Safe's service and
+  with alloy in 10,851 of 10,851; 13,467 owner signatures and 13,141 signatures
+  accepted on-chain all recover to an owner over it.
+- **Real attacks, replayed from the chain:** of 13 signer-deception attacks, the
+  mechanism is now named in 9, up from 3.
+- **The hack record:** of $21.07B lost across 1,293 incidents, 10.4% went through
+  a deceived signer, the only kind of attack a signing reviewer can stop. Key
+  theft was 51.3% and contract bugs 31.9%.
+- **Real typed-data signatures:** 258 of 258 permits submitted on Ethereum
+  recover to their owners over clearsign's EIP-712 hash.
+- **Fuzzing:** 215.6 million executions across four targets, 45 minutes each, on
+  the code this round added or changed, and 94.8 million more on the final code
+  after the review fixes. No failures.
+- **Mutation testing:** 98.1% of the extended decoder's 718 mutants caught (84.2%
+  of the old decoder's), and 89.6% of the JSON readers'; every survivor is
+  equivalent.
 
 ## v0.1.2 — 2026-10-04
 

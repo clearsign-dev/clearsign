@@ -1,9 +1,12 @@
 # build output
 signing-core/target/
+signing-core/bench/target/
 # VM images and runtime state are large and reproducible from vm/fetch scripts
 vm/images/
 vm/run/
 .DS_Store
+__pycache__/
+*.py[cod]
 
 # local Claude Code settings
 .claude/settings.local.json

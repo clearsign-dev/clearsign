@@ -1,0 +1,12 @@
+{
+ "collected": "2026-10-05T00:27:57Z",
+ "cases": 20,
+ "transactions": 26,
+ "failures": [
+  {
+   "case": "klayswap",
+   "tx": "0xccb0c8e192ddb3a737e10c3326ed4ac31f76f1eb414ad1fda2f06f439e5c01e8",
+   "error": "eth_getTransactionReceipt 0xccb0c8e192ddb3a737e10c3326ed4ac31f76f1eb414ad1fda2f06f439e5c01e8 on chain 8217: None"
+  }
+ ]
+}
