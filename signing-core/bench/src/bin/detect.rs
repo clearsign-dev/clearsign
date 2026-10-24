@@ -44,7 +44,8 @@ sol! {
     );
 }
 
-const EXECUTION_SUCCESS: &str = "0x442e715f626346e8c54381002da614f62bee8d27386535b2521ec8540898556e";
+const EXECUTION_SUCCESS: &str =
+    "0x442e715f626346e8c54381002da614f62bee8d27386535b2521ec8540898556e";
 
 /// Findings that name what an attack does, as opposed to refusing to read it.
 const SPECIFIC: &[&str] = &[
@@ -137,7 +138,11 @@ fn word(hex: &str) -> Option<B256> {
 fn safe_case(row: &Value, chain_id: u64, o: &mut Outcome) -> Option<Review> {
     // The Safe's own record of what it executed.
     let log = row["receipt"]["logs"].as_array()?.iter().find(|l| {
-        l["topics"].as_array().and_then(|t| t.first()).and_then(|t| t.as_str()) == Some(EXECUTION_SUCCESS)
+        l["topics"]
+            .as_array()
+            .and_then(|t| t.first())
+            .and_then(|t| t.as_str())
+            == Some(EXECUTION_SUCCESS)
     })?;
     let safe: AAddress = log["address"].as_str()?.parse().ok()?;
     // Up to v1.3.0 the hash is the first data word; from v1.4.0 it is indexed,
@@ -203,11 +208,17 @@ fn safe_case(row: &Value, chain_id: u64, o: &mut Outcome) -> Option<Review> {
         let v = part[64];
         let recovered = match v {
             27 | 28 | 31 | 32 => {
-                let prehash = if v > 30 { eip191_hash_message(logged) } else { logged };
+                let prehash = if v > 30 {
+                    eip191_hash_message(logged)
+                } else {
+                    logged
+                };
                 let mut raw = [0u8; 65];
                 raw.copy_from_slice(part);
                 raw[64] = if v > 30 { v - 4 } else { v };
-                Signature::try_from(&raw[..]).ok().and_then(|s| s.recover_address_from_prehash(&prehash).ok())
+                Signature::try_from(&raw[..])
+                    .ok()
+                    .and_then(|s| s.recover_address_from_prehash(&prehash).ok())
             }
             _ => None,
         };
@@ -244,7 +255,8 @@ fn evm_case(row: &Value, o: &mut Outcome) -> Option<Review> {
         TxEnvelope::Eip4844(s) => s.tx().encode_for_signing(&mut payload),
         TxEnvelope::Eip7702(s) => s.tx().encode_for_signing(&mut payload),
     }
-    let ok = env.recover_signer().ok() == Some(rpc.inner.signer()) && keccak256(&payload) == env.signature_hash();
+    let ok = env.recover_signer().ok() == Some(rpc.inner.signer())
+        && keccak256(&payload) == env.signature_hash();
     if !ok {
         o.proof = "rebuilt payload does not recover to the sender".into();
         return None;
@@ -269,7 +281,10 @@ fn judge(r: &Review, o: &mut Outcome) {
     };
     let mut by_sev: BTreeMap<std::cmp::Reverse<Severity>, Vec<&str>> = BTreeMap::new();
     for f in r.findings() {
-        by_sev.entry(std::cmp::Reverse(f.severity)).or_default().push(f.code);
+        by_sev
+            .entry(std::cmp::Reverse(f.severity))
+            .or_default()
+            .push(f.code);
         if !o.all_codes.iter().any(|c| c == f.code) {
             o.all_codes.push(f.code.into());
         }
@@ -277,7 +292,10 @@ fn judge(r: &Review, o: &mut Outcome) {
     // The decisive findings are the most severe ones that are about this
     // transaction rather than about the Safe's standing configuration.
     for codes in by_sev.values() {
-        let about_tx: Vec<&&str> = codes.iter().filter(|c| **c != "SIGNATURE_NOT_CHAIN_BOUND").collect();
+        let about_tx: Vec<&&str> = codes
+            .iter()
+            .filter(|c| **c != "SIGNATURE_NOT_CHAIN_BOUND")
+            .collect();
         if !about_tx.is_empty() {
             o.decisive = about_tx.iter().map(|c| c.to_string()).collect();
             o.decisive.dedup();
@@ -289,8 +307,15 @@ fn judge(r: &Review, o: &mut Outcome) {
         for (k, v) in &s.fields {
             if matches!(
                 k.as_str(),
-                "Action" | "Operation" | "Code that will run as the Safe" | "New owner" | "Operator"
-                    | "New implementation" | "Recipient, if it is a token" | "To" | "Delegates to code at"
+                "Action"
+                    | "Operation"
+                    | "Code that will run as the Safe"
+                    | "New owner"
+                    | "Operator"
+                    | "New implementation"
+                    | "Recipient, if it is a token"
+                    | "To"
+                    | "Delegates to code at"
             ) {
                 o.key_lines.push(format!("{} :: {k}: {v}", s.title));
             }
@@ -300,8 +325,8 @@ fn judge(r: &Review, o: &mut Outcome) {
 
 fn print_table(outcomes: &[Outcome]) {
     println!(
-        "{:<28} {:<27} {:<14} {:<16} {:<9} {}",
-        "case", "vector", "verdict", "proof", "specific", "decisive finding"
+        "{:<28} {:<27} {:<14} {:<16} {:<9} decisive finding",
+        "case", "vector", "verdict", "proof", "specific"
     );
     for o in outcomes {
         println!(

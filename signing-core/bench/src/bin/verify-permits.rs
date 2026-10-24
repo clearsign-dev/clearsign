@@ -37,7 +37,10 @@ const USDC: &str = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 const DAI: &str = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 
 fn f(name: &str, ty: &str) -> Field {
-    Field { name: name.into(), ty: ty.into() }
+    Field {
+        name: name.into(),
+        ty: ty.into(),
+    }
 }
 
 fn s(v: impl ToString) -> Value {
@@ -45,7 +48,12 @@ fn s(v: impl ToString) -> Value {
 }
 
 fn obj(fields: Vec<(&str, Value)>) -> Value {
-    Value::Object(fields.into_iter().map(|(k, v)| (k.to_string(), v)).collect())
+    Value::Object(
+        fields
+            .into_iter()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect(),
+    )
 }
 
 fn domain_named(name: &str, version: Option<&str>, contract: &str) -> (Vec<Field>, Value) {
@@ -56,14 +64,25 @@ fn domain_named(name: &str, version: Option<&str>, contract: &str) -> (Vec<Field
         values.push(("version", s(v)));
     }
     fields.push(f("chainId", "uint256"));
-    values.push(("chainId", Value::Int { negative: false, magnitude: 1 }));
+    values.push((
+        "chainId",
+        Value::Int {
+            negative: false,
+            magnitude: 1,
+        },
+    ));
     fields.push(f("verifyingContract", "address"));
     values.push(("verifyingContract", s(contract)));
     (fields, obj(values))
 }
 
 fn details_fields() -> Vec<Field> {
-    vec![f("token", "address"), f("amount", "uint160"), f("expiration", "uint48"), f("nonce", "uint48")]
+    vec![
+        f("token", "address"),
+        f("amount", "uint160"),
+        f("expiration", "uint48"),
+        f("nonce", "uint48"),
+    ]
 }
 
 fn details_value(d: &PermitDetails) -> Value {
@@ -112,17 +131,31 @@ struct Report {
 
 fn main() {
     let dir = bench_dir().join("corpus/permits");
-    let manifest: Json = serde_json::from_str(&std::fs::read_to_string(dir.join("manifest.json")).unwrap()).unwrap();
-    let usdc_name = manifest["token_domains"][USDC.to_lowercase()]["name"].as_str().unwrap_or("USD Coin").to_owned();
-    let usdc_version = manifest["token_domains"][USDC.to_lowercase()]["version"].as_str().unwrap_or("2").to_owned();
-    let dai_name = manifest["token_domains"][DAI.to_lowercase()]["name"].as_str().unwrap_or("Dai Stablecoin").to_owned();
-    let dai_version = manifest["token_domains"][DAI.to_lowercase()]["version"].as_str().unwrap_or("1").to_owned();
+    let manifest: Json =
+        serde_json::from_str(&std::fs::read_to_string(dir.join("manifest.json")).unwrap()).unwrap();
+    let usdc_name = manifest["token_domains"][USDC.to_lowercase()]["name"]
+        .as_str()
+        .unwrap_or("USD Coin")
+        .to_owned();
+    let usdc_version = manifest["token_domains"][USDC.to_lowercase()]["version"]
+        .as_str()
+        .unwrap_or("2")
+        .to_owned();
+    let dai_name = manifest["token_domains"][DAI.to_lowercase()]["name"]
+        .as_str()
+        .unwrap_or("Dai Stablecoin")
+        .to_owned();
+    let dai_version = manifest["token_domains"][DAI.to_lowercase()]["version"]
+        .as_str()
+        .unwrap_or("1")
+        .to_owned();
 
     let mut rep = Report::default();
     for row in read_jsonl(&dir.join("permits.jsonl.gz")) {
         let kind = row["kind"].as_str().unwrap_or("").to_owned();
         rep.by_kind.add(kind.clone());
-        let input = clearsign::hex::decode(row["tx"]["input"].as_str().unwrap_or("")).unwrap_or_default();
+        let input =
+            clearsign::hex::decode(row["tx"]["input"].as_str().unwrap_or("")).unwrap_or_default();
         let proven: Option<TypedData> = match kind.as_str() {
             "erc2612" => (|| {
                 let c = permitCall::abi_decode(&input).ok()?;
@@ -132,7 +165,16 @@ fn main() {
                     let td = TypedData {
                         types: vec![
                             ("EIP712Domain".into(), dfields.clone()),
-                            ("Permit".into(), vec![f("owner", "address"), f("spender", "address"), f("value", "uint256"), f("nonce", "uint256"), f("deadline", "uint256")]),
+                            (
+                                "Permit".into(),
+                                vec![
+                                    f("owner", "address"),
+                                    f("spender", "address"),
+                                    f("value", "uint256"),
+                                    f("nonce", "uint256"),
+                                    f("deadline", "uint256"),
+                                ],
+                            ),
                         ],
                         primary_type: "Permit".into(),
                         domain: dvalue.clone(),
@@ -140,7 +182,13 @@ fn main() {
                             ("owner", s(c.owner)),
                             ("spender", s(c.spender)),
                             ("value", s(c.value)),
-                            ("nonce", Value::Int { negative: false, magnitude: nonce }),
+                            (
+                                "nonce",
+                                Value::Int {
+                                    negative: false,
+                                    magnitude: nonce,
+                                },
+                            ),
                             ("deadline", s(c.deadline)),
                         ]),
                     };
@@ -163,7 +211,16 @@ fn main() {
                 let td = TypedData {
                     types: vec![
                         ("EIP712Domain".into(), dfields),
-                        ("Permit".into(), vec![f("holder", "address"), f("spender", "address"), f("nonce", "uint256"), f("expiry", "uint256"), f("allowed", "bool")]),
+                        (
+                            "Permit".into(),
+                            vec![
+                                f("holder", "address"),
+                                f("spender", "address"),
+                                f("nonce", "uint256"),
+                                f("expiry", "uint256"),
+                                f("allowed", "bool"),
+                            ],
+                        ),
                     ],
                     primary_type: "Permit".into(),
                     domain: dvalue,
@@ -190,7 +247,14 @@ fn main() {
                 let td = TypedData {
                     types: vec![
                         ("EIP712Domain".into(), dfields),
-                        ("PermitSingle".into(), vec![f("details", "PermitDetails"), f("spender", "address"), f("sigDeadline", "uint256")]),
+                        (
+                            "PermitSingle".into(),
+                            vec![
+                                f("details", "PermitDetails"),
+                                f("spender", "address"),
+                                f("sigDeadline", "uint256"),
+                            ],
+                        ),
                         ("PermitDetails".into(), details_fields()),
                     ],
                     primary_type: "PermitSingle".into(),
@@ -216,13 +280,23 @@ fn main() {
                 let td = TypedData {
                     types: vec![
                         ("EIP712Domain".into(), dfields),
-                        ("PermitBatch".into(), vec![f("details", "PermitDetails[]"), f("spender", "address"), f("sigDeadline", "uint256")]),
+                        (
+                            "PermitBatch".into(),
+                            vec![
+                                f("details", "PermitDetails[]"),
+                                f("spender", "address"),
+                                f("sigDeadline", "uint256"),
+                            ],
+                        ),
                         ("PermitDetails".into(), details_fields()),
                     ],
                     primary_type: "PermitBatch".into(),
                     domain: dvalue,
                     message: obj(vec![
-                        ("details", Value::Array(p.details.iter().map(details_value).collect())),
+                        (
+                            "details",
+                            Value::Array(p.details.iter().map(details_value).collect()),
+                        ),
                         ("spender", s(p.spender)),
                         ("sigDeadline", s(p.sigDeadline)),
                     ]),
@@ -244,7 +318,12 @@ fn main() {
             Some(Severity::Warning) => "warning",
             _ => "clear",
         });
-        for code in review.findings().iter().map(|f| f.code).collect::<std::collections::BTreeSet<_>>() {
+        for code in review
+            .findings()
+            .iter()
+            .map(|f| f.code)
+            .collect::<std::collections::BTreeSet<_>>()
+        {
             rep.findings.add(code);
         }
         if review.has("UNLIMITED_APPROVAL") {
@@ -255,15 +334,25 @@ fn main() {
     }
 
     println!("permit submissions by kind: {:?}", rep.by_kind.sorted());
-    println!("signature recovered to the owner over clearsign's EIP-712 hash: {:?}", rep.proven.sorted());
+    println!(
+        "signature recovered to the owner over clearsign's EIP-712 hash: {:?}",
+        rep.proven.sorted()
+    );
     println!("not proven: {:?}", rep.not_proven.sorted());
-    println!("largest ERC-2612 nonce found by search: {}", rep.nonce_searched_max);
+    println!(
+        "largest ERC-2612 nonce found by search: {}",
+        rep.nonce_searched_max
+    );
     println!("what the reviewer said: {:?}", rep.outcome.sorted());
     println!("unlimited {}  bounded {}", rep.unlimited, rep.bounded);
     println!("findings: {:?}", rep.findings.sorted());
     let out = bench_dir().join("results");
     std::fs::create_dir_all(&out).unwrap();
-    std::fs::write(out.join("permits.json"), serde_json::to_string_pretty(&rep).unwrap() + "\n").unwrap();
+    std::fs::write(
+        out.join("permits.json"),
+        serde_json::to_string_pretty(&rep).unwrap() + "\n",
+    )
+    .unwrap();
     let failed: u64 = rep.not_proven.total();
     if failed > 0 {
         eprintln!("\nNOTE: {failed} submissions could not be proven; see the kinds above.");

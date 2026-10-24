@@ -502,6 +502,7 @@
     },
     {
       "all_codes": [
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED",
         "SMART_ACCOUNT_BATCH",
         "UNLIMITED_APPROVAL",
         "SELECTOR_IS_NOT_BEHAVIOUR"
@@ -547,6 +548,7 @@
     },
     {
       "all_codes": [
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED",
         "SMART_ACCOUNT_BATCH",
         "APPROVAL_FOR_ALL",
         "SELECTOR_IS_NOT_BEHAVIOUR",

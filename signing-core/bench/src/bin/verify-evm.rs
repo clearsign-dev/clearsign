@@ -85,8 +85,11 @@ fn main() {
         "corpus_collected": manifest["collected"],
         "chains": reports.values().collect::<Vec<_>>(),
     });
-    std::fs::write(out.join("evm.json"), serde_json::to_string_pretty(&json).unwrap() + "\n")
-        .expect("write results/evm.json");
+    std::fs::write(
+        out.join("evm.json"),
+        serde_json::to_string_pretty(&json).unwrap() + "\n",
+    )
+    .expect("write results/evm.json");
 
     let bad: u64 = reports.values().map(|r| r.digest_differs).sum();
     if bad > 0 {
@@ -168,20 +171,31 @@ fn check(r: &mut ChainReport, raw: &Value) {
         codes.insert(f.code);
         if dump.as_deref() == Some(f.code) {
             let input = raw["input"].as_str().unwrap_or("");
-            eprintln!("{}\t{}\t{}\t{}\t{}", r.chain_id, raw["hash"].as_str().unwrap_or(""),
-                input.get(..10).unwrap_or(""), (input.len().saturating_sub(2)) / 2, f.message.chars().take(140).collect::<String>());
+            eprintln!(
+                "{}\t{}\t{}\t{}\t{}",
+                r.chain_id,
+                raw["hash"].as_str().unwrap_or(""),
+                input.get(..10).unwrap_or(""),
+                (input.len().saturating_sub(2)) / 2,
+                f.message.chars().take(140).collect::<String>()
+            );
         }
-        if f.code == "UNKNOWN_SELECTOR" {
-            if let Some(sel) = f.message.strip_prefix("Function ").and_then(|m| m.get(..10)) {
-                r.unknown_selectors.add(sel);
-            }
+        if f.code == "UNKNOWN_SELECTOR"
+            && let Some(sel) = f
+                .message
+                .strip_prefix("Function ")
+                .and_then(|m| m.get(..10))
+        {
+            r.unknown_selectors.add(sel);
         }
     }
     if codes.contains("CONTRACT_CREATION") {
         r.contract_creations += 1;
     }
     if review.sections.iter().any(|s| {
-        s.fields.iter().any(|(k, v)| k == "Action" && v == "Native value transfer")
+        s.fields
+            .iter()
+            .any(|(k, v)| k == "Action" && v == "Native value transfer")
     }) {
         r.native_transfers += 1;
     }
@@ -193,13 +207,26 @@ fn check(r: &mut ChainReport, raw: &Value) {
 fn print_summary(reports: &BTreeMap<u64, ChainReport>) {
     println!(
         "{:<26} {:>6} {:>8} {:>9} {:>9} {:>8} {:>7} {:>7} {:>7} {:>7} {:>9}",
-        "chain", "txs", "special", "proven", "accepted", "digest=", "clear", "warn", "blind", "crit", "refused"
+        "chain",
+        "txs",
+        "special",
+        "proven",
+        "accepted",
+        "digest=",
+        "clear",
+        "warn",
+        "blind",
+        "crit",
+        "refused"
     );
     let mut t = ChainReport::default();
     for r in reports.values() {
         println!(
             "{:<26} {:>6} {:>8} {:>9} {:>9} {:>8} {:>7} {:>7} {:>7} {:>7} {:>9}",
-            format!("{} ({})", r.name, r.chain_id).chars().take(26).collect::<String>(),
+            format!("{} ({})", r.name, r.chain_id)
+                .chars()
+                .take(26)
+                .collect::<String>(),
             r.transactions,
             r.chain_specific.total(),
             r.payload_proven,
@@ -227,19 +254,47 @@ fn print_summary(reports: &BTreeMap<u64, ChainReport>) {
         t.contract_creations += r.contract_creations;
         t.native_transfers += r.native_transfers;
     }
-    println!("\n{} transactions from {} chains", t.transactions, reports.len());
+    println!(
+        "\n{} transactions from {} chains",
+        t.transactions,
+        reports.len()
+    );
     println!("by type: {:?}", t.by_type.sorted());
-    println!("chain-specific types, not rebuildable by an Ethereum library: {:?}", t.chain_specific.sorted());
+    println!(
+        "chain-specific types, not rebuildable by an Ethereum library: {:?}",
+        t.chain_specific.sorted()
+    );
     println!("rebuild failed: {:?}", t.rebuild_failed.sorted());
-    println!("payload proven (signature recovers to sender over keccak of the rebuilt payload): {} (not proven: {})",
-        t.payload_proven, t.payload_not_proven);
-    println!("clearsign accepted {} of {} proven ({}); refused: {:?}",
-        t.clearsign_accepted, t.payload_proven, pct(t.clearsign_accepted, t.payload_proven), t.clearsign_refused.sorted());
-    println!("digest equal to what the sender signed: {}/{}", t.digest_equal, t.digest_equal + t.digest_differs);
+    println!(
+        "payload proven (signature recovers to sender over keccak of the rebuilt payload): {} (not proven: {})",
+        t.payload_proven, t.payload_not_proven
+    );
+    println!(
+        "clearsign accepted {} of {} proven ({}); refused: {:?}",
+        t.clearsign_accepted,
+        t.payload_proven,
+        pct(t.clearsign_accepted, t.payload_proven),
+        t.clearsign_refused.sorted()
+    );
+    println!(
+        "digest equal to what the sender signed: {}/{}",
+        t.digest_equal,
+        t.digest_equal + t.digest_differs
+    );
     println!("outcomes: {:?}", t.outcome.sorted());
-    println!("native transfers {}  contract creations {}", t.native_transfers, t.contract_creations);
+    println!(
+        "native transfers {}  contract creations {}",
+        t.native_transfers, t.contract_creations
+    );
     println!("finding codes (once per review): {:?}", t.findings.sorted());
-    println!("top unknown selectors: {:?}", t.unknown_selectors.sorted().into_iter().take(30).collect::<Vec<_>>());
+    println!(
+        "top unknown selectors: {:?}",
+        t.unknown_selectors
+            .sorted()
+            .into_iter()
+            .take(30)
+            .collect::<Vec<_>>()
+    );
     for r in reports.values() {
         for f in r.failures.iter().take(5) {
             println!("FAILURE [{}]: {f}", r.name);

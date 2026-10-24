@@ -29,9 +29,11 @@ import gzip
 import json
 import os
 from collections import defaultdict
-from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+HACKS_SNAPSHOT = "2026-10-05"
+HACKS_FILE = os.path.join(HERE, f"corpus/hacks/defillama-hacks-{HACKS_SNAPSHOT}.json.gz")
+RESEARCH_FILE = os.path.join(HERE, f"corpus/hacks/research-{HACKS_SNAPSHOT}.json")
 ON_PATH = {"SIGNING_DECEPTION_MULTISIG", "SIGNING_DECEPTION_EOA"}
 
 # DeFiLlama technique -> attack path, for incidents nobody researched. Each
@@ -101,8 +103,8 @@ def rule_vector(h):
 
 
 def main():
-    hacks = json.loads(gzip.open(os.path.join(HERE, "corpus/hacks/defillama-hacks-2026-10-05.json.gz")).read())
-    research = {r["id"]: r for r in json.load(open(os.path.join(HERE, "corpus/hacks/research-2026-10-05.json")))}
+    hacks = json.loads(gzip.open(HACKS_FILE).read())
+    research = {r["id"]: r for r in json.load(open(RESEARCH_FILE))}
     detect = json.load(open(os.path.join(HERE, "results/detect.json")))["outcomes"]
     replayed = defaultdict(list)
     for o in detect:
@@ -188,7 +190,7 @@ def main():
         outcomes[k].append(incident)
 
     out = {
-        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        "generated": HACKS_SNAPSHOT,
         "rules": {"by_classification": RULES, "by_technique": TECHNIQUE_RULES},
         "total": total,
         "by_vector": by_vector,

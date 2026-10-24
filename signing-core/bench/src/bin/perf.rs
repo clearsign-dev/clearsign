@@ -62,7 +62,12 @@ struct Scenario {
     peak_bytes_held: usize,
 }
 
-fn measure<F: FnMut() -> usize>(name: &'static str, what: &'static str, input: usize, mut f: F) -> Scenario {
+fn measure<F: FnMut() -> usize>(
+    name: &'static str,
+    what: &'static str,
+    input: usize,
+    mut f: F,
+) -> Scenario {
     // Memory for one review, measured on its own.
     let base = CURRENT.load(Ordering::Relaxed);
     PEAK.store(base, Ordering::Relaxed);
@@ -100,8 +105,15 @@ fn measure<F: FnMut() -> usize>(name: &'static str, what: &'static str, input: u
     };
     println!(
         "{:<26} {:>9} B  p50 {:>9.2} us  p95 {:>9.2}  p99 {:>9.2}  max {:>9.1}  {:>11.0}/s  alloc {:>9} B  peak {:>9} B",
-        s.name, s.input_bytes, s.p50_us, s.p95_us, s.p99_us, s.max_us, s.reviews_per_second,
-        s.bytes_allocated, s.peak_bytes_held
+        s.name,
+        s.input_bytes,
+        s.p50_us,
+        s.p95_us,
+        s.p99_us,
+        s.max_us,
+        s.reviews_per_second,
+        s.bytes_allocated,
+        s.peak_bytes_held
     );
     s
 }
@@ -182,74 +194,163 @@ fn safe_tx(to: [u8; 20], data: Vec<u8>, operation: u8) -> SafeTransaction {
 }
 
 fn main() {
-    println!("machine: {} logical cores; one core used per scenario\n", std::thread::available_parallelism().map(|n| n.get()).unwrap_or(0));
+    println!(
+        "machine: {} logical cores; one core used per scenario\n",
+        std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(0)
+    );
     let mut out = Vec::new();
 
     let transfer = eip1559([0x33; 20], 1_000_000_000_000_000_000, vec![]);
-    out.push(measure("eth_transfer", "EIP-1559 native transfer", transfer.len(), || {
-        clearsign::review_transaction_bytes(&transfer).unwrap().render().len()
-    }));
+    out.push(measure(
+        "eth_transfer",
+        "EIP-1559 native transfer",
+        transfer.len(),
+        || {
+            clearsign::review_transaction_bytes(&transfer)
+                .unwrap()
+                .render()
+                .len()
+        },
+    ));
 
     let mut amount = [0u8; 32];
     amount[24..].copy_from_slice(&5_000_000u64.to_be_bytes());
-    let erc20_tx = eip1559([0x44; 20], 0, erc20([0xa9, 0x05, 0x9c, 0xbb], [0x55; 20], amount));
-    out.push(measure("erc20_transfer", "EIP-1559 ERC-20 transfer", erc20_tx.len(), || {
-        clearsign::review_transaction_bytes(&erc20_tx).unwrap().render().len()
-    }));
+    let erc20_tx = eip1559(
+        [0x44; 20],
+        0,
+        erc20([0xa9, 0x05, 0x9c, 0xbb], [0x55; 20], amount),
+    );
+    out.push(measure(
+        "erc20_transfer",
+        "EIP-1559 ERC-20 transfer",
+        erc20_tx.len(),
+        || {
+            clearsign::review_transaction_bytes(&erc20_tx)
+                .unwrap()
+                .render()
+                .len()
+        },
+    ));
 
-    let approve_tx = eip1559([0x44; 20], 0, erc20([0x09, 0x5e, 0xa7, 0xb3], [0x66; 20], [0xff; 32]));
-    out.push(measure("unlimited_approve", "EIP-1559 unlimited ERC-20 approval", approve_tx.len(), || {
-        clearsign::review_transaction_bytes(&approve_tx).unwrap().render().len()
-    }));
+    let approve_tx = eip1559(
+        [0x44; 20],
+        0,
+        erc20([0x09, 0x5e, 0xa7, 0xb3], [0x66; 20], [0xff; 32]),
+    );
+    out.push(measure(
+        "unlimited_approve",
+        "EIP-1559 unlimited ERC-20 approval",
+        approve_tx.len(),
+        || {
+            clearsign::review_transaction_bytes(&approve_tx)
+                .unwrap()
+                .render()
+                .len()
+        },
+    ));
 
     let mut big = vec![0xde, 0xad, 0xbe, 0xef];
     big.resize(4 + 128 * 1024, 0x01);
     let big_tx = eip1559([0x77; 20], 0, big);
-    out.push(measure("unknown_128k", "EIP-1559 with 128 KiB of calldata to an unknown function", big_tx.len(), || {
-        clearsign::review_transaction_bytes(&big_tx).unwrap().render().len()
-    }));
+    out.push(measure(
+        "unknown_128k",
+        "EIP-1559 with 128 KiB of calldata to an unknown function",
+        big_tx.len(),
+        || {
+            clearsign::review_transaction_bytes(&big_tx)
+                .unwrap()
+                .render()
+                .len()
+        },
+    ));
 
-    let fixture = std::fs::read_to_string(bench_dir().join("../crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json"))
-        .expect("Bybit fixture");
-    out.push(measure("safe_json_bybit", "Bybit's Safe record: strict JSON read, domain settled from the hash, review, render", fixture.len(), || {
-        clearsign_safe_json::review_json(&fixture, Some(1), None).unwrap().review.render().len()
-    }));
+    let fixture = std::fs::read_to_string(
+        bench_dir().join("../crates/clearsign-cli/tests/fixtures/bybit-safe-tx.json"),
+    )
+    .expect("Bybit fixture");
+    out.push(measure(
+        "safe_json_bybit",
+        "Bybit's Safe record: strict JSON read, domain settled from the hash, review, render",
+        fixture.len(),
+        || {
+            clearsign_safe_json::review_json(&fixture, Some(1), None)
+                .unwrap()
+                .review
+                .render()
+                .len()
+        },
+    ));
     let bybit = clearsign_safe_json::parse(&fixture, Some(1)).unwrap().tx;
-    out.push(measure("safe_bybit", "Bybit's Safe transaction: review and render (v1.1.x domain)", bybit.data.len(), || {
-        clearsign::review_safe_transaction(&bybit, DomainVersion::Legacy).render().len()
-    }));
-    out.push(measure("safe_hash_only", "Safe transaction hash alone", bybit.data.len(), || {
-        clearsign::safe_transaction_hash(&bybit, DomainVersion::Legacy)[0] as usize
-    }));
+    out.push(measure(
+        "safe_bybit",
+        "Bybit's Safe transaction: review and render (v1.1.x domain)",
+        bybit.data.len(),
+        || {
+            clearsign::review_safe_transaction(&bybit, DomainVersion::Legacy)
+                .render()
+                .len()
+        },
+    ));
+    out.push(measure(
+        "safe_hash_only",
+        "Safe transaction hash alone",
+        bybit.data.len(),
+        || clearsign::safe_transaction_hash(&bybit, DomainVersion::Legacy)[0] as usize,
+    ));
 
     // MultiSend 1.3.0 canonical, published on chain 1.
-    let ms_addr: [u8; 20] = [0xa2, 0x38, 0xcb, 0xeb, 0x14, 0x2c, 0x10, 0xef, 0x7a, 0xd8, 0x44, 0x2c, 0x6d, 0x1f, 0x9e, 0x89, 0xe0, 0x7e, 0x77, 0x61];
+    let ms_addr: [u8; 20] = [
+        0xa2, 0x38, 0xcb, 0xeb, 0x14, 0x2c, 0x10, 0xef, 0x7a, 0xd8, 0x44, 0x2c, 0x6d, 0x1f, 0x9e,
+        0x89, 0xe0, 0x7e, 0x77, 0x61,
+    ];
     let ms32 = safe_tx(ms_addr, multisend(32), 1);
-    out.push(measure("multisend_32", "Safe MultiSend batch of 32 ERC-20 transfers (all shown)", ms32.data.len(), || {
-        clearsign::review_safe_transaction(&ms32, DomainVersion::V1_3Plus).render().len()
-    }));
+    out.push(measure(
+        "multisend_32",
+        "Safe MultiSend batch of 32 ERC-20 transfers (all shown)",
+        ms32.data.len(),
+        || {
+            clearsign::review_safe_transaction(&ms32, DomainVersion::V1_3Plus)
+                .render()
+                .len()
+        },
+    ));
     let ms1024 = safe_tx(ms_addr, multisend(1024), 1);
-    out.push(measure("multisend_1024", "Safe MultiSend batch of 1,024 calls, the most it will parse", ms1024.data.len(), || {
-        clearsign::review_safe_transaction(&ms1024, DomainVersion::V1_3Plus).render().len()
-    }));
+    out.push(measure(
+        "multisend_1024",
+        "Safe MultiSend batch of 1,024 calls, the most it will parse",
+        ms1024.data.len(),
+        || {
+            clearsign::review_safe_transaction(&ms1024, DomainVersion::V1_3Plus)
+                .render()
+                .len()
+        },
+    ));
 
     // Throughput over the real corpora.
-    let safe_records: Vec<(SafeTransaction, DomainVersion)> = corpus_files(&bench_dir().join("corpus/safe"))
-        .iter()
-        .flat_map(|f| read_jsonl(f))
-        .filter_map(|rec| {
-            let chain = rec["_chainId"].as_u64()?;
-            let v = rec["_safeVersion"].as_str()?;
-            let domain = if v.starts_with("1.1") || v.starts_with("1.2") {
-                DomainVersion::Legacy
-            } else if v.starts_with("1.0") {
-                return None;
-            } else {
-                DomainVersion::V1_3Plus
-            };
-            Some((clearsign_safe_json::parse(&rec.to_string(), Some(chain)).ok()?.tx, domain))
-        })
-        .collect();
+    let safe_records: Vec<(SafeTransaction, DomainVersion)> =
+        corpus_files(&bench_dir().join("corpus/safe"))
+            .iter()
+            .flat_map(|f| read_jsonl(f))
+            .filter_map(|rec| {
+                let chain = rec["_chainId"].as_u64()?;
+                let v = rec["_safeVersion"].as_str()?;
+                let domain = if v.starts_with("1.1") || v.starts_with("1.2") {
+                    DomainVersion::Legacy
+                } else if v.starts_with("1.0") {
+                    return None;
+                } else {
+                    DomainVersion::V1_3Plus
+                };
+                Some((
+                    clearsign_safe_json::parse(&rec.to_string(), Some(chain))
+                        .ok()?
+                        .tx,
+                    domain,
+                ))
+            })
+            .collect();
     let t = Instant::now();
     let mut chars = 0usize;
     for (tx, d) in &safe_records {
@@ -257,8 +358,12 @@ fn main() {
     }
     let safe_secs = t.elapsed().as_secs_f64();
     black_box(chars);
-    println!("\nreal Safe records: {} reviewed in {:.3} s = {:.0} reviews/s on one core",
-        safe_records.len(), safe_secs, safe_records.len() as f64 / safe_secs);
+    println!(
+        "\nreal Safe records: {} reviewed in {:.3} s = {:.0} reviews/s on one core",
+        safe_records.len(),
+        safe_secs,
+        safe_records.len() as f64 / safe_secs
+    );
 
     let payloads: Vec<Vec<u8>> = corpus_files(&bench_dir().join("corpus/evm"))
         .iter()
@@ -285,8 +390,12 @@ fn main() {
     }
     let evm_secs = t.elapsed().as_secs_f64();
     black_box(n);
-    println!("real transactions: {} reviewed in {:.3} s = {:.0} reviews/s on one core",
-        payloads.len(), evm_secs, payloads.len() as f64 / evm_secs);
+    println!(
+        "real transactions: {} reviewed in {:.3} s = {:.0} reviews/s on one core",
+        payloads.len(),
+        evm_secs,
+        payloads.len() as f64 / evm_secs
+    );
 
     let json = serde_json::json!({
         "scenarios": out,
@@ -304,5 +413,9 @@ fn main() {
     });
     let dir = bench_dir().join("results");
     std::fs::create_dir_all(&dir).unwrap();
-    std::fs::write(dir.join("perf.json"), serde_json::to_string_pretty(&json).unwrap() + "\n").unwrap();
+    std::fs::write(
+        dir.join("perf.json"),
+        serde_json::to_string_pretty(&json).unwrap() + "\n",
+    )
+    .unwrap();
 }

@@ -57,6 +57,43 @@ jobs:
       - name: Formatting
         working-directory: signing-core
         run: cargo fmt --all --check
+      - name: Generated support matrix is current
+        run: |
+          signing-core/scripts/support-matrix.sh
+          git diff --exit-code -- docs/10-what-is-supported.md
+
+  benchmark-evidence:
+    name: benchmark evidence replays exactly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Install the pinned toolchain
+        working-directory: signing-core
+        run: rustup show
+      - name: Formatting
+        working-directory: signing-core/bench
+        run: cargo fmt --all --check
+      - name: Lints
+        working-directory: signing-core/bench
+        run: cargo clippy --all-targets --locked -- -D warnings
+      - name: Replay the committed corpus offline
+        working-directory: signing-core/bench
+        run: |
+          cargo run --release --locked --bin verify-evm
+          cargo run --release --locked --bin verify-safe
+          cargo run --release --locked --bin detect
+          cargo run --release --locked --bin verify-permits
+          python3 landscape.py
+          python3 report.py
+      - name: Results and report are current
+        run: |
+          git diff --exit-code -- \
+            signing-core/bench/results/evm.json \
+            signing-core/bench/results/safe.json \
+            signing-core/bench/results/detect.json \
+            signing-core/bench/results/permits.json \
+            signing-core/bench/results/landscape.json \
+            docs/11-benchmarks.md
 
   window:
     name: the window still works

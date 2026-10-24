@@ -11,8 +11,8 @@ the others they should reach the documents from a file rather than by hand.
         --minutes 45 --cli-ms 3.8 --cli-runs 300 \
         [--fuzz-final tx_bytes=LOG ... --final-minutes 8]
 
-`--fuzz-final` records a second, shorter round on the code as finally
-committed, for when the long round ran before the last fixes.
+`--fuzz-final` records a second, shorter round after the decoder review and
+its follow-up fixes, for when the long round ran earlier in the work.
 
 The fuzz logs are libFuzzer's output from `cargo fuzz run TARGET -- -max_total_time=...`;
 the mutants directories are what `cargo mutants -o DIR` writes.
@@ -110,7 +110,7 @@ def main():
             lines.append(f"| `{name}` | {f['executions']:,} | {f['coverage_edges'] or '–'} | {f['failures']} |")
         lines.append("")
     if final:
-        lines.append(f"**Again on the final code**, after a review of the new decoders led to five more fixes, "
+        lines.append(f"**Again after the decoder review led to five more fixes**, "
                      f"{args.final_minutes} minutes per target:")
         lines.append("")
         lines.append("| Target | Executions | Coverage edges | Failures |")

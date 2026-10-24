@@ -32,11 +32,11 @@ python3 collect/attack_corpus.py
 python3 collect/permit_corpus.py
 
 # Check (offline, from corpus/)
-cargo run --release --bin verify-evm
-cargo run --release --bin verify-safe
-cargo run --release --bin detect
-cargo run --release --bin verify-permits
-cargo run --release --bin perf
+cargo run --release --locked --bin verify-evm
+cargo run --release --locked --bin verify-safe
+cargo run --release --locked --bin detect
+cargo run --release --locked --bin verify-permits
+cargo run --release --locked --bin perf
 
 # Classify and write docs/11
 python3 landscape.py
@@ -46,6 +46,12 @@ python3 report.py
 `verify-evm` and `verify-safe` exit non-zero on any disagreement: a digest that
 is not what the sender signed, a hash that differs from Safe's service or from
 alloy, or a signature that recovers to anyone but its owner.
+
+Pull-request CI replays the four deterministic checks from the committed corpus,
+regenerates the landscape and report, and fails if any committed result drifts.
+`perf` is deliberately excluded from that gate: its timings describe the named
+machine that produced `results/perf.json` and should be refreshed intentionally
+on a documented machine, not rewritten by whichever shared runner happens to run.
 
 ## What each check proves, and what it rests on
 

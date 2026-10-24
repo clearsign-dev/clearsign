@@ -11,12 +11,13 @@
   },
   "not_proven": {},
   "outcome": {
-    "critical": 227,
-    "warning": 31
+    "blind": 31,
+    "critical": 227
   },
   "findings": {
     "SIGNATURE_NEEDS_NO_TRANSACTION": 258,
     "TOKEN_APPROVAL": 31,
+    "TYPED_SCHEMA_NOT_BEHAVIOUR": 33,
     "UNLIMITED_APPROVAL": 227
   },
   "nonce_searched_max": 172,

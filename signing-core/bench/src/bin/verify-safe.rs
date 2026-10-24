@@ -19,7 +19,9 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use alloy_primitives::{Address as AAddress, B256, Bytes, Signature, U256 as AU256, eip191_hash_message};
+use alloy_primitives::{
+    Address as AAddress, B256, Bytes, Signature, U256 as AU256, eip191_hash_message,
+};
 use alloy_sol_types::{Eip712Domain, SolStruct, sol};
 use clearsign::{DomainVersion, Severity};
 use clearsign_bench::{Tally, bench_dir, corpus_files, pct, read_jsonl};
@@ -80,7 +82,10 @@ struct ChainReport {
 
 fn domain_for(version: &str) -> Option<DomainVersion> {
     // "1.3.0+L2" and friends: only the numeric part decides the domain.
-    let numeric: String = version.chars().take_while(|c| c.is_ascii_digit() || *c == '.').collect();
+    let numeric: String = version
+        .chars()
+        .take_while(|c| c.is_ascii_digit() || *c == '.')
+        .collect();
     let parts: Vec<u32> = numeric.split('.').filter_map(|p| p.parse().ok()).collect();
     match parts.as_slice() {
         [1, 0, ..] => None, // v1.0.0 hashes a different struct
@@ -199,8 +204,11 @@ fn main() {
         "corpus_collected": manifest["collected"],
         "chains": reports.values().collect::<Vec<_>>(),
     });
-    std::fs::write(out.join("safe.json"), serde_json::to_string_pretty(&json).unwrap() + "\n")
-        .expect("write results/safe.json");
+    std::fs::write(
+        out.join("safe.json"),
+        serde_json::to_string_pretty(&json).unwrap() + "\n",
+    )
+    .expect("write results/safe.json");
 
     let bad: u64 = reports
         .values()
@@ -212,7 +220,9 @@ fn main() {
         })
         .sum();
     if bad > 0 {
-        eprintln!("\nFAIL: {bad} disagreements. Each one is a correctness bug until shown otherwise.");
+        eprintln!(
+            "\nFAIL: {bad} disagreements. Each one is a correctness bug until shown otherwise."
+        );
         std::process::exit(1);
     }
 }
@@ -261,7 +271,10 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
             })
             .count()
     };
-    let (by_new, by_old) = (recovering(DomainVersion::V1_3Plus), recovering(DomainVersion::Legacy));
+    let (by_new, by_old) = (
+        recovering(DomainVersion::V1_3Plus),
+        recovering(DomainVersion::Legacy),
+    );
     let domain = if by_new > 0 && by_old == 0 {
         r.domain_from_signatures += 1;
         DomainVersion::V1_3Plus
@@ -274,8 +287,12 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
         // failing that to the current version.
         r.domain_from_service_hash += 1;
         match parsed.claimed_hash {
-            Some(c) if c == clearsign::safe_transaction_hash(&tx, DomainVersion::Legacy) => DomainVersion::Legacy,
-            Some(c) if c == clearsign::safe_transaction_hash(&tx, DomainVersion::V1_3Plus) => DomainVersion::V1_3Plus,
+            Some(c) if c == clearsign::safe_transaction_hash(&tx, DomainVersion::Legacy) => {
+                DomainVersion::Legacy
+            }
+            Some(c) if c == clearsign::safe_transaction_hash(&tx, DomainVersion::V1_3Plus) => {
+                DomainVersion::V1_3Plus
+            }
             _ => current,
         }
     };
@@ -304,26 +321,34 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
         r.hash_agree_alloy += 1;
     } else {
         r.hash_disagree_alloy += 1;
-        r.failures.push(format!("alloy hash disagrees: {safe} nonce {}", tx.nonce.to_decimal()));
+        r.failures.push(format!(
+            "alloy hash disagrees: {safe} nonce {}",
+            tx.nonce.to_decimal()
+        ));
     }
     // What a user gets without saying which version their Safe is.
     match clearsign_safe_json::review_json(&text, Some(chain_id), None) {
         Ok(rv) if rv.version == domain => r.auto_domain_agree += 1,
-        Ok(_) => r.failures.push(format!("auto-detected the wrong domain: {safe}")),
+        Ok(_) => r
+            .failures
+            .push(format!("auto-detected the wrong domain: {safe}")),
         Err(_) => r.auto_domain_refused += 1,
     }
 
     // 2. Signatures over our hash.
     for c in rec["confirmations"].as_array().into_iter().flatten() {
         let sig = hex_bytes(&c["signature"]);
-        let Some(owner) = c["owner"].as_str().and_then(addr) else { continue };
+        let Some(owner) = c["owner"].as_str().and_then(addr) else {
+            continue;
+        };
         match recover(&sig, ours_b) {
             Some(who) => {
                 r.confirmation_sigs_checked += 1;
                 if who == owner {
                     r.confirmation_sigs_recovered_to_owner += 1;
                 } else {
-                    r.failures.push(format!("confirmation by {owner} recovers to {who}: {safe}"));
+                    r.failures
+                        .push(format!("confirmation by {owner} recovers to {who}: {safe}"));
                 }
             }
             None => r.confirmation_sigs_other_type += 1,
@@ -335,7 +360,13 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
             .as_array()
             .into_iter()
             .flatten()
-            .chain(rec["confirmations"].as_array().into_iter().flatten().map(|c| &c["owner"]))
+            .chain(
+                rec["confirmations"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .map(|c| &c["owner"]),
+            )
             .filter_map(|o| o.as_str().and_then(addr))
             .collect();
         let blob = hex_bytes(&rec["signatures"]);
@@ -345,7 +376,9 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
                 if owners.contains(&who) {
                     r.onchain_sigs_recovered_to_owner += 1;
                 } else {
-                    r.failures.push(format!("executed signature recovers to non-owner {who}: {safe}"));
+                    r.failures.push(format!(
+                        "executed signature recovers to non-owner {who}: {safe}"
+                    ));
                 }
             }
         }
@@ -370,10 +403,13 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
         if f.severity == Severity::Critical && f.code != "SIGNATURE_NOT_CHAIN_BOUND" {
             transaction_critical = true;
         }
-        if f.code == "UNKNOWN_SELECTOR" {
-            if let Some(sel) = f.message.strip_prefix("Function ").and_then(|m| m.get(..10)) {
-                r.unknown_selectors.add(sel);
-            }
+        if f.code == "UNKNOWN_SELECTOR"
+            && let Some(sel) = f
+                .message
+                .strip_prefix("Function ")
+                .and_then(|m| m.get(..10))
+        {
+            r.unknown_selectors.add(sel);
         }
     }
     if transaction_critical {
@@ -395,19 +431,46 @@ fn check(r: &mut ChainReport, rec: &Value, chain_id: u64) {
 fn print_summary(reports: &BTreeMap<u64, ChainReport>) {
     println!(
         "{:<24} {:>6} {:>5} {:>8} {:>9} {:>9} {:>10} {:>7} {:>7} {:>7} {:>7}",
-        "chain", "recs", "safes", "hash ok", "alloy ok", "sigs ok", "on-chain", "clear", "warn", "blind", "crit"
+        "chain",
+        "recs",
+        "safes",
+        "hash ok",
+        "alloy ok",
+        "sigs ok",
+        "on-chain",
+        "clear",
+        "warn",
+        "blind",
+        "crit"
     );
     let mut t = ChainReport::default();
     for r in reports.values() {
         println!(
             "{:<24} {:>6} {:>5} {:>8} {:>9} {:>9} {:>10} {:>7} {:>7} {:>7} {:>7}",
-            format!("{} ({})", r.name, r.chain_id).chars().take(24).collect::<String>(),
+            format!("{} ({})", r.name, r.chain_id)
+                .chars()
+                .take(24)
+                .collect::<String>(),
             r.records,
             r.safes.len(),
-            format!("{}/{}", r.hash_agree_service, r.hash_agree_service + r.hash_disagree_service),
-            format!("{}/{}", r.hash_agree_alloy, r.hash_agree_alloy + r.hash_disagree_alloy),
-            format!("{}/{}", r.confirmation_sigs_recovered_to_owner, r.confirmation_sigs_checked),
-            format!("{}/{}", r.onchain_sigs_recovered_to_owner, r.onchain_sigs_checked),
+            format!(
+                "{}/{}",
+                r.hash_agree_service,
+                r.hash_agree_service + r.hash_disagree_service
+            ),
+            format!(
+                "{}/{}",
+                r.hash_agree_alloy,
+                r.hash_agree_alloy + r.hash_disagree_alloy
+            ),
+            format!(
+                "{}/{}",
+                r.confirmation_sigs_recovered_to_owner, r.confirmation_sigs_checked
+            ),
+            format!(
+                "{}/{}",
+                r.onchain_sigs_recovered_to_owner, r.onchain_sigs_checked
+            ),
             r.outcome.get("clear"),
             r.outcome.get("warning"),
             r.outcome.get("blind"),
@@ -443,26 +506,74 @@ fn print_summary(reports: &BTreeMap<u64, ChainReport>) {
         t.versions.merge(&r.versions);
     }
     let checked = t.hash_agree_service + t.hash_disagree_service;
-    println!("\n{} records, {} chains, {} Safes ({} with threshold of two or more)",
-        t.records, reports.len(), t.safes.len(), t.multisig_safes.len());
+    println!(
+        "\n{} records, {} chains, {} Safes ({} with threshold of two or more)",
+        t.records,
+        reports.len(),
+        t.safes.len(),
+        t.multisig_safes.len()
+    );
     println!("versions: {:?}", t.versions.sorted());
-    println!("unsupported version (v1.0.0 or unknown): {}", t.unsupported_version);
+    println!(
+        "unsupported version (v1.0.0 or unknown): {}",
+        t.unsupported_version
+    );
     println!("refused by the JSON reader: {:?}", t.parse_refused.sorted());
-    println!("hash = Safe service: {}/{} ({})", t.hash_agree_service, checked, pct(t.hash_agree_service, checked));
-    println!("hash = alloy:        {}/{}", t.hash_agree_alloy, t.hash_agree_alloy + t.hash_disagree_alloy);
-    println!("domain auto-detected correctly: {}  refused: {}", t.auto_domain_agree, t.auto_domain_refused);
-    println!("domain settled by the owners' signatures: {}; by the service hash: {}", t.domain_from_signatures, t.domain_from_service_hash);
-    println!("signed under an earlier domain than the Safe's current version (before an upgrade): {}", t.signed_before_upgrade);
-    println!("owner confirmations recovering to their owner over clearsign's hash: {}/{} (+{} contract/approved-hash)",
-        t.confirmation_sigs_recovered_to_owner, t.confirmation_sigs_checked, t.confirmation_sigs_other_type);
-    println!("signatures accepted on-chain recovering to an owner over clearsign's hash: {}/{} across {} executed",
-        t.onchain_sigs_recovered_to_owner, t.onchain_sigs_checked, t.executed);
+    println!(
+        "hash = Safe service: {}/{} ({})",
+        t.hash_agree_service,
+        checked,
+        pct(t.hash_agree_service, checked)
+    );
+    println!(
+        "hash = alloy:        {}/{}",
+        t.hash_agree_alloy,
+        t.hash_agree_alloy + t.hash_disagree_alloy
+    );
+    println!(
+        "domain auto-detected correctly: {}  refused: {}",
+        t.auto_domain_agree, t.auto_domain_refused
+    );
+    println!(
+        "domain settled by the owners' signatures: {}; by the service hash: {}",
+        t.domain_from_signatures, t.domain_from_service_hash
+    );
+    println!(
+        "signed under an earlier domain than the Safe's current version (before an upgrade): {}",
+        t.signed_before_upgrade
+    );
+    println!(
+        "owner confirmations recovering to their owner over clearsign's hash: {}/{} (+{} contract/approved-hash)",
+        t.confirmation_sigs_recovered_to_owner,
+        t.confirmation_sigs_checked,
+        t.confirmation_sigs_other_type
+    );
+    println!(
+        "signatures accepted on-chain recovering to an owner over clearsign's hash: {}/{} across {} executed",
+        t.onchain_sigs_recovered_to_owner, t.onchain_sigs_checked, t.executed
+    );
     println!("outcomes: {:?}", t.outcome.sorted());
-    println!("outcomes, threshold >= 2 only: {:?}", t.outcome_multisig_only.sorted());
-    println!("CRITICAL about the transaction itself (not the v1.1.x chain-binding property): {}", t.critical_excluding_standing);
-    println!("MultiSend batches decoded: {} ({} inner calls shown)", t.multisend_decoded, t.multisend_inner_calls);
+    println!(
+        "outcomes, threshold >= 2 only: {:?}",
+        t.outcome_multisig_only.sorted()
+    );
+    println!(
+        "CRITICAL about the transaction itself (not the v1.1.x chain-binding property): {}",
+        t.critical_excluding_standing
+    );
+    println!(
+        "MultiSend batches decoded: {} ({} inner calls shown)",
+        t.multisend_decoded, t.multisend_inner_calls
+    );
     println!("finding codes (once per review): {:?}", t.findings.sorted());
-    println!("top unknown selectors: {:?}", t.unknown_selectors.sorted().into_iter().take(25).collect::<Vec<_>>());
+    println!(
+        "top unknown selectors: {:?}",
+        t.unknown_selectors
+            .sorted()
+            .into_iter()
+            .take(25)
+            .collect::<Vec<_>>()
+    );
     for r in reports.values() {
         for f in r.failures.iter().take(5) {
             println!("FAILURE [{}]: {f}", r.name);

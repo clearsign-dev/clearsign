@@ -5,6 +5,8 @@ signing-core/bench/target/
 vm/images/
 vm/run/
 .DS_Store
+__pycache__/
+*.py[cod]
 
 # local Claude Code settings
 .claude/settings.local.json

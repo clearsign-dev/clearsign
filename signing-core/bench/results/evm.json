@@ -19,6 +19,7 @@
         "ACCESS_LIST": 8,
         "ACCOUNT_DELEGATION": 25,
         "BLOB_TRANSACTION": 11,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 8,
         "CONTRACT_CREATION": 2,
         "DELEGATION_CLEARED": 2,
         "EMPTY_CALL": 13,
@@ -39,8 +40,8 @@
       "name": "Ethereum",
       "native_transfers": 402,
       "outcome": {
-        "blind": 381,
-        "clear": 741,
+        "blind": 382,
+        "clear": 740,
         "critical": 48,
         "warning": 30
       },
@@ -272,6 +273,7 @@
       "findings": {
         "ACCOUNT_DELEGATION": 1,
         "APPROVAL_FOR_ALL": 2,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 2,
         "CONTRACT_CREATION": 1,
         "SELECTOR_IS_NOT_BEHAVIOUR": 11,
         "SMART_ACCOUNT_BATCH": 1,
@@ -442,6 +444,7 @@
         "ACCESS_LIST": 8,
         "ACCOUNT_DELEGATION": 15,
         "BLOB_TRANSACTION": 6,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 2,
         "EMPTY_CALL": 63,
         "MALFORMED_ARGUMENTS": 4,
         "REPLAYABLE_NO_CHAIN_ID": 5,
@@ -785,6 +788,7 @@
       "failures": [],
       "findings": {
         "ACCOUNT_DELEGATION": 16,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "EMPTY_CALL": 1,
         "MALFORMED_ARGUMENTS": 60,
         "SAFE_EXEC_SUBMISSION": 6,
@@ -919,6 +923,7 @@
         "ACCESS_LIST": 1,
         "ACCOUNT_DELEGATION": 22,
         "APPROVAL_FOR_ALL": 1,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 6,
         "DELEGATION_CLEARED": 1,
         "EMPTY_CALL": 24,
         "MALFORMED_ARGUMENTS": 7,
@@ -1092,6 +1097,7 @@
       "failures": [],
       "findings": {
         "ACCESS_LIST": 111,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "SELECTOR_IS_NOT_BEHAVIOUR": 1,
         "TOKEN_UNITS_RAW": 1,
         "UNKNOWN_SELECTOR": 405,
@@ -1346,6 +1352,7 @@
       "digest_equal": 20,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "SELECTOR_IS_NOT_BEHAVIOUR": 4,
         "TOKEN_APPROVAL": 1,
         "TOKEN_UNITS_RAW": 4,
@@ -1759,6 +1766,7 @@
       "findings": {
         "ACCESS_LIST": 5,
         "ACCOUNT_DELEGATION": 9,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 15,
         "CONTRACT_CREATION": 2,
         "EMPTY_CALL": 7,
         "MALFORMED_ARGUMENTS": 7,
@@ -2338,6 +2346,7 @@
       "digest_equal": 57,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "SELECTOR_IS_NOT_BEHAVIOUR": 8,
         "TOKEN_APPROVAL": 1,
         "TOKEN_UNITS_RAW": 7,
@@ -2643,6 +2652,7 @@
         "ACCOUNT_DELEGATION": 1,
         "APPROVAL_FOR_ALL": 1,
         "BLOB_TRANSACTION": 64,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "CONTRACT_CREATION": 4,
         "EMPTY_CALL": 38,
         "SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT": 2,

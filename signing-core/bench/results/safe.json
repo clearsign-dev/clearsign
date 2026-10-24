@@ -14,6 +14,7 @@
       "failures": [],
       "findings": {
         "CARRIED_CALLS_NOT_SHOWN": 92,
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 92,
         "COMPARE_SAFE_TX_HASH": 648,
         "EMPTY_CALL": 1,
         "SAFE_MULTISEND_BATCH": 228,
@@ -1443,6 +1444,7 @@
       "executed": 610,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 46,
         "COMPARE_SAFE_TX_HASH": 614,
         "EMPTY_CALL": 1,
         "SAFE_DELEGATECALL": 2,
@@ -1553,6 +1555,7 @@
       "executed": 235,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "COMPARE_SAFE_TX_HASH": 254,
         "EMPTY_CALL": 2,
         "OWNERSHIP_ACCEPT": 1,
@@ -1866,6 +1869,7 @@
       "executed": 406,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 2,
         "COMPARE_SAFE_TX_HASH": 429,
         "EMPTY_CALL": 10,
         "MULTISEND_CALLS_NOT_SHOWN": 1,
@@ -1974,6 +1978,7 @@
       "executed": 452,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 12,
         "COMPARE_SAFE_TX_HASH": 458,
         "EMPTY_CALL": 5,
         "MULTISEND_CALLS_NOT_SHOWN": 69,
@@ -2196,6 +2201,7 @@
       "executed": 304,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "COMPARE_SAFE_TX_HASH": 320,
         "EMPTY_CALL": 9,
         "MULTISEND_CALLS_NOT_SHOWN": 1,
@@ -2309,6 +2315,7 @@
       "executed": 568,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 2,
         "COMPARE_SAFE_TX_HASH": 572,
         "EMPTY_CALL": 11,
         "SAFE_DELEGATECALL": 1,
@@ -2420,6 +2427,7 @@
       "executed": 223,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 39,
         "COMPARE_SAFE_TX_HASH": 225,
         "EMPTY_CALL": 2,
         "PROXY_UPGRADE": 5,
@@ -2516,6 +2524,7 @@
       "executed": 461,
       "failures": [],
       "findings": {
+        "CARRIED_CALL_SEMANTICS_UNVERIFIED": 83,
         "COMPARE_SAFE_TX_HASH": 478,
         "EMPTY_CALL": 3,
         "SAFE_DELEGATECALL": 1,

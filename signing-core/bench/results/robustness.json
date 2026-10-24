@@ -160,7 +160,7 @@
   "| `calldata` | 22,779,961 | 1350 | 0 |",
   "| `safe_tx` | 16,823,943 | 924 | 0 |",
   "",
-  "**Again on the final code**, after a review of the new decoders led to five more fixes, 8 minutes per target:",
+  "**Again after the decoder review led to five more fixes**, 8 minutes per target:",
   "",
   "| Target | Executions | Coverage edges | Failures |",
   "|---|---:|---:|---:|",
