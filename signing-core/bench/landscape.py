@@ -30,6 +30,7 @@ import json
 import os
 from collections import defaultdict
 from datetime import datetime, timezone
+from decimal import Decimal
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HACKS_SNAPSHOT = "2026-10-05"
@@ -132,7 +133,10 @@ def main():
 
     def agg(sel):
         n = len(sel)
-        v = sum(x["usd"] for x in sel)
+        # Decimal accumulation keeps aggregate evidence byte-identical across
+        # Python builds; binary float summation differed by one ULP in CI.
+        exact = sum((Decimal(str(x["usd"])) for x in sel), Decimal(0))
+        v = int(exact) if exact == exact.to_integral_value() else float(exact)
         return {"incidents": n, "usd": v}
 
     total = agg(rows)
