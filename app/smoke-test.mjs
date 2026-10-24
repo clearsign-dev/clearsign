@@ -35,7 +35,7 @@ if (!existsSync(PAGE)) {
 const profile = mkdtempSync(path.join(tmpdir(), 'clearsign-smoke-'));
 const chrome = spawn(CHROME, [
   '--headless=new', '--remote-debugging-port=0',
-  '--disable-gpu', '--no-first-run', '--no-sandbox',
+  '--disable-gpu', '--disable-dev-shm-usage', '--no-first-run', '--no-sandbox',
   `--user-data-dir=${profile}`, 'about:blank',
 ], { stdio: ['ignore', 'ignore', 'pipe'] });
 let launchError;
@@ -52,7 +52,9 @@ const check = (name, ok, detail = '') => {
 
 try {
   let target;
-  for (let i = 0; i < 80; i++) {
+  // Shared CI runners can be busy while the Rust and reproducible-build jobs
+  // run in parallel. Give Chrome time to publish its ephemeral DevTools port.
+  for (let i = 0; i < 160; i++) {
     if (launchError) throw launchError;
     if (chrome.exitCode !== null || chrome.signalCode !== null) {
       throw new Error(`Chrome exited before its debugging endpoint was ready:\n${chromeLog}`);
