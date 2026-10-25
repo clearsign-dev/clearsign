@@ -137,7 +137,20 @@ jobs:
         run: |
           cp signing-core/EXPECTED-HASHES.txt /tmp/committed-hashes.txt
           SKIP_HOST_BUILD=1 ARTIFACTS=/tmp/repro signing-core/scripts/reproducible-cross-check.sh
-          diff -u /tmp/committed-hashes.txt signing-core/EXPECTED-HASHES.txt
+      - name: Require recorded hashes for a tag
+        run: |
+          set -euo pipefail
+          if diff -u /tmp/committed-hashes.txt signing-core/EXPECTED-HASHES.txt; then
+            echo "The canonical build reproduced the recorded binaries exactly."
+            exit 0
+          fi
+          if [ "${GITHUB_REF_TYPE:-branch}" = tag ]; then
+            echo "::error::signing-core/EXPECTED-HASHES.txt does not describe this release." >&2
+            echo "Regenerate and review the hashes before tagging." >&2
+            exit 1
+          fi
+          echo "::notice::Canonical builds agree; EXPECTED-HASHES.txt is stale for this branch candidate."
+          echo "A tag remains blocked until the separate release-hash update is reviewed."
       - name: Package the canonical binary
         run: |
           set -euo pipefail
