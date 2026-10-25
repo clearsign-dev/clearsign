@@ -26,9 +26,10 @@ keys into a development signer to demonstrate the workflow.
   candidate. A green compile is not an installed-app test.
 - Run source tests, desktop dependency backport checks, browser regressions,
   canonical rebuilds, native UI checks and the complete artifact-manifest job.
-- Test the downloaded macOS DMG and installed application. Native CI checks are
-  defined for Debian, AppImage, Windows NSIS and MSI. Record the successful run
-  for the candidate; the presence of a test is not evidence that it passed.
+- Test the downloaded macOS DMG and installed application. Native CI mounts,
+  copies and launches the DMG application and also checks Debian, AppImage,
+  Windows NSIS and MSI. Record the successful run for the candidate; the
+  presence of a test is not evidence that it passed.
   Linux checks use Ubuntu 22.04 with build dependencies installed, not every
   distribution or a clean end-user machine.
 - Check the displayed version, historical fixture hash, malformed-input refusal,
@@ -42,7 +43,10 @@ keys into a development signer to demonstrate the workflow.
 - Keep platform signing/notarization status explicit. Checksums detect changes
   relative to a trusted checksum; they do not establish publisher identity on
   their own. Unsigned builds are evaluation releases, not a finished custody
-  distribution strategy.
+  distribution strategy. Every tag requires an explicit release mode. Stable
+  releases use the credential-backed, fail-closed signing checks; the temporary
+  unsigned mode publishes only a visibly marked prerelease as described in
+  [release signing and verification](15-release-signing.md).
 - Retain a rollback procedure, supported-release policy and private vulnerability
   reporting route. Do not silently replace existing release assets.
 

@@ -43,7 +43,7 @@ def required_assets(version):
         "clearsign-x86_64-apple-darwin.tar.gz",
         "clearsign-x86_64-unknown-linux-musl.tar.gz",
         "clearsign-aarch64-unknown-linux-musl.tar.gz",
-        "clearsign.html", "BINARY-SHA256",
+        "clearsign.html", "BINARY-SHA256", "ClearSign.spdx.json",
         f"ClearSign_{version}_aarch64.dmg",
         f"ClearSign_{version}_x64_en-US.msi",
         f"ClearSign_{version}_x64-setup.exe",
@@ -58,6 +58,15 @@ def validate_assets(directory, version):
         path = directory / name
         if path.is_symlink() or not path.is_file() or path.stat().st_size == 0:
             raise ValueError(f"missing or empty release artifact: {name}")
+    try:
+        sbom = json.loads((directory / "ClearSign.spdx.json").read_text())
+    except (json.JSONDecodeError, UnicodeDecodeError) as error:
+        raise ValueError("ClearSign.spdx.json is not valid JSON") from error
+    if (sbom.get("spdxVersion") != "SPDX-2.3"
+            or sbom.get("SPDXID") != "SPDXRef-DOCUMENT"
+            or not isinstance(sbom.get("packages"), list)
+            or not sbom["packages"]):
+        raise ValueError("ClearSign.spdx.json is not a populated SPDX 2.3 document")
     # Per-archive sidecars are CI output, not published release assets.
     allowed = set(required) | {"SHA256SUMS", "BUILD-METADATA.json"} | {
         name + ".sha256" for name in required if name.endswith(".tar.gz")
@@ -68,14 +77,83 @@ def validate_assets(directory, version):
     return sorted(required)
 
 
-def manifest(directory, version, commit):
+TAG_RELEASE_MODES = {"signed", "unsigned-evaluation"}
+
+
+def normalized_release_mode(ref_type, configured_mode=""):
+    if ref_type not in {"branch", "tag"}:
+        raise ValueError("release reference type must be branch or tag")
+    if ref_type == "branch":
+        return "branch-candidate"
+    mode = configured_mode.strip()
+    if mode not in TAG_RELEASE_MODES:
+        choices = ", ".join(sorted(TAG_RELEASE_MODES))
+        raise ValueError(
+            f"tag release mode must be explicitly set to one of: {choices}"
+        )
+    return mode
+
+
+def distribution_security(ref_type, release_mode="", apple_team_id="",
+                          windows_thumbprint=""):
+    mode = normalized_release_mode(ref_type, release_mode)
+    signed_release = mode == "signed"
+    apple_team_id = apple_team_id.strip()
+    windows_thumbprint = re.sub(r"\s", "", windows_thumbprint).upper()
+    if signed_release:
+        if not re.fullmatch(r"[A-Z0-9]{10}", apple_team_id):
+            raise ValueError("tag metadata requires a 10-character Apple Team ID")
+        if not re.fullmatch(r"[0-9A-F]{40}", windows_thumbprint):
+            raise ValueError("tag metadata requires a Windows certificate thumbprint")
+    return {
+        "macOS": {
+            "codeSigned": signed_release,
+            "notarized": signed_release,
+            "teamId": apple_team_id if signed_release else None,
+        },
+        "Windows": {
+            "codeSigned": signed_release,
+            "signature": "Authenticode" if signed_release else None,
+            "certificateSha1": windows_thumbprint if signed_release else None,
+        },
+        "Linux": {
+            "codeSigned": False,
+            "verification": (
+                "SHA-256 and GitHub artifact attestation"
+                if ref_type == "tag" else "SHA-256"
+            ),
+        },
+    }
+
+
+def release_policy(ref_type, configured_mode="", apple_team_id="",
+                   windows_thumbprint=""):
+    mode = normalized_release_mode(ref_type, configured_mode)
+    security = distribution_security(
+        ref_type, configured_mode, apple_team_id, windows_thumbprint
+    )
+    return {
+        "releaseMode": mode,
+        "appleTeamId": security["macOS"]["teamId"] or "",
+        "windowsCertificateThumbprint": (
+            security["Windows"]["certificateSha1"] or ""
+        ),
+    }
+
+
+def manifest(directory, version, commit, ref_type="branch", release_mode="",
+             apple_team_id="", windows_thumbprint=""):
     assets = validate_assets(directory, version)
     metadata = directory / "BUILD-METADATA.json"
     metadata.write_text(json.dumps({
         "version": version, "commit": commit,
         "artifacts": assets,
         "reproducibleTarget": "aarch64-unknown-linux-musl",
-        "codeSigned": False,
+        "referenceType": ref_type,
+        "releaseMode": normalized_release_mode(ref_type, release_mode),
+        "distributionSecurity": distribution_security(
+            ref_type, release_mode, apple_team_id, windows_thumbprint
+        ),
     }, indent=2) + "\n")
     lines = []
     for name in sorted([*assets, metadata.name]):
@@ -86,7 +164,8 @@ def manifest(directory, version, commit):
     (directory / "SHA256SUMS").write_text("".join(lines))
 
 
-def verify(directory, version, commit):
+def verify(directory, version, commit, ref_type="branch", release_mode="",
+           apple_team_id="", windows_thumbprint=""):
     """Check the candidate's existing manifest without rewriting its evidence."""
     assets = validate_assets(directory, version)
     expected_names = set(assets) | {"BUILD-METADATA.json"}
@@ -108,13 +187,25 @@ def verify(directory, version, commit):
             raise ValueError(f"checksum mismatch: {name}")
     metadata = json.loads((directory / "BUILD-METADATA.json").read_text())
     if (metadata.get("version") != version or metadata.get("commit") != commit
-            or metadata.get("artifacts") != assets):
+            or metadata.get("artifacts") != assets
+            or metadata.get("reproducibleTarget") != "aarch64-unknown-linux-musl"
+            or metadata.get("referenceType") != ref_type
+            or metadata.get("releaseMode") != normalized_release_mode(
+                ref_type, release_mode
+            )
+            or metadata.get("distributionSecurity") != distribution_security(
+                ref_type, release_mode, apple_team_id, windows_thumbprint
+            )):
         raise ValueError("candidate metadata does not match the release")
 
 
 if __name__ == "__main__":
     if sys.argv[1] == "check-version":
         check_version(Path(__file__).resolve().parent.parent, *sys.argv[2:])
+    elif sys.argv[1] == "check-mode":
+        print(normalized_release_mode(*sys.argv[2:]))
+    elif sys.argv[1] == "release-policy":
+        print(json.dumps(release_policy(*sys.argv[2:])))
     elif sys.argv[1] == "manifest":
         manifest(Path(sys.argv[2]), *sys.argv[3:])
     elif sys.argv[1] == "verify":

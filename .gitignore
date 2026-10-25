@@ -39,6 +39,7 @@ desktop/src-tauri/target/
 desktop/src/index.html
 desktop/node_modules/
 desktop/src-tauri/gen/
+desktop/src-tauri/tauri.windows-signing.generated.json
 desktop/vendor/*/target/
 desktop-smoke.png
 desktop-webdriver.log

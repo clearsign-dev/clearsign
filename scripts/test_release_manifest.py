@@ -4,14 +4,31 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from release_manifest import check_version, manifest, required_assets, verify
+from release_manifest import (
+    check_version,
+    distribution_security,
+    manifest,
+    normalized_release_mode,
+    release_policy,
+    required_assets,
+    verify,
+)
 
 
 class ReleaseTests(unittest.TestCase):
-    def make_candidate(self, root):
+    def write_assets(self, root):
         names = required_assets("0.1.2")
         for name in names:
             (root / name).write_bytes(name.encode())
+        (root / "ClearSign.spdx.json").write_text(json.dumps({
+            "spdxVersion": "SPDX-2.3",
+            "SPDXID": "SPDXRef-DOCUMENT",
+            "packages": [{"name": "clearsign"}],
+        }))
+        return names
+
+    def make_candidate(self, root):
+        names = self.write_assets(root)
         manifest(root, "0.1.2", "a" * 40)
         return names
 
@@ -56,6 +73,90 @@ class ReleaseTests(unittest.TestCase):
             self.make_candidate(root)
             with self.assertRaisesRegex(ValueError, "metadata"):
                 verify(root, "0.1.2", "b" * 40)
+
+    def test_tag_metadata_requires_signed_macos_and_windows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_assets(root)
+            manifest(root, "0.1.2", "a" * 40, "tag", "signed", "ABCDE12345", "b" * 40)
+            metadata = json.loads((root / "BUILD-METADATA.json").read_text())
+            self.assertTrue(metadata["distributionSecurity"]["macOS"]["codeSigned"])
+            self.assertTrue(metadata["distributionSecurity"]["macOS"]["notarized"])
+            self.assertEqual(metadata["distributionSecurity"]["macOS"]["teamId"], "ABCDE12345")
+            self.assertTrue(metadata["distributionSecurity"]["Windows"]["codeSigned"])
+            self.assertEqual(metadata["distributionSecurity"]["Windows"]["certificateSha1"], "B" * 40)
+            self.assertFalse(metadata["distributionSecurity"]["Linux"]["codeSigned"])
+            self.assertEqual(metadata["releaseMode"], "signed")
+            verify(root, "0.1.2", "a" * 40, "tag", "signed", "ABCDE12345", "b" * 40)
+            with self.assertRaisesRegex(ValueError, "metadata"):
+                verify(root, "0.1.2", "a" * 40, "branch")
+
+    def test_unknown_reference_type_is_refused(self):
+        with self.assertRaisesRegex(ValueError, "reference type"):
+            distribution_security("pull_request")
+
+    def test_tag_release_mode_must_be_explicit_and_known(self):
+        for mode in ["", "SIGNED", "evaluation", "unsigned"]:
+            with self.subTest(mode=mode):
+                with self.assertRaisesRegex(ValueError, "explicitly set"):
+                    normalized_release_mode("tag", mode)
+
+    def test_release_policy_normalizes_and_freezes_public_values(self):
+        policy = release_policy(
+            "tag", "signed", "ABCDE12345", "aa bb cc dd ee ff 00 11 22 33 44 55 66 77 88 99 aa bb cc dd"
+        )
+        self.assertEqual(policy, {
+            "releaseMode": "signed",
+            "appleTeamId": "ABCDE12345",
+            "windowsCertificateThumbprint": "AABBCCDDEEFF00112233445566778899AABBCCDD",
+        })
+        evaluation = release_policy(
+            "tag", "unsigned-evaluation", "ignored", "also ignored"
+        )
+        self.assertEqual(evaluation["releaseMode"], "unsigned-evaluation")
+        self.assertEqual(evaluation["appleTeamId"], "")
+        self.assertEqual(evaluation["windowsCertificateThumbprint"], "")
+
+    def test_unsigned_evaluation_tag_records_no_platform_signing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_assets(root)
+            manifest(root, "0.1.2", "a" * 40, "tag", "unsigned-evaluation")
+            metadata = json.loads((root / "BUILD-METADATA.json").read_text())
+            self.assertEqual(metadata["releaseMode"], "unsigned-evaluation")
+            self.assertFalse(metadata["distributionSecurity"]["macOS"]["codeSigned"])
+            self.assertFalse(metadata["distributionSecurity"]["macOS"]["notarized"])
+            self.assertIsNone(metadata["distributionSecurity"]["macOS"]["teamId"])
+            self.assertFalse(metadata["distributionSecurity"]["Windows"]["codeSigned"])
+            self.assertIsNone(metadata["distributionSecurity"]["Windows"]["certificateSha1"])
+            self.assertEqual(
+                metadata["distributionSecurity"]["Linux"]["verification"],
+                "SHA-256 and GitHub artifact attestation",
+            )
+            verify(root, "0.1.2", "a" * 40, "tag", "unsigned-evaluation")
+
+    def test_branch_candidates_are_unsigned_regardless_of_tag_mode_variable(self):
+        self.assertEqual(normalized_release_mode("branch", "signed"), "branch-candidate")
+        security = distribution_security("branch", "signed", "ABCDE12345", "b" * 40)
+        self.assertFalse(security["macOS"]["codeSigned"])
+        self.assertFalse(security["Windows"]["codeSigned"])
+
+    def test_tag_metadata_requires_expected_publisher_identities(self):
+        for team, thumbprint in [("", "a" * 40), ("short", "a" * 40),
+                                 ("ABCDE12345", ""), ("ABCDE12345", "g" * 40)]:
+            with self.subTest(team=team, thumbprint=thumbprint):
+                with self.assertRaisesRegex(ValueError, "Team ID|thumbprint"):
+                    distribution_security("tag", "signed", team, thumbprint)
+
+    def test_malformed_or_empty_sbom_is_refused(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_assets(root)
+            for content in ["not json", '{"spdxVersion":"SPDX-2.3","packages":[]}']:
+                with self.subTest(content=content):
+                    (root / "ClearSign.spdx.json").write_text(content)
+                    with self.assertRaisesRegex(ValueError, "SPDX|JSON"):
+                        manifest(root, "0.1.2", "a" * 40)
 
     def test_bad_checksum_entries_are_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
