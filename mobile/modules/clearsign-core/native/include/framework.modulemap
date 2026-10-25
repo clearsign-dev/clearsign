@@ -1,0 +1,5 @@
+framework module ClearSignNative {
+  umbrella header "clearsign_native.h"
+  export *
+  module * { export * }
+}

@@ -9,6 +9,16 @@ MANIFEST="$REPO_DIR/signing-core/Cargo.toml"
 MODULE_NATIVE="$MOBILE_DIR/modules/clearsign-core/native"
 MODULE_IOS_NATIVE="$MOBILE_DIR/modules/clearsign-core/ios/native"
 
+make_ios_framework() {
+  library=$1
+  destination=$2
+  mkdir -p "$destination/Headers" "$destination/Modules"
+  cp "$library" "$destination/ClearSignNative"
+  cp "$MODULE_NATIVE/include/clearsign_native.h" "$destination/Headers/"
+  cp "$MODULE_NATIVE/include/framework.modulemap" "$destination/Modules/module.modulemap"
+  cp "$MODULE_NATIVE/include/framework-info.plist" "$destination/Info.plist"
+}
+
 case "$PLATFORM" in
   ios)
     command -v xcodebuild >/dev/null || {
@@ -29,11 +39,15 @@ case "$PLATFORM" in
       "$REPO_DIR/signing-core/target/aarch64-apple-ios-sim/release/libclearsign_native.a" \
       "$REPO_DIR/signing-core/target/x86_64-apple-ios/release/libclearsign_native.a" \
       -output "$TMP/libclearsign_native-simulator.a"
+    make_ios_framework \
+      "$REPO_DIR/signing-core/target/aarch64-apple-ios/release/libclearsign_native.a" \
+      "$TMP/device/ClearSignNative.framework"
+    make_ios_framework \
+      "$TMP/libclearsign_native-simulator.a" \
+      "$TMP/simulator/ClearSignNative.framework"
     xcodebuild -create-xcframework \
-      -library "$REPO_DIR/signing-core/target/aarch64-apple-ios/release/libclearsign_native.a" \
-      -headers "$MODULE_NATIVE/include" \
-      -library "$TMP/libclearsign_native-simulator.a" \
-      -headers "$MODULE_NATIVE/include" \
+      -framework "$TMP/device/ClearSignNative.framework" \
+      -framework "$TMP/simulator/ClearSignNative.framework" \
       -output "$MODULE_IOS_NATIVE/ClearSignNative.xcframework"
     ;;
   android)
