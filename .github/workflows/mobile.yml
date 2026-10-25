@@ -1,0 +1,111 @@
+name: mobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - 'signing-core/crates/clearsign/**'
+      - 'signing-core/crates/clearsign-safe-json/**'
+      - 'signing-core/crates/clearsign-api/**'
+      - 'signing-core/crates/clearsign-native/**'
+      - 'signing-core/Cargo.toml'
+      - 'signing-core/Cargo.lock'
+      - '.github/workflows/mobile.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - 'signing-core/crates/clearsign/**'
+      - 'signing-core/crates/clearsign-safe-json/**'
+      - 'signing-core/crates/clearsign-api/**'
+      - 'signing-core/crates/clearsign-native/**'
+      - 'signing-core/Cargo.toml'
+      - 'signing-core/Cargo.lock'
+      - '.github/workflows/mobile.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  typescript:
+    name: mobile TypeScript and dependency health
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+        working-directory: mobile
+      - run: npm run typecheck
+        working-directory: mobile
+      - run: npm run doctor
+        working-directory: mobile
+      - run: npm run audit
+        working-directory: mobile
+
+  android:
+    name: Android release build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Use the runner NDK
+        run: |
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> "$GITHUB_ENV"
+      - name: Install build tools
+        run: |
+          rustup show
+          cargo install cargo-ndk --version 4.1.2 --locked
+          npm ci
+        working-directory: mobile
+      - name: Build the Rust engine
+        run: ./scripts/build-rust.sh android
+        working-directory: mobile
+      - name: Generate and build the Android application
+        run: |
+          npm exec --offline -- expo prebuild --clean --platform android --no-install
+          cd android
+          ./gradlew assembleRelease
+        working-directory: mobile
+
+  ios:
+    name: iOS simulator build
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Install JavaScript dependencies
+        run: npm ci
+        working-directory: mobile
+      - name: Build the Rust engine
+        run: |
+          rustup show
+          ./scripts/build-rust.sh ios
+        working-directory: mobile
+      - name: Generate and build the iOS application without signing
+        run: |
+          npm exec --offline -- expo prebuild --clean --platform ios --no-install
+          (cd ios && pod install)
+          xcodebuild \
+            -workspace ios/ClearSign.xcworkspace \
+            -scheme ClearSign \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO build
+        working-directory: mobile

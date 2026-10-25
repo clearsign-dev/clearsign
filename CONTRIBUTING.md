@@ -35,10 +35,11 @@ sent back however good it is otherwise.
   `dataDecoded` for decoding. A selector match is not proof of contract behaviour.
 - **Anything not fully understood is BLIND.** A guess that looks like an answer
   is the failure this project exists to prevent. Refusing is a feature.
-- **The v1 selector set is closed.** `multiSend(bytes)` is the last selector v1
-  learns. Adding one means removing something, in writing, in
-  [docs/02-v1-scope.md](docs/02-v1-scope.md). That rule is why this project has
-  shipped anything at all.
+- **The v1 decoder scope is frozen.** The original selector boundary was
+  reopened once after the attack benchmark showed that routine BLIND findings
+  hid important mechanisms. That dated exception and its payment are recorded
+  in [docs/02-v1-scope.md](docs/02-v1-scope.md). Further protocol-specific
+  readers still require a measured gap and an explicit scope tradeoff.
 - **A new finding needs a test that fails without it.** Several tests here were
   caught passing for the wrong reason, by planting the bug they claimed to catch
   and watching them stay green. If yours cannot fail, it is not a test.
@@ -76,7 +77,7 @@ their transactions.
 
 ## What is unlikely to be merged
 
-Protocol decoders outside the v1 set, token metadata, address books, anything
+Protocol decoders outside the frozen v1 set, token metadata, address books, anything
 that reaches the network from the signer, and anything that makes the tool
 quieter about a risk without removing the risk. The last one is the one people
 are most often surprised by: a warning that fires less often is not the same as

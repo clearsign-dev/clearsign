@@ -1,0 +1,12 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ClearSignCoreModule"]
+  },
+  "android": {
+    "modules": ["dev.clearsign.core.ClearSignCoreModule"]
+  },
+  "web": {
+    "modules": ["./src/ClearSignCoreModule.web"]
+  }
+}

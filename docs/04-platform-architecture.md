@@ -1,8 +1,8 @@
-# 04 — Platform architecture: an intelligent OS people can trust
+# 04 — Long-term platform research
 
-**Status:** DRAFT, 16 Sep 2026. Written after the project owner set the ambition at a top-tier, general-audience operating system that handles highly complex work by breaking it into simple steps. **[needs sign-off]**
+**Status:** RESEARCH, not the current product, clarified 25 Oct 2026. This is a possible longer-term architecture and has no committed delivery date. ClearSign today is an independent transaction verification engine plus reviewer applications. The seL4 system is an emulated signing-platform experiment, not a general-purpose operating system or supported hardware product.
 
-This document does not replace the version-1 signer scope in `02-v1-scope.md`. The signer ships first and becomes the security root of the platform described here.
+This document does not replace the version-1 signer scope in `02-v1-scope.md`, the release gates in `13-release-readiness.md`, or the public support matrix. Nothing below should be presented as a feature that users can download today.
 
 ---
 

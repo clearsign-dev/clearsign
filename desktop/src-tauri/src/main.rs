@@ -13,7 +13,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![forbid(unsafe_code)]
 
-use clearsign::{DomainVersion, Severity};
 use serde_json::{Value, json};
 
 /// Review a Safe transaction given as JSON.
@@ -21,64 +20,12 @@ use serde_json::{Value, json};
 /// `chain_id` of 0 means the file must say. `version` is 0 for "work it out
 /// from the hash", 1 for v1.1.x, 3 for v1.3.0 and later.
 #[tauri::command]
-fn review_transaction(json_text: String, chain_id: u64, version: u32) -> Value {
-    let version = match version {
-        1 => Some(DomainVersion::Legacy),
-        3 => Some(DomainVersion::V1_3Plus),
-        _ => None,
-    };
-    let chain_id = if chain_id == 0 { None } else { Some(chain_id) };
-
-    // The window already checks, but the command is the trust boundary: anything
-    // that can reach this can reach it without going through the page.
-    if json_text.len() > clearsign_safe_json::MAX_RECORD_BYTES {
-        return serde_json::json!({
-            "ok": false,
-            "severity": "refused",
-            "message": format!(
-                "this record is {} bytes; the limit is {}.",
-                json_text.len(),
-                clearsign_safe_json::MAX_RECORD_BYTES
-            ),
-        });
-    }
-    match clearsign_safe_json::review_json(&json_text, chain_id, version) {
-        Ok(r) => {
-            let severity = match r.review.highest_severity() {
-                Some(Severity::Critical) => "critical",
-                Some(Severity::Blind) => "blind",
-                Some(Severity::Warning) => "warning",
-                Some(Severity::Info) | None => "clear",
-            };
-            json!({
-                "ok": true,
-                "severity": severity,
-                "hash": clearsign::hex::encode_prefixed(&r.hash),
-                "hashConfirmed": r.hash_confirmed,
-                "domain": match r.version {
-                    DomainVersion::Legacy => "v1.1.x",
-                    DomainVersion::V1_3Plus => "v1.3.0 or later",
-                },
-                "domainSource": r.version_source,
-                "chainIdSource": r.chain_id_source,
-                "chainBound": !matches!(r.version, DomainVersion::Legacy),
-                "sections": r.review.sections.iter().map(|s| json!({
-                    "title": s.title,
-                    "fields": s.fields.iter().map(|(k, v)| json!([k, v])).collect::<Vec<_>>(),
-                })).collect::<Vec<_>>(),
-                "findings": r.review.findings().iter().map(|f| json!({
-                    "severity": f.severity.label(),
-                    "code": f.code,
-                    "message": f.message,
-                })).collect::<Vec<_>>(),
-                "mustAcknowledge": r.review.required_acknowledgements().into_iter()
-                    .map(|(n, code)| json!({ "number": n, "code": code }))
-                    .collect::<Vec<_>>(),
-                "text": r.review.render(),
-            })
-        }
-        Err(message) => json!({ "ok": false, "severity": "refused", "message": message }),
-    }
+fn review_transaction(
+    json_text: String,
+    chain_id: u64,
+    version: u32,
+) -> clearsign_api::ReviewResponse {
+    clearsign_api::review_safe_json(&json_text, chain_id, version)
 }
 
 /// What the About panel and the footer say, taken from the build rather than

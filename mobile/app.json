@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "ClearSign",
+    "slug": "clearsign",
+    "version": "0.1.4",
+    "scheme": "clearsign",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.clearsign.mobile"
+    },
+    "android": {
+      "package": "dev.clearsign.mobile",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

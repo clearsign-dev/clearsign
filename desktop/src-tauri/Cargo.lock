@@ -352,11 +352,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "clearsign-desktop"
+name = "clearsign-api"
 version = "0.1.4"
 dependencies = [
  "clearsign",
  "clearsign-safe-json",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "clearsign-desktop"
+version = "0.1.4"
+dependencies = [
+ "clearsign-api",
  "serde",
  "serde_json",
  "tauri",

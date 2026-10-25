@@ -7,6 +7,35 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## Unreleased
+
+### Added
+
+- A versioned structured review API now supplies the desktop and WebAssembly
+  clients from one implementation. A caller-owned native C boundary exposes the
+  same response to host applications without transferring Rust allocations.
+- An iOS and Android evaluation client imports or pastes Safe JSON and renders
+  the shared Rust verdict. It is source and CI coverage, not yet an app-store
+  release or a trusted display.
+
+### Changed
+
+- The macOS, Windows and Linux reviewer has a denser responsive layout and a
+  clearer local-review state. Mobile-sized screens move directly to the result
+  after review.
+- Product language now distinguishes the transaction verification engine from
+  the experimental seL4 signing platform and longer-term OS research.
+
+### Fixed
+
+- Mobile review completions are bound to the exact input generation that
+  started them, so an older hash and verdict cannot appear beside newer fields.
+- Structured findings now carry their canonical acknowledgement number in the
+  same display order used by the approval gate, including repeated codes.
+- Native and mobile boundaries enforce the one-megabyte record limit before
+  copying into another runtime. Mobile CI also pins its native build tools and
+  compares the complete reviewed npm advisory graph rather than package names.
+
 ## v0.1.4 — 2026-10-25
 
 This is the first publishable candidate containing all changes documented under
