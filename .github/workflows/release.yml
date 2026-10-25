@@ -22,7 +22,7 @@ permissions:
 jobs:
   validate:
     name: release validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       release_mode: ${{ steps.release_policy.outputs.release_mode }}
       apple_team_id: ${{ steps.release_policy.outputs.apple_team_id }}
@@ -86,7 +86,7 @@ jobs:
           # ever. Rust cross-compiles this target from arm64 without help, and
           # neither macOS build was ever reproducible, so nothing is lost.
           - { os: macos-latest,  target: x86_64-apple-darwin }
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-24.04, target: x86_64-unknown-linux-musl }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Add the target to the pinned toolchain
@@ -123,7 +123,7 @@ jobs:
     # a bare runner instead it is a different binary, and the instructions fail
     # for everyone who follows them.
     name: aarch64-unknown-linux-musl (canonical)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Allow the arm64 canonical image to run here
@@ -182,7 +182,7 @@ jobs:
   artifacts:
     needs: [validate, build, reproducible, desktop]
     name: validate complete release candidate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
@@ -227,7 +227,7 @@ jobs:
     environment: release
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
