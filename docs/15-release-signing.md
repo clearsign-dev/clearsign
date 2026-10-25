@@ -160,13 +160,12 @@ that the program is safe.
 
 Repository administration is part of this gate and cannot be encoded completely
 in a workflow file. The `release` environment exists and accepts only `v*` tags,
-and an active tag ruleset prevents those release tags from being updated or
-deleted. The environment cannot yet require a second reviewer or prevent
-self-review because the organization has only one member. Immutable releases
-also remain to be enabled. Until independent approval and that control are
-visibly active, a maintainer account with tag and release permission remains a
-single-person publication path even though the selected release mode itself
-fails closed.
+an active tag ruleset prevents those release tags from being updated or deleted,
+and immutable releases are enabled for future publications. The environment
+cannot yet require a second reviewer or prevent self-review because the
+organization has only one member. Until independent approval is configured, a
+maintainer account with tag and release permission remains a single-person
+publication path even though the selected release mode itself fails closed.
 
 ## Desktop dependency remediation
 
