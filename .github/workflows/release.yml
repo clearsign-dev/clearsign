@@ -53,9 +53,18 @@ jobs:
           python3 -m unittest discover -s scripts -p 'test_*.py'
           python3 scripts/release_manifest.py check-version "${GITHUB_REF_NAME}" "${GITHUB_REF_TYPE}"
           node --test app/backend-desktop.test.mjs
-      - name: Audit the desktop dependency lockfile
+      - name: Audit dependency lockfiles
         run: |
           cargo install cargo-audit --version 0.22.2 --locked
+          cargo tree --locked --manifest-path desktop/src-tauri/Cargo.toml --edges normal,build >/dev/null
+          # Alloy retains its disabled k256 backend in these lockfiles. Audit
+          # may ignore that optional package only while Cargo proves it is not
+          # reachable in the configured graphs.
+          test -z "$(cargo tree --locked --target all --manifest-path signing-core/Cargo.toml -i crypto-bigint@0.5.5 2>/dev/null)"
+          test -z "$(cargo tree --locked --target all --manifest-path signing-core/bench/Cargo.toml -i crypto-bigint@0.5.5 2>/dev/null)"
+          cargo audit --file signing-core/Cargo.lock --deny unsound --ignore RUSTSEC-2026-0387
+          cargo audit --file signing-core/bench/Cargo.lock --deny unsound --ignore RUSTSEC-2026-0387
+          cargo audit --file signing-core/fuzz/Cargo.lock --deny unsound
           cargo audit --file desktop/src-tauri/Cargo.lock --deny unsound
       - name: Verify and test the Linux desktop dependency backport
         run: |
