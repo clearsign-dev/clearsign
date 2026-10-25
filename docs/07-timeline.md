@@ -1,8 +1,9 @@
 # Timeline
 
-**Written 27 September 2026.** Dates are targets, not promises. Everything before
-the first paying user is under your control; everything after depends on other
-people, and the honest version of this document says which is which.
+**Written 27 September 2026; current-state table updated 25 October 2026.** Dates
+are targets, not promises. Everything before the first paying user is under your
+control; everything after depends on other people, and the honest version of
+this document says which is which.
 
 The numbers in the last column come from the failure study in `research/` and
 from what comparable projects actually took, not from optimism.
@@ -13,9 +14,9 @@ from what comparable projects actually took, not from optimism.
 
 | | |
 |---|---|
-| The reviewer | Works. 170 tests, seven fuzz targets, reproducible builds, one external audit with all ten findings fixed |
-| The command-line tool | Works. Reads Safe's own JSON, catches the Bybit transaction, agrees with Safe's service on its hash |
-| The desktop application | Builds and runs on macOS, Windows and Linux in CI. Published v0.1.2 is unsigned; future tags have signing gates but credentials are not provisioned |
+| The reviewer | Works. 306 tests, nine fuzz targets, reproducible builds, one external audit with all ten findings fixed |
+| The command-line tool | Works. Reads Safe's own JSON, catches the Bybit transaction, and agreed with Safe's service and alloy on 10,851 of 10,851 sampled Safe transaction hashes across 27 chains |
+| The desktop application | Builds, installs and runs on macOS, Windows and Linux in CI. Published v0.1.2 is unsigned; future tags have signing gates but credentials are not provisioned |
 | The compartment prototype | Runs on seL4 in an emulator: untrusted Linux, no shell, signer owns the console |
 | Users | **None.** This is the number that matters |
 

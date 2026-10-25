@@ -1,5 +1,9 @@
 # What was checked, 27 September 2026
 
+**Current test and fuzz-target counts updated 25 October 2026.** The narrative
+below records the 27 September pass; later evidence is listed in
+[03-verification-status.md](03-verification-status.md).
+
 A full pass over everything, run rather than assumed. This is the record of what
 was exercised and what it found, so the next person does not have to take the
 word "working" on trust.
@@ -8,9 +12,9 @@ word "working" on trust.
 
 | | |
 |---|---|
-| Rust workspace | 170 tests pass in release, clippy clean at `-D warnings`, `rustfmt` clean |
+| Rust workspace | 292 tests pass in release, clippy clean at `-D warnings`, `rustfmt` clean |
 | Bare metal | All four device crates build for `aarch64-unknown-none` and `thumbv7em-none-eabihf` |
-| Fuzzing | All seven parsers, ~35 million executions in this pass, no failures |
+| Fuzzing | Nine targets are now defined; the seven-target 27 September pass ran ~35 million executions with no failures |
 | Reproducible build | Two builds in the canonical environment agree; CI reproduces them on other hardware |
 | Command-line tool | Refuses the real Bybit transaction with exit 3; passes a clean transfer |
 | Application | Builds, installs, launches; the page parses; the WebAssembly reviewer agrees with the command line on the same transaction |
