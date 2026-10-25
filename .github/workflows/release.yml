@@ -137,6 +137,7 @@ jobs:
         run: |
           cp signing-core/EXPECTED-HASHES.txt /tmp/committed-hashes.txt
           SKIP_HOST_BUILD=1 ARTIFACTS=/tmp/repro signing-core/scripts/reproducible-cross-check.sh
+          cp signing-core/EXPECTED-HASHES.txt /tmp/candidate-hashes.txt
       - name: Require recorded hashes for a tag
         run: |
           set -euo pipefail
@@ -165,12 +166,12 @@ jobs:
           # The hash people actually compare against EXPECTED-HASHES.txt is the
           # binary's, not the archive's. Publish both and say which is which.
           ( cd "signing-core/dist/$name" && shasum -a 256 clearsign ) \
-            | sed 's|$| (binary, compare with signing-core/EXPECTED-HASHES.txt)|' \
+            | sed 's|$| (canonical binary hash)|' \
             > signing-core/dist/BINARY-SHA256
           cat signing-core/dist/BINARY-SHA256
           diff <(awk '{print $1}' signing-core/dist/BINARY-SHA256) \
-               <(awk '/  clearsign$/{print $1}' /tmp/committed-hashes.txt) \
-            || { echo "::error::the packaged binary is not the one EXPECTED-HASHES.txt describes" >&2; exit 1; }
+               <(awk '/  clearsign$/{print $1}' /tmp/candidate-hashes.txt) \
+            || { echo "::error::the packaged binary differs from the canonical build output" >&2; exit 1; }
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: aarch64-unknown-linux-musl
