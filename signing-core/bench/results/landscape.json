@@ -740,14 +740,10 @@
    "Uniswap V3 LP phishing",
    "WazirX"
   ],
-  "shown faithfully, not flagged": [
-   "Nexus Mutual founder"
-  ],
-  "warning": [
-   "POAP founder (listed as Rocket Pool)"
-  ],
   "flagged, not decoded (BLIND)": [
-   "JayPegs Automart (SushiSwap MISO)"
+   "JayPegs Automart (SushiSwap MISO)",
+   "Nexus Mutual founder",
+   "POAP founder (listed as Rocket Pool)"
   ],
   "not reviewable": [
    "KlaySwap (BGP hijack)"
@@ -755,9 +751,7 @@
  },
  "replay_outcomes_by_payload": {
   "flagged, mechanism named": 11,
-  "shown faithfully, not flagged": 1,
-  "warning": 1,
-  "flagged, not decoded (BLIND)": 2,
+  "flagged, not decoded (BLIND)": 4,
   "not reviewable": 1
  }
 }
