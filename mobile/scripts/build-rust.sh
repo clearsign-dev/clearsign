@@ -42,11 +42,13 @@ case "$PLATFORM" in
       exit 1
     }
     rm -rf "$MODULE_NATIVE/android"
-    cargo ndk \
-      --manifest-path "$MANIFEST" \
-      -t arm64-v8a -t armeabi-v7a -t x86_64 \
-      -o "$MODULE_NATIVE/android" \
-      build --locked --release -p clearsign-native
+    (
+      cd "$REPO_DIR/signing-core"
+      cargo ndk \
+        -t arm64-v8a -t armeabi-v7a -t x86_64 \
+        -o "$MODULE_NATIVE/android" \
+        build --locked --release -p clearsign-native
+    )
     ;;
   *)
     echo "usage: $0 ios|android" >&2
