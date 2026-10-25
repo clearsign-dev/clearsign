@@ -1,0 +1,4 @@
+module ClearSignNative {
+  header "clearsign_native.h"
+  export *
+}

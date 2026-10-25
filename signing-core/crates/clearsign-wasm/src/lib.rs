@@ -23,8 +23,6 @@
 
 use std::alloc::{Layout, alloc, dealloc};
 
-use clearsign::{DomainVersion, Severity};
-
 /// Reserve `len` bytes for the caller to write into.
 ///
 /// # Safety
@@ -77,84 +75,18 @@ pub unsafe extern "C" fn cs_review(
     }
     // SAFETY: the caller guarantees `ptr` is valid for `len` bytes.
     let bytes = unsafe { core::slice::from_raw_parts(ptr, len) };
-    let json = match core::str::from_utf8(bytes) {
-        Ok(s) => s,
-        Err(_) => return respond(&refusal("that file is not valid text")),
+    let response = match core::str::from_utf8(bytes) {
+        Ok(json) => clearsign_api::review_safe_json(json, chain_id, version),
+        Err(_) => clearsign_api::ReviewResponse::refusal("that file is not valid text"),
     };
-    let version = match version {
-        1 => Some(DomainVersion::Legacy),
-        3 => Some(DomainVersion::V1_3Plus),
-        _ => None,
-    };
-    let chain_id = if chain_id == 0 { None } else { Some(chain_id) };
-
-    let body = match clearsign_safe_json::review_json(json, chain_id, version) {
-        Ok(r) => {
-            let severity = match r.review.highest_severity() {
-                Some(Severity::Critical) => "critical",
-                Some(Severity::Blind) => "blind",
-                Some(Severity::Warning) => "warning",
-                Some(Severity::Info) | None => "clear",
-            };
-            let findings: Vec<serde_json::Value> = r
-                .review
-                .findings()
-                .iter()
-                .map(|f| {
-                    serde_json::json!({
-                        "severity": f.severity.label(),
-                        "code": f.code,
-                        "message": f.message,
-                    })
-                })
-                .collect();
-            let must_ack: Vec<serde_json::Value> = r
-                .review
-                .required_acknowledgements()
-                .into_iter()
-                .map(|(n, code)| serde_json::json!({ "number": n, "code": code }))
-                .collect();
-            let sections: Vec<serde_json::Value> = r
-                .review
-                .sections
-                .iter()
-                .map(|s| {
-                    serde_json::json!({
-                        "title": s.title,
-                        "fields": s.fields.iter().map(|(k, v)| serde_json::json!([k, v])).collect::<Vec<_>>(),
-                    })
-                })
-                .collect();
-            serde_json::json!({
-                "ok": true,
-                "severity": severity,
-                "hash": clearsign::hex::encode_prefixed(&r.hash),
-                "hashConfirmed": r.hash_confirmed,
-                "domain": match r.version {
-                    DomainVersion::Legacy => "v1.1.x",
-                    DomainVersion::V1_3Plus => "v1.3.0 or later",
-                },
-                "domainSource": r.version_source,
-                "chainIdSource": r.chain_id_source,
-                "chainBound": !matches!(r.version, DomainVersion::Legacy),
-                "sections": sections,
-                "findings": findings,
-                "mustAcknowledge": must_ack,
-                "text": r.review.render(),
-            })
-        }
-        Err(message) => refusal(&message),
+    let Ok(body) = serde_json::to_string(&response) else {
+        return core::ptr::null_mut();
     };
     respond(&body)
 }
 
-fn refusal(message: &str) -> serde_json::Value {
-    serde_json::json!({ "ok": false, "severity": "refused", "message": message })
-}
-
 /// Write a length-prefixed UTF-8 JSON reply into fresh memory for the caller.
-fn respond(value: &serde_json::Value) -> *mut u8 {
-    let text = value.to_string();
+fn respond(text: &str) -> *mut u8 {
     let body = text.as_bytes();
     let Ok(total) = u32::try_from(body.len()) else {
         return core::ptr::null_mut();

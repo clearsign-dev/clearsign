@@ -1,8 +1,8 @@
 # ClearSign
 
-ClearSign reviews Safe and supported EVM transactions locally. It decodes signed fields, recomputes transaction hashes and flags operations such as delegatecalls, Safe administration changes, contract ownership and upgrade changes, and unlimited approvals and permits.
+ClearSign is an independent transaction verification engine for high-value crypto signing. It reviews Safe and supported EVM transactions locally, recomputes the signing hash and flags operations such as delegatecalls, Safe administration changes, contract ownership and upgrade changes, and unlimited approvals and permits.
 
-[Website](https://clearsign-dev.github.io/clearsign.dev/) · [Downloads](https://github.com/clearsign-dev/clearsign/releases) · [Supported formats](docs/10-what-is-supported.md) · [Verification status](docs/03-verification-status.md) · [Benchmarks](docs/11-benchmarks.md)
+[Website](https://clearsign-dev.github.io/clearsign.dev/) · [Downloads](https://github.com/clearsign-dev/clearsign/releases) · [Supported formats](docs/10-what-is-supported.md) · [Embedding](docs/16-embedding.md) · [Verification status](docs/03-verification-status.md) · [Benchmarks](docs/11-benchmarks.md)
 
 ## Status
 
@@ -15,6 +15,8 @@ choosing a version.
 The desktop reviewer does not need keys and does not sign transactions. It is a second opinion, not a trusted display: a compromised computer can alter what you see. Compare the recomputed hash with the signing device and follow your existing approval procedure. A successful decode is not a safety assessment of the destination contract.
 
 The dedicated signer and seL4 platform are experimental and have been tested in emulation, not on production hardware. The v0.1.4 release is configured as an unsigned evaluation prerelease. A tag fails unless the repository explicitly selects either a signed stable release or an unsigned evaluation prerelease; signed mode requires macOS and Windows signing checks to pass. The [release-signing record](docs/15-release-signing.md) names the modes, credentials and platform guarantees. The [verification record](docs/03-verification-status.md) distinguishes the reported human review from later AI-assisted checks and records the outstanding review and hardware work.
+
+The repository also contains an iOS and Android client backed by the same Rust review API. It is source for an evaluation build, not a published App Store or Play Store release; clean native CI and device testing remain release gates.
 
 ## Try the Reviewer
 
@@ -30,6 +32,10 @@ cargo build --release --locked -p clearsign-cli
 This historical fixture contains the Bybit attack transaction. The reviewer reports `SAFE_DELEGATECALL` and exits with code `3`. It is a retrospective test, not a claim that ClearSign prevented the incident.
 
 For transaction review, exit `0` means no BLIND or CRITICAL finding was raised; warnings may still be present. Exit `2` reports BLIND content and exit `3` reports a CRITICAL finding. Malformed inputs are refused. See [Using it before you sign](docs/06-using-it-before-you-sign.md) for the workflow.
+
+Wallet, custody and native application integrations should start with the
+versioned interfaces in [Embedding ClearSign](docs/16-embedding.md). An API
+being available does not mean a wallet or hardware device has been tested.
 
 ## Scope
 
@@ -54,7 +60,7 @@ Unsupported formats and unknown calls are refused or marked BLIND — which is m
 
 ## Network Access
 
-The Rust decoder does not access the network. Pasted and dropped records are reviewed locally. The optional fetch-by-hash feature contacts Safe's transaction service; the returned fields are reviewed locally and its `dataDecoded` description is ignored. The experimental signer image is built without a network stack.
+The Rust decoder does not access the network. Pasted, dropped and imported records are reviewed locally. The optional desktop fetch-by-hash feature contacts Safe's transaction service; the returned fields are reviewed locally and its `dataDecoded` description is ignored. The mobile client has no fetch path. The experimental signer image is built without a network stack.
 
 ## Development and Reports
 

@@ -20,6 +20,9 @@ tidied afterwards. The numbering is the sequence, not a ranking.
 - **[15 — Release signing and verification](15-release-signing.md)** — the
   fail-closed macOS and Windows signing gates, Linux provenance, required
   accounts and credentials, and the release operator checklist.
+- **[16 — Embedding ClearSign](16-embedding.md)** — the shared Rust response
+  contract, WebAssembly and native boundaries, mobile clients and the work a
+  wallet or custody integration still has to do.
 
 ## If you approve transactions on a Safe
 
@@ -40,9 +43,9 @@ tidied afterwards. The numbering is the sequence, not a ranking.
   kernel code was written.
 - **[02 — Version 1 scope](02-v1-scope.md)** — what is in, what is deliberately
   out, and the rule that anything added must be paid for by something removed.
-- **[04 — Platform architecture](04-platform-architecture.md)** — the longer arc:
-  an operating system where intelligence proposes and a person approves exactly
-  what will happen.
+- **[04 — Long-term platform research](04-platform-architecture.md)** — an
+  explicitly non-product research direction for an operating system where
+  intelligence proposes and a person approves exact actions.
 - **[07 — Timeline](07-timeline.md)** — what happens next, when, and what it
   costs. Dates are targets, not promises.
 

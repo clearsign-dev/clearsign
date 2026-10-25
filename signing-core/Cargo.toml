@@ -5,6 +5,7 @@ members = [
     "crates/clearsign-keys",
     "crates/clearsign-cli",
     "crates/clearsign-safe-json",
+    "crates/clearsign-api",
     "crates/clearsign-wasm",
     "crates/clearsign-difftest",
     "crates/authority",
@@ -12,6 +13,7 @@ members = [
     "crates/clearsign-ffi",
     "crates/clearsign-qr",
     "crates/clearsign-device",
+    "crates/clearsign-native",
 ]
 
 [workspace.package]

@@ -8,7 +8,7 @@
 >
 > **Scope change accepted 17 Sep 2026:** item 2 now decodes Safe MultiSend batches, but only at addresses Safe publishes *and* only on the chains Safe publishes them for. Without this, every batch transaction was flagged CRITICAL, and a warning that always fires is ignored — which is blind signing with extra steps.
 >
-> This file's rule is that anything added must be paid for by something removed. The payment: **the decoder's selector set is now closed for v1.** No Permit2, no Uniswap, no bridges, no token metadata, no further batching contracts. `multiSend(bytes)` is the last selector v1 learns.
+> The original scope rule was that anything added had to be paid for by something removed. The selector set was initially closed after `multiSend(bytes)`; the dated decision below records why that boundary changed after measurement against real attacks.
 >
 > **Scope change accepted 9 Oct 2026: the selector set is reopened, and EIP-712 review is added.** The closed set was measured against real attacks ([11-benchmarks.md](11-benchmarks.md)) and found to report the transactions behind Radiant Capital (Oct 2024), the 2022 Uniswap V3 phishing, Badger DAO and the 2025 EIP-7702 drains as BLIND — the same answer it gives to more than half of ordinary multisig traffic. A refusal that cannot be told apart from routine is not a warning. Added: contract administration (ownership, roles, proxy upgrades and admins, DSAuth `setOwner`), token permissions beyond `approve` (`increaseAllowance`, `increaseApproval`, `setApprovalForAll`, Permit2 `approve`), calls that carry calls (`multicall`, timelock `schedule` and `execute`, smart-account `execute(bytes32,bytes)`), the EIP-2930, EIP-4844 and EIP-7702 transaction types, and EIP-712 typed-data *review* (not signing) for permits, Permit2 and Safe transactions, with every other structure shown and BLIND.
 >
@@ -58,6 +58,6 @@ The history study found that scope creep and stacked research risks killed Copla
 - Any network connectivity, updates over the air, or companion cloud service
 - Wallet-integrated approval flows and a general transaction-building interface
 - Our own kernel, our own cryptography, our own programming language
-- Phones, GrapheneOS integration, Qubes integration. These are vehicles for after v1.
+- GrapheneOS and Qubes integration. A separate iOS and Android reviewer client was started after the v1 decoder scope froze; it consumes the same API and does not expand the decoder or claim trusted-display isolation.
 - Hardware. Chosen only after the library and development vehicle work.
 - Further authority-engine development. The existing experiment is not a v1 release criterion.

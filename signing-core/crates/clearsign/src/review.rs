@@ -135,7 +135,7 @@ impl Review {
     /// showing unlimited approvals to two different spenders must be confirmed
     /// twice, not once.
     pub fn required_acknowledgements(&self) -> Vec<(u32, &'static str)> {
-        self.numbered()
+        self.numbered_findings()
             .into_iter()
             .filter(|(_, f)| f.severity >= Severity::Blind)
             .map(|(n, f)| (n, f.code))
@@ -154,7 +154,7 @@ impl Review {
     /// clamped at 65,535, so the 65,536th finding and every one after it shared
     /// an identifier — and two findings sharing an identifier means confirming
     /// one confirms the others.
-    fn numbered(&self) -> Vec<(u32, &Finding)> {
+    pub fn numbered_findings(&self) -> Vec<(u32, &Finding)> {
         let mut findings: Vec<&Finding> = self.findings.iter().collect();
         // Most serious first; stable within a severity.
         findings.sort_by_key(|f| core::cmp::Reverse(f.severity));
@@ -196,7 +196,7 @@ impl Review {
             }
         }
 
-        let numbered = self.numbered();
+        let numbered = self.numbered_findings();
         out.push_str("\n-- Findings --\n");
         if numbered.is_empty() {
             out.push_str("(none)\n");
