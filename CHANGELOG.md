@@ -13,6 +13,21 @@ Measured against real chains and real attacks before and after; the numbers
 below are from [docs/11-benchmarks.md](docs/11-benchmarks.md), which is
 generated from the measurements.
 
+### Release identity and provenance
+
+Future release tags now fail unless the macOS application and DMG are Developer
+ID signed, notarized and stapled and the Windows application, MSI and NSIS
+installer carry valid, timestamped Authenticode signatures. Branch candidates
+remain unsigned for reproducibility and installer testing. Release candidates
+also include an SPDX JSON SBOM and receive GitHub OIDC-backed build-provenance
+attestations; `BUILD-METADATA.json` records the distinct guarantees for macOS,
+Windows and Linux. The already-published v0.1.2 assets remain unsigned.
+
+The desktop lockfile also moves `plist` from 1.8.0 to 1.10.3,
+`quick-xml` from 0.38.4 to 0.42.0 and `tokio` from 1.53.1 to 1.54.1, clearing
+RUSTSEC-2026-0194, RUSTSEC-2026-0195 and RUSTSEC-2026-0386. Pull requests and
+release candidates now reject RustSec vulnerabilities and unsoundness warnings.
+
 ### Added — the attacks it was reading as noise
 
 **Calls that take control of a contract are read, not refused.** A Safe that

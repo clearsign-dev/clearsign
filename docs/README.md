@@ -17,6 +17,9 @@ tidied afterwards. The numbering is the sequence, not a ranking.
   run produced about the reviewer itself.
 - **[08 — What was checked](08-what-was-checked.md)** — the last full
   verification pass: what was run, and what it found.
+- **[15 — Release signing and verification](15-release-signing.md)** — the
+  fail-closed macOS and Windows signing gates, Linux provenance, required
+  accounts and credentials, and the release operator checklist.
 
 ## If you approve transactions on a Safe
 

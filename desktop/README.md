@@ -34,11 +34,15 @@ review back; your hardware wallet still signs.
 
 ## Signing and notarisation
 
-The application is not code-signed yet, so macOS and Windows will warn that it
-comes from an unidentified developer — because it does. Certificates are a paid
-registration that has not been taken out, and pretending otherwise would be the
-wrong kind of polish. Until then the honest check is the hash of what you
-downloaded, not the badge on it.
+The published v0.1.2 application is not code-signed, so macOS and Windows warn
+that it comes from an unidentified developer. Until a signed release replaces
+it, the honest check is the hash of what you downloaded, not the badge on it.
+
+The release workflow is prepared for the next release: tags fail unless macOS
+is Developer ID signed, notarized and stapled and Windows is Authenticode signed
+and timestamped. Branch builds remain unsigned. Linux packages use checksums and
+GitHub build provenance. The required accounts, secrets, verification commands
+and recurring costs are in [the release-signing record](../docs/15-release-signing.md).
 
 When it is signed, the direct download stays: an app store build is re-signed and
 repackaged by the store, which breaks the one property that makes this

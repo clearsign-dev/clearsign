@@ -15,7 +15,7 @@ from what comparable projects actually took, not from optimism.
 |---|---|
 | The reviewer | Works. 170 tests, seven fuzz targets, reproducible builds, one external audit with all ten findings fixed |
 | The command-line tool | Works. Reads Safe's own JSON, catches the Bybit transaction, agrees with Safe's service on its hash |
-| The desktop application | Builds and runs on macOS; Windows and Linux build in CI. Unsigned |
+| The desktop application | Builds and runs on macOS, Windows and Linux in CI. Published v0.1.2 is unsigned; future tags have signing gates but credentials are not provisioned |
 | The compartment prototype | Runs on seL4 in an emulator: untrusted Linux, no shell, signer owns the console |
 | Users | **None.** This is the number that matters |
 
@@ -28,7 +28,7 @@ nothing. Everything here is inside your control.
 
 | Work | Who | Time |
 |---|---|---|
-| Code-sign and notarise the application for macOS and Windows | You (accounts), me (the pipeline) | 1 week, $99/yr Apple + ~$200–400/yr Windows cert |
+| Provision macOS and Windows signing accounts and exercise the implemented pipeline | You (accounts and identity validation), me (verification) | 1 week minimum; $99/yr Apple plus about $9.99/month for Microsoft Artifact Signing where eligible, or a CA certificate commonly costing $150–300/yr |
 | Website: what it is, the download, the runbook, the audit record | Me | 1 week |
 | Tag a release, publish installers with hashes | Me | 1 day |
 | Put it in front of one multisig team you already know | **You** | Days to weeks, and no amount of engineering substitutes |

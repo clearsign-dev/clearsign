@@ -28,6 +28,16 @@ permissions:
   contents: read
 
 jobs:
+  desktop-dependency-audit:
+    name: desktop dependency advisories
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Reject vulnerabilities and unsound dependencies
+        run: |
+          cargo install cargo-audit --version 0.22.2 --locked
+          cargo audit --file desktop/src-tauri/Cargo.lock --deny unsound
+
   glib-backport:
     name: Linux desktop dependency backport
     runs-on: ubuntu-latest
