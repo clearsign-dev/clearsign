@@ -1,4 +1,4 @@
-//! Keccak-256, the only cryptographic primitive the decoder needs.
+//! Keccak-256 hashing used by the decoder.
 
 use sha3::{Digest, Keccak256};
 

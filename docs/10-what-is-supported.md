@@ -26,7 +26,7 @@ apart here:
 | `0x01` EIP-2930 | Listed, tested, compared with `alloy` | Access-list transactions |
 | `0x02` EIP-1559 | Listed, tested, compared with `cast` and `alloy` | |
 | `0x03` EIP-4844 | Listed, tested, compared with `alloy` | Only the blob hashes are signed, and they are shown |
-| `0x04` EIP-7702 | Listed, tested, compared with `alloy` | Each authorization is CRITICAL: it hands an account to code |
+| `0x04` EIP-7702 | Listed, tested, compared with `alloy` | Recovers each authority; skipped tuples and unknown state checks are explicit; actionable delegations are CRITICAL |
 | Chain-specific types | **Refused** | OP Stack deposits and Arbitrum internal transactions are made by the system; Celo `0x7b` and zkSync `0x71` are signed by people and are not read |
 
 All five Ethereum types, checked live: on 9,998 real transactions from 31 chains, the digest was exactly what the sender signed in 9,998 ([11](11-benchmarks.md)).
@@ -89,5 +89,5 @@ transaction types. Any network connectivity from the signer.
 
 ## Evidence
 
-292 tests. See [03-verification-status.md](03-verification-status.md) for
+298 tests. See [03-verification-status.md](03-verification-status.md) for
 what each one establishes, and what it does not.

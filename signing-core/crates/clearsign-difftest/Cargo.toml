@@ -12,7 +12,7 @@ publish.workspace = true
 [dev-dependencies]
 clearsign = { path = "../clearsign", features = ["std"] }
 alloy-consensus = { version = "2", default-features = false, features = ["std"] }
-alloy-eips = { version = "2", default-features = false, features = ["std"] }
+alloy-eips = { version = "2", default-features = false, features = ["std", "k256"] }
 alloy-primitives = { version = "1", features = ["std"] }
 alloy-sol-types = { version = "1", features = ["std", "eip712-serde"] }
 alloy-dyn-abi = { version = "1", default-features = false, features = ["std", "eip712"] }

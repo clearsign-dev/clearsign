@@ -32,7 +32,7 @@ For transaction review, exit `0` means no BLIND or CRITICAL finding was raised; 
 
 ## Scope
 
-- EVM transaction formats: legacy, EIP-2930, EIP-1559, EIP-4844 and EIP-7702, with canonical RLP checks. Each EIP-7702 authorization is flagged, because it hands an account to code.
+- EVM transaction formats: legacy, EIP-2930, EIP-1559, EIP-4844 and EIP-7702, with canonical RLP checks. EIP-7702 authorities are recovered, skipped tuples and unknown state checks are explicit, and actionable delegations are flagged.
 - Safe transaction hashes for supported domain versions, including the inner call and operation type.
 - Token calls shaped like `transfer`, `transferFrom`, `approve`, `increaseAllowance`, `setApprovalForAll` and Permit2 `approve`. Matching a selector does not establish the target's identity or execution behaviour.
 - Contract administration: ownership transfers, role grants, proxy upgrades and admin changes, on any contract a Safe or an account calls.

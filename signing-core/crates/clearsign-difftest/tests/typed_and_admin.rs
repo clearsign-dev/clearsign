@@ -226,15 +226,32 @@ proptest! {
             prop_assert_eq!(a.y_parity, b.y_parity());
             prop_assert_eq!(a.r, cu(b.r()));
             prop_assert_eq!(a.s, cu(b.s()));
+            prop_assert_eq!(a.signature_hash(), b.inner().signature_hash().0);
+            match (a.recover_authority(), b.recover_authority()) {
+                (Ok(ours), Ok(reference)) => prop_assert_eq!(ours, reference.into_array()),
+                (Err(_), Err(_)) => {}
+                (ours, reference) => prop_assert!(false, "authority recovery differs: ours={ours:?}, alloy={reference:?}"),
+            }
         }
         prop_assert_eq!(parsed.signing_hash, tx.signature_hash().0);
 
         let r = clearsign::review_transaction_bytes(&bytes).unwrap();
         prop_assert_eq!(r.signing_target().unwrap().digest, tx.signature_hash().0);
-        // Every delegation to real code is CRITICAL; every one to zero clears.
-        let delegating = auths.iter().filter(|a| a.inner().address != Address::ZERO).count();
+        let candidates = auths.iter().filter(|a| {
+            (a.inner().chain_id.is_zero() || a.inner().chain_id == AU256::from(chain_id))
+                && a.inner().nonce != u64::MAX
+                && a.recover_authority().is_ok()
+        }).count();
+        let delegating = auths.iter().filter(|a| {
+            (a.inner().chain_id.is_zero() || a.inner().chain_id == AU256::from(chain_id))
+                && a.inner().nonce != u64::MAX
+                && a.inner().address != Address::ZERO
+                && a.recover_authority().is_ok()
+        }).count();
         let critical = r.findings().iter().filter(|f| f.code == "ACCOUNT_DELEGATION").count();
         prop_assert_eq!(critical, delegating);
+        let state_unknown = r.findings().iter().filter(|f| f.code == "AUTHORIZATION_STATE_UNKNOWN").count();
+        prop_assert_eq!(state_unknown, candidates);
         if delegating > 0 {
             prop_assert_eq!(r.highest_severity(), Some(Severity::Critical));
         }

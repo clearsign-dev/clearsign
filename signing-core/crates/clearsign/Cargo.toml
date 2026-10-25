@@ -12,8 +12,9 @@ default = []
 std = []
 
 [dependencies]
-# The ONLY dependency in the trusted core. RustCrypto, no_std, no default features.
+# RustCrypto, no_std, no default features.
 sha3 = { version = "0.10", default-features = false }
+k256 = { version = "0.13", default-features = false, features = ["ecdsa", "arithmetic"] }
 
 [lints.rust]
 unsafe_code = "forbid"
