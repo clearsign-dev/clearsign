@@ -10,7 +10,7 @@
 use alloc::string::String;
 
 use sha2::{Digest, Sha256};
-use zeroize::Zeroizing;
+use zeroize::{Zeroize, Zeroizing};
 
 use crate::KeyError;
 
@@ -64,8 +64,12 @@ impl DiceRolls {
 /// with any independent tool.
 pub fn mnemonic_from_dice(rolls: &DiceRolls) -> Result<Zeroizing<String>, KeyError> {
     rolls.require(MIN_DICE_ROLLS_ALONE)?;
-    let entropy = Zeroizing::new(Sha256::digest(rolls.digits.as_bytes()));
-    phrase_from_entropy(entropy.as_slice())
+    let mut digest = Sha256::digest(rolls.digits.as_bytes());
+    let mut bytes = [0u8; 32];
+    bytes.copy_from_slice(digest.as_ref());
+    digest.as_mut_slice().zeroize();
+    let entropy = Zeroizing::new(bytes);
+    phrase_from_entropy(entropy.as_ref())
 }
 
 /// A 24-word recovery phrase from hardware entropy mixed with dice rolls.
@@ -85,8 +89,12 @@ pub fn mnemonic_from_mixed_entropy(
         h.update(len.to_be_bytes());
         h.update(part);
     }
-    let entropy = Zeroizing::new(h.finalize());
-    phrase_from_entropy(entropy.as_slice())
+    let mut digest = h.finalize();
+    let mut bytes = [0u8; 32];
+    bytes.copy_from_slice(digest.as_ref());
+    digest.as_mut_slice().zeroize();
+    let entropy = Zeroizing::new(bytes);
+    phrase_from_entropy(entropy.as_ref())
 }
 
 /// Catches only gross failures such as a stuck or zeroed source. It cannot detect

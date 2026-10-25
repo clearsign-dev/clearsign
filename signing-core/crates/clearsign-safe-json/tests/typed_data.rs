@@ -171,6 +171,45 @@ fn a_safe_transaction_as_typed_data_is_for_display_and_shows_its_domain() {
 }
 
 #[test]
+fn the_rpc_requested_signer_is_preserved_and_displayed_as_unsigned_metadata() {
+    let signer = "0x1111111111111111111111111111111111111111";
+    let wrapped = json!([signer, mail().to_string()]);
+    let parsed = parse(&wrapped.to_string()).unwrap();
+    assert_eq!(parsed.requested_signer, Some([0x11; 20]));
+
+    let (first_review, _) = review(&wrapped.to_string()).unwrap();
+    assert!(
+        first_review
+            .sections
+            .iter()
+            .any(|section| section.fields.iter().any(|(label, value)| label
+                == "Requested signing account (RPC metadata, not signed)"
+                && value.contains("0x1111 1111 1111 1111 1111 1111 1111 1111 1111 1111")))
+    );
+
+    let other = json!([
+        "0x2222222222222222222222222222222222222222",
+        mail().to_string()
+    ]);
+    assert_ne!(
+        review(&wrapped.to_string()).unwrap().0.render(),
+        review(&other.to_string()).unwrap().0.render()
+    );
+}
+
+#[test]
+fn a_malformed_rpc_requested_signer_is_refused() {
+    for signer in [
+        "0x12",
+        "0x0x1111111111111111111111111111111111111111",
+        "not-hex",
+    ] {
+        let wrapped = json!([signer, mail()]);
+        assert!(parse(&wrapped.to_string()).is_err(), "accepted {signer}");
+    }
+}
+
+#[test]
 fn a_safe_transaction_with_a_domain_no_safe_uses_is_refused() {
     let mut m = mail();
     m["primaryType"] = json!("SafeTx");

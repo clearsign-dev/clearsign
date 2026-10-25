@@ -84,6 +84,9 @@ pub struct Field {
 /// An `eth_signTypedData_v4` request.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypedData {
+    /// Account requested by the RPC caller. This is request metadata, not part
+    /// of the EIP-712 hash, so it is displayed but never treated as signed.
+    pub requested_signer: Option<Address>,
     pub types: Vec<(String, Vec<Field>)>,
     pub primary_type: String,
     pub domain: Value,
@@ -673,6 +676,13 @@ fn review_with(
 ) -> Result<Review, TypedDataError> {
     // The domain: who checks the signature, and on which chain.
     let mut d = Section::new("Signing domain");
+    d.field(
+        "Requested signing account (RPC metadata, not signed)",
+        td.requested_signer
+            .as_ref()
+            .map(address::display)
+            .unwrap_or_else(|| String::from("not supplied")),
+    );
     let domain_fields = types.fields("EIP712Domain")?;
     let mut verifying: Option<Address> = None;
     let mut chain_bound = false;

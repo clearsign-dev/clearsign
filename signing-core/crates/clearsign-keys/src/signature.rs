@@ -73,9 +73,7 @@ impl Signature {
 
 pub(crate) fn sign(key: &SigningKey, approval: &Approval<'_>) -> Result<Signature, KeyError> {
     // RFC 6979 deterministic nonce; k256 returns a low-S signature and the matching recovery ID.
-    let (sig, rec) = key
-        .sign_prehash_recoverable(&approval.digest)
-        .map_err(|_| KeyError::Signing)?;
+    let (sig, rec) = key.sign_prehash_recoverable(&approval.digest);
 
     // Self-check: recover the public key from the signature and compare. A fault,
     // a miscompilation or a library bug must not release a bad or leaking signature.
@@ -84,7 +82,7 @@ pub(crate) fn sign(key: &SigningKey, approval: &Approval<'_>) -> Result<Signatur
     if recovered != *key.verifying_key() {
         return Err(KeyError::SignatureSelfCheckFailed);
     }
-    if sig.normalize_s().is_some() {
+    if sig.normalize_s() != sig {
         // A high-S signature is malleable; refuse rather than release it.
         return Err(KeyError::SignatureSelfCheckFailed);
     }

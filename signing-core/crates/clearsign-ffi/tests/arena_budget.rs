@@ -120,7 +120,7 @@ fn a_maximal_batch_fits_in_the_arena() {
         calldata.push(0);
     }
 
-    let mut frame = vec![2u8];
+    let mut frame = vec![4u8, 2u8]; // Safe frame, v1.3+ domain
     frame.extend_from_slice(&{
         let mut c = [0u8; 32];
         c[31] = 1;
@@ -145,6 +145,10 @@ fn a_maximal_batch_fits_in_the_arena() {
     println!(
         "maximal MultiSend batch ({} byte request): {used} bytes allocated, reviewed={reviewed}",
         frame.len()
+    );
+    assert!(
+        reviewed,
+        "the arena test must exercise the full Safe review path"
     );
     assert!(
         used < BUDGET,
@@ -205,7 +209,7 @@ fn hex_addr(s: &str) -> [u8; 20] {
 
 /// A Safe transaction frame, as the seL4 signer receives one, calling `to`.
 fn safe_frame(to: [u8; 20], operation: u8, calldata: &[u8]) -> Vec<u8> {
-    let mut frame = vec![2u8];
+    let mut frame = vec![4u8, 2u8];
     frame.extend_from_slice(&{
         let mut c = [0u8; 32];
         c[31] = 1;

@@ -9,8 +9,9 @@
 //! | byte 0 | rest |
 //! |---|---|
 //! | `1` | unsigned EVM transaction bytes |
-//! | `2` | Safe transaction: chain_id(32) safe(20) to(20) value(32) operation(1) safe_tx_gas(32) base_gas(32) gas_price(32) gas_token(20) refund_receiver(20) nonce(32) data_len(4, big-endian) data |
+//! | `2` | Refused legacy Safe frame: it did not carry the domain version |
 //! | `3` | An action plan proposed by a planner, in the `authority` wire format |
+//! | `4` | Safe transaction: domain(1; `1` legacy, `2` v1.3+) chain_id(32) safe(20) to(20) value(32) operation(1) safe_tx_gas(32) base_gas(32) gas_price(32) gas_token(20) refund_receiver(20) nonce(32) data_len(4, big-endian) data |
 //!
 //! Kind `3` is the case that matters most for the rest of the system: the plan
 //! is written by an untrusted planner running in another compartment, and this
@@ -41,9 +42,18 @@ pub fn review_request(request: &[u8]) -> Option<(alloc::string::String, u8)> {
     let (&kind, body) = request.split_first()?;
     let review = match kind {
         1 => clearsign::review_transaction_bytes(body).ok()?,
-        2 => {
-            let tx = parse_safe(body)?;
-            clearsign::review_safe_transaction(&tx, DomainVersion::V1_3Plus)
+        // Kind 2 used to assume V1_3Plus without carrying that fact. Refuse it
+        // so an old sender cannot silently receive the wrong signing hash.
+        2 => return None,
+        4 => {
+            let (&domain, frame) = body.split_first()?;
+            let domain = match domain {
+                1 => DomainVersion::Legacy,
+                2 => DomainVersion::V1_3Plus,
+                _ => return None,
+            };
+            let tx = parse_safe(frame)?;
+            clearsign::review_safe_transaction(&tx, domain)
         }
         3 => return review_plan_request(body),
         _ => return None,
@@ -282,8 +292,14 @@ mod arena {
 mod tests {
     use super::*;
 
-    pub fn safe_frame(operation: u8, data: &[u8]) -> Vec<u8> {
-        let mut f = vec![2u8];
+    pub fn safe_frame(domain: DomainVersion, operation: u8, data: &[u8]) -> Vec<u8> {
+        let mut f = vec![
+            4u8,
+            match domain {
+                DomainVersion::Legacy => 1,
+                DomainVersion::V1_3Plus => 2,
+            },
+        ];
         f.extend_from_slice(&U256::from_u64(1).0);
         f.extend_from_slice(&[0x11; 20]);
         f.extend_from_slice(&[0x22; 20]);
@@ -300,12 +316,28 @@ mod tests {
     #[test]
     #[allow(clippy::unwrap_used, clippy::arithmetic_side_effects)]
     fn frames_decode_and_render() {
-        let (text, sev) = review_request(&safe_frame(1, &[0xa9, 0x05, 0x9c, 0xbb])).unwrap();
+        let (text, sev) = review_request(&safe_frame(
+            DomainVersion::V1_3Plus,
+            1,
+            &[0xa9, 0x05, 0x9c, 0xbb],
+        ))
+        .unwrap();
         assert_eq!(sev, SEV_CRITICAL);
         assert!(text.contains("SAFE_DELEGATECALL"));
-        let mut trailing = safe_frame(0, &[]);
+        let (legacy, _) = review_request(&safe_frame(DomainVersion::Legacy, 0, &[])).unwrap();
+        let (modern, _) = review_request(&safe_frame(DomainVersion::V1_3Plus, 0, &[])).unwrap();
+        assert!(legacy.contains("SIGNATURE_NOT_CHAIN_BOUND"));
+        assert!(!modern.contains("SIGNATURE_NOT_CHAIN_BOUND"));
+        assert_ne!(legacy, modern);
+        let mut trailing = safe_frame(DomainVersion::V1_3Plus, 0, &[]);
         trailing.push(0);
         assert!(review_request(&trailing).is_none());
+        let mut old = safe_frame(DomainVersion::V1_3Plus, 0, &[]);
+        old[0] = 2;
+        assert!(review_request(&old).is_none());
+        let mut unknown_domain = safe_frame(DomainVersion::V1_3Plus, 0, &[]);
+        unknown_domain[1] = 9;
+        assert!(review_request(&unknown_domain).is_none());
         assert!(review_request(&[9]).is_none());
         assert!(review_request(&[]).is_none());
     }
@@ -313,7 +345,7 @@ mod tests {
     #[test]
     #[allow(clippy::unwrap_used)]
     fn c_entry_point_writes_nul_terminated_text() {
-        let req = safe_frame(0, &[]);
+        let req = safe_frame(DomainVersion::V1_3Plus, 0, &[]);
         let mut out = vec![0xffu8; 16 * 1024];
         let mut sev = 0xff;
         let n = unsafe {

@@ -102,8 +102,18 @@ void cmain(int argc, char **argv)
     if (n > sizeof(text)) n = sizeof(text);
     for (u64 i = 0; i < n; i++) text[i] = (char)rev[16 + i];
     sys(SYS_write, 1, (i64)text, (i64)n, 0, 0, 0);
-    out(rev[1] == 4 ? "GUEST|verdict: CRITICAL\n" : "GUEST|verdict: not critical\n");
-    sys(SYS_exit, rev[1] == 4 ? 3 : 0, 0, 0, 0, 0, 0);
+    if (rev[1] <= 2) {
+        out("GUEST|verdict: reviewed, no blocking finding\n");
+        sys(SYS_exit, 0, 0, 0, 0, 0, 0);
+    }
+    if (rev[1] == 3) {
+        out("GUEST|verdict: BLIND; approval blocked\n");
+    } else if (rev[1] == 4) {
+        out("GUEST|verdict: CRITICAL\n");
+    } else {
+        out("GUEST|verdict: invalid severity; approval blocked\n");
+    }
+    sys(SYS_exit, 3, 0, 0, 0, 0, 0);
 }
 
 __asm__(".global _start\n_start:\n  ldr x0, [sp]\n  add x1, sp, #8\n  bl cmain\n  mov x8, #93\n  svc #0\n");

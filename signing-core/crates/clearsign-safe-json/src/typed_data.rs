@@ -26,10 +26,19 @@ pub fn parse(json: &str) -> Result<TypedData, String> {
     }
     let UniqueValue(mut v) =
         serde_json::from_str(json).map_err(|e| format!("not valid JSON: {e}"))?;
+    let mut requested_signer = None;
     // [address, typedData] as an RPC client passes it.
     if let Json::Array(items) = &v {
         match items.as_slice() {
-            [Json::String(_), second] => v = second.clone(),
+            [Json::String(address), second] => {
+                let bytes = clearsign::hex::decode(address)
+                    .map_err(|e| format!("the requested signer is not hexadecimal: {e}"))?;
+                requested_signer =
+                    Some(<[u8; 20]>::try_from(bytes.as_slice()).map_err(|_| {
+                        String::from("the requested signer is not a 20-byte address")
+                    })?);
+                v = second.clone();
+            }
             _ => {
                 return Err(String::from(
                     "expected a typed-data object, or [address, typedData]",
@@ -101,6 +110,7 @@ pub fn parse(json: &str) -> Result<TypedData, String> {
         None => return Err(String::from("typed data has no message")),
     };
     Ok(TypedData {
+        requested_signer,
         types,
         primary_type,
         domain,
