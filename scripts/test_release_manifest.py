@@ -9,6 +9,7 @@ from release_manifest import (
     distribution_security,
     manifest,
     normalized_release_mode,
+    release_policy,
     required_assets,
     verify,
 )
@@ -99,6 +100,22 @@ class ReleaseTests(unittest.TestCase):
             with self.subTest(mode=mode):
                 with self.assertRaisesRegex(ValueError, "explicitly set"):
                     normalized_release_mode("tag", mode)
+
+    def test_release_policy_normalizes_and_freezes_public_values(self):
+        policy = release_policy(
+            "tag", "signed", "ABCDE12345", "aa bb cc dd ee ff 00 11 22 33 44 55 66 77 88 99 aa bb cc dd"
+        )
+        self.assertEqual(policy, {
+            "releaseMode": "signed",
+            "appleTeamId": "ABCDE12345",
+            "windowsCertificateThumbprint": "AABBCCDDEEFF00112233445566778899AABBCCDD",
+        })
+        evaluation = release_policy(
+            "tag", "unsigned-evaluation", "ignored", "also ignored"
+        )
+        self.assertEqual(evaluation["releaseMode"], "unsigned-evaluation")
+        self.assertEqual(evaluation["appleTeamId"], "")
+        self.assertEqual(evaluation["windowsCertificateThumbprint"], "")
 
     def test_unsigned_evaluation_tag_records_no_platform_signing(self):
         with tempfile.TemporaryDirectory() as tmp:

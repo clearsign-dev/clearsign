@@ -126,6 +126,21 @@ def distribution_security(ref_type, release_mode="", apple_team_id="",
     }
 
 
+def release_policy(ref_type, configured_mode="", apple_team_id="",
+                   windows_thumbprint=""):
+    mode = normalized_release_mode(ref_type, configured_mode)
+    security = distribution_security(
+        ref_type, configured_mode, apple_team_id, windows_thumbprint
+    )
+    return {
+        "releaseMode": mode,
+        "appleTeamId": security["macOS"]["teamId"] or "",
+        "windowsCertificateThumbprint": (
+            security["Windows"]["certificateSha1"] or ""
+        ),
+    }
+
+
 def manifest(directory, version, commit, ref_type="branch", release_mode="",
              apple_team_id="", windows_thumbprint=""):
     assets = validate_assets(directory, version)
@@ -188,7 +203,9 @@ if __name__ == "__main__":
     if sys.argv[1] == "check-version":
         check_version(Path(__file__).resolve().parent.parent, *sys.argv[2:])
     elif sys.argv[1] == "check-mode":
-        normalized_release_mode(*sys.argv[2:])
+        print(normalized_release_mode(*sys.argv[2:]))
+    elif sys.argv[1] == "release-policy":
+        print(json.dumps(release_policy(*sys.argv[2:])))
     elif sys.argv[1] == "manifest":
         manifest(Path(sys.argv[2]), *sys.argv[3:])
     elif sys.argv[1] == "verify":

@@ -23,18 +23,35 @@ jobs:
   validate:
     name: release validation
     runs-on: ubuntu-latest
+    outputs:
+      release_mode: ${{ steps.release_policy.outputs.release_mode }}
+      apple_team_id: ${{ steps.release_policy.outputs.apple_team_id }}
+      windows_certificate_thumbprint: ${{ steps.release_policy.outputs.windows_certificate_thumbprint }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
-      - name: Validate release tooling
+      - name: Validate and freeze the release policy
+        id: release_policy
         env:
           CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}
+        run: |
+          set -euo pipefail
+          policy=$(python3 scripts/release_manifest.py release-policy \
+            "${GITHUB_REF_TYPE}" "$CLEARSIGN_RELEASE_MODE" \
+            "$APPLE_TEAM_ID" "$WINDOWS_CERTIFICATE_THUMBPRINT")
+          {
+            echo "release_mode=$(jq -r .releaseMode <<< "$policy")"
+            echo "apple_team_id=$(jq -r .appleTeamId <<< "$policy")"
+            echo "windows_certificate_thumbprint=$(jq -r .windowsCertificateThumbprint <<< "$policy")"
+          } >> "$GITHUB_OUTPUT"
+      - name: Validate release tooling
         run: |
           python3 -m unittest discover -s scripts -p 'test_*.py'
           python3 scripts/release_manifest.py check-version "${GITHUB_REF_NAME}" "${GITHUB_REF_TYPE}"
-          python3 scripts/release_manifest.py check-mode "${GITHUB_REF_TYPE}" "$CLEARSIGN_RELEASE_MODE"
           node --test app/backend-desktop.test.mjs
       - name: Audit the desktop dependency lockfile
         run: |
@@ -149,7 +166,7 @@ jobs:
             signing-core/dist/BINARY-SHA256
 
   artifacts:
-    needs: [build, reproducible, desktop]
+    needs: [validate, build, reproducible, desktop]
     name: validate complete release candidate
     runs-on: ubuntu-latest
     permissions:
@@ -172,13 +189,15 @@ jobs:
           upload-release-assets: false
       - name: Validate the complete artifact set before any tag is needed
         env:
-          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
+          CLEARSIGN_RELEASE_MODE: ${{ needs.validate.outputs.release_mode }}
+          APPLE_TEAM_ID: ${{ needs.validate.outputs.apple_team_id }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ needs.validate.outputs.windows_certificate_thumbprint }}
         run: |
           version=$(python3 -c 'import json; print(json.load(open("desktop/package.json"))["version"])')
           python3 scripts/release_manifest.py manifest dist "$version" "${GITHUB_SHA}" "${GITHUB_REF_TYPE}" \
-            "$CLEARSIGN_RELEASE_MODE" "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
+            "$CLEARSIGN_RELEASE_MODE" "$APPLE_TEAM_ID" "$WINDOWS_CERTIFICATE_THUMBPRINT"
           python3 scripts/release_manifest.py verify dist "$version" "${GITHUB_SHA}" "${GITHUB_REF_TYPE}" \
-            "$CLEARSIGN_RELEASE_MODE" "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
+            "$CLEARSIGN_RELEASE_MODE" "$APPLE_TEAM_ID" "$WINDOWS_CERTIFICATE_THUMBPRINT"
       - name: Attest the release candidate's build provenance
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661 # v3
@@ -190,7 +209,7 @@ jobs:
           path: dist/*
 
   publish:
-    needs: artifacts
+    needs: [validate, artifacts]
     environment: release
     permissions:
       contents: write
@@ -204,16 +223,18 @@ jobs:
           path: dist
       - name: Verify the validated candidate without rewriting it
         env:
-          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
+          CLEARSIGN_RELEASE_MODE: ${{ needs.validate.outputs.release_mode }}
+          APPLE_TEAM_ID: ${{ needs.validate.outputs.apple_team_id }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ needs.validate.outputs.windows_certificate_thumbprint }}
         run: |
           set -euo pipefail
           python3 scripts/release_manifest.py verify dist "${GITHUB_REF_NAME#v}" "${GITHUB_SHA}" tag \
-            "$CLEARSIGN_RELEASE_MODE" "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
+            "$CLEARSIGN_RELEASE_MODE" "$APPLE_TEAM_ID" "$WINDOWS_CERTIFICATE_THUMBPRINT"
           cat dist/SHA256SUMS
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
+          CLEARSIGN_RELEASE_MODE: ${{ needs.validate.outputs.release_mode }}
         run: |
           set -euo pipefail
           python3 scripts/release_manifest.py check-mode tag "$CLEARSIGN_RELEASE_MODE"
@@ -382,7 +403,7 @@ jobs:
             || { echo "app/build.sh did not produce desktop/src/index.html" >&2; exit 1; }
           echo "front end: $(wc -c < desktop/src/index.html) bytes"
       - name: Prepare macOS Developer ID signing and notarization
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
         shell: bash
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -390,7 +411,7 @@ jobs:
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
           APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
           APPLE_API_KEY_P8_BASE64: ${{ secrets.APPLE_API_KEY_P8_BASE64 }}
-          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          APPLE_TEAM_ID: ${{ needs.validate.outputs.apple_team_id }}
         run: |
           set -euo pipefail
           python3 scripts/release_signing.py check-env macos
@@ -442,12 +463,12 @@ jobs:
             echo "APPLE_TEAM_ID=$APPLE_TEAM_ID"
           } >> "$GITHUB_ENV"
       - name: Prepare Windows Authenticode signing
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
         shell: pwsh
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ needs.validate.outputs.windows_certificate_thumbprint }}
           WINDOWS_TIMESTAMP_URL: ${{ vars.WINDOWS_TIMESTAMP_URL }}
         run: |
           $ErrorActionPreference = 'Stop'
@@ -501,7 +522,7 @@ jobs:
             npm run build -- -- --locked
           fi
       - name: Verify macOS signature, notarization and stapling
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
         shell: bash
         run: |
           set -euo pipefail
@@ -518,7 +539,7 @@ jobs:
           xcrun stapler validate "${apps[0]}"
           xcrun stapler validate "${images[0]}"
       - name: Verify the evaluation macOS artifacts are unsigned
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'unsigned-evaluation'
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'unsigned-evaluation'
         shell: bash
         run: |
           set -euo pipefail
@@ -576,7 +597,7 @@ jobs:
           kill "$app_pid"
           wait "$app_pid" || true
       - name: Verify Windows Authenticode signatures and timestamps
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -599,7 +620,7 @@ jobs:
             }
           }
       - name: Verify the evaluation Windows artifacts are unsigned
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'unsigned-evaluation'
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'unsigned-evaluation'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'

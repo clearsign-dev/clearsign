@@ -20,6 +20,11 @@ Set the public repository variable `CLEARSIGN_RELEASE_MODE` to exactly one of:
   checked to be unsigned, `BUILD-METADATA.json` records that status, the release
   notes begin with an explicit warning, and GitHub publishes it as a prerelease.
 
+The validation job normalizes and snapshots this mode plus the public Apple Team
+ID and Windows certificate thumbprint. Every later build, metadata and publish
+decision uses those job outputs, so changing a repository variable during a run
+cannot make its artifacts and recorded policy disagree.
+
 For a `v*` tag, `.github/workflows/release.yml` then fails closed:
 
 - macOS requires a Developer ID Application certificate and App Store Connect
