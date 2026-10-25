@@ -23,7 +23,7 @@ class ReleaseTests(unittest.TestCase):
         (root / "ClearSign.spdx.json").write_text(json.dumps({
             "spdxVersion": "SPDX-2.3",
             "SPDXID": "SPDXRef-DOCUMENT",
-            "packages": [{"name": "clearsign"}],
+            "packages": [{"name": "clearsign", "versionInfo": "0.1.2"}],
         }))
         return names
 
@@ -156,6 +156,25 @@ class ReleaseTests(unittest.TestCase):
                 with self.subTest(content=content):
                     (root / "ClearSign.spdx.json").write_text(content)
                     with self.assertRaisesRegex(ValueError, "SPDX|JSON"):
+                        manifest(root, "0.1.2", "a" * 40)
+
+    def test_sbom_must_name_clearsign_at_the_release_version(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_assets(root)
+            path = root / "ClearSign.spdx.json"
+            for package in [
+                {"name": "unrelated", "versionInfo": "0.1.2"},
+                {"name": "clearsign", "versionInfo": "0.1.1"},
+                {"name": "clearsign"},
+            ]:
+                with self.subTest(package=package):
+                    path.write_text(json.dumps({
+                        "spdxVersion": "SPDX-2.3",
+                        "SPDXID": "SPDXRef-DOCUMENT",
+                        "packages": [package],
+                    }))
+                    with self.assertRaisesRegex(ValueError, "release version"):
                         manifest(root, "0.1.2", "a" * 40)
 
     def test_bad_checksum_entries_are_refused(self):

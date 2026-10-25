@@ -231,8 +231,35 @@ jobs:
           name: release-candidate
           path: dist/*
 
+  signer-image:
+    needs: validate
+    if: startsWith(github.ref, 'refs/tags/v')
+    name: signer image matches its recorded hashes
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Allow the arm64 canonical image to run here
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          platforms: arm64
+      - name: Fetch the crate sources named by Cargo.lock
+        working-directory: signing-core
+        run: cargo fetch --locked
+      - name: Rebuild twice and require the recorded image hashes
+        run: |
+          set -euo pipefail
+          cp platform/signer-image/EXPECTED-HASHES.txt /tmp/recorded-signer-image-hashes.txt
+          platform/signer-image/check-reproducible.sh
+          if ! diff -u /tmp/recorded-signer-image-hashes.txt platform/signer-image/EXPECTED-HASHES.txt; then
+            echo "::error::platform/signer-image/EXPECTED-HASHES.txt does not describe this release." >&2
+            echo "Regenerate it before tagging:" >&2
+            echo "" >&2
+            echo "    platform/signer-image/check-reproducible.sh" >&2
+            exit 1
+          fi
+
   publish:
-    needs: [validate, artifacts]
+    needs: [validate, artifacts, signer-image]
     environment: release
     permissions:
       contents: write
@@ -682,8 +709,13 @@ jobs:
         shell: pwsh
         run: |
           function Assert-ReleaseSignature([string]$Path) {
-            if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_THUMBPRINT)) { return }
             $signature = Get-AuthenticodeSignature $Path
+            if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_THUMBPRINT)) {
+              if ($signature.Status -ne 'NotSigned') {
+                throw "Unsigned evaluation file has unexpected signature status on ${Path}: $($signature.Status)"
+              }
+              return
+            }
             if ($signature.Status -ne 'Valid' -or
                 $signature.SignerCertificate.Thumbprint -ne $env:WINDOWS_SIGNING_THUMBPRINT -or
                 $null -eq $signature.TimeStamperCertificate) {

@@ -67,6 +67,16 @@ def validate_assets(directory, version):
             or not isinstance(sbom.get("packages"), list)
             or not sbom["packages"]):
         raise ValueError("ClearSign.spdx.json is not a populated SPDX 2.3 document")
+    product_packages = [
+        package for package in sbom["packages"]
+        if isinstance(package, dict)
+        and "clearsign" in str(package.get("name", "")).lower()
+        and package.get("versionInfo") == version
+    ]
+    if not product_packages:
+        raise ValueError(
+            "ClearSign.spdx.json does not identify ClearSign at the release version"
+        )
     # Per-archive sidecars are CI output, not published release assets.
     allowed = set(required) | {"SHA256SUMS", "BUILD-METADATA.json"} | {
         name + ".sha256" for name in required if name.endswith(".tar.gz")
