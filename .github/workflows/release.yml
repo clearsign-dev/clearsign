@@ -29,9 +29,12 @@ jobs:
         with:
           node-version: '24'
       - name: Validate release tooling
+        env:
+          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
         run: |
           python3 -m unittest discover -s scripts -p 'test_*.py'
           python3 scripts/release_manifest.py check-version "${GITHUB_REF_NAME}" "${GITHUB_REF_TYPE}"
+          python3 scripts/release_manifest.py check-mode "${GITHUB_REF_TYPE}" "$CLEARSIGN_RELEASE_MODE"
           node --test app/backend-desktop.test.mjs
       - name: Audit the desktop dependency lockfile
         run: |
@@ -168,12 +171,14 @@ jobs:
           upload-artifact: false
           upload-release-assets: false
       - name: Validate the complete artifact set before any tag is needed
+        env:
+          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
         run: |
           version=$(python3 -c 'import json; print(json.load(open("desktop/package.json"))["version"])')
           python3 scripts/release_manifest.py manifest dist "$version" "${GITHUB_SHA}" "${GITHUB_REF_TYPE}" \
-            "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
+            "$CLEARSIGN_RELEASE_MODE" "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
           python3 scripts/release_manifest.py verify dist "$version" "${GITHUB_SHA}" "${GITHUB_REF_TYPE}" \
-            "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
+            "$CLEARSIGN_RELEASE_MODE" "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
       - name: Attest the release candidate's build provenance
         if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661 # v3
@@ -198,16 +203,34 @@ jobs:
           name: release-candidate
           path: dist
       - name: Verify the validated candidate without rewriting it
+        env:
+          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
         run: |
           set -euo pipefail
           python3 scripts/release_manifest.py verify dist "${GITHUB_REF_NAME#v}" "${GITHUB_SHA}" tag \
-            "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
+            "$CLEARSIGN_RELEASE_MODE" "${{ vars.APPLE_TEAM_ID }}" "${{ vars.WINDOWS_CERTIFICATE_THUMBPRINT }}"
           cat dist/SHA256SUMS
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
+          CLEARSIGN_RELEASE_MODE: ${{ vars.CLEARSIGN_RELEASE_MODE }}
         run: |
           set -euo pipefail
+          python3 scripts/release_manifest.py check-mode tag "$CLEARSIGN_RELEASE_MODE"
+          : > notes.md
+          if [ "$CLEARSIGN_RELEASE_MODE" = unsigned-evaluation ]; then
+            cat >> notes.md <<'WARNING'
+          **Unsigned evaluation release. Not approved for high-value custody.**
+
+          The macOS and Windows artifacts in this prerelease are deliberately
+          unsigned. Their checksums and GitHub build provenance authenticate bytes
+          only after you establish trust in this repository and workflow; they do
+          not authenticate ClearSign as the platform publisher.
+
+          ---
+
+          WARNING
+          fi
           # The section of CHANGELOG.md for this tag leads the notes. Somebody
           # on the Releases page should be able to see what they are getting and
           # what staying put costs them, without opening the repository.
@@ -216,11 +239,10 @@ jobs:
                 found && /^## / { exit }
                 found { print }
               ' CHANGELOG.md > changes.md && [ -s changes.md ]; then
-            cat changes.md > notes.md
+            cat changes.md >> notes.md
             printf '\n---\n\n' >> notes.md
           else
             echo "::warning::CHANGELOG.md has no section for ${GITHUB_REF_NAME}."
-            : > notes.md
           fi
           cat >> notes.md <<'NOTES'
           A tool for reading a Safe transaction before you approve it. It holds no
@@ -261,12 +283,25 @@ jobs:
           output across compiler hosts, and this project would rather say so than
           imply otherwise.
 
+          NOTES
+          if [ "$CLEARSIGN_RELEASE_MODE" = signed ]; then
+            cat >> notes.md <<'SIGNED'
           **Publisher authentication.** The macOS application and DMG are signed
           with a Developer ID certificate, accepted by Apple's notarization
           service and stapled. The Windows application, MSI and NSIS installer
           carry an Authenticode signature and trusted timestamp. Linux packages
           are not platform-signed; use `SHA256SUMS` and the GitHub build-provenance
           attestation. `BUILD-METADATA.json` records these platform differences.
+          SIGNED
+          else
+            cat >> notes.md <<'UNSIGNED'
+          **Publisher authentication.** This is the explicitly selected unsigned
+          evaluation mode. The macOS and Windows artifacts have no platform
+          publisher signature or notarization. Use `SHA256SUMS`, inspect
+          `BUILD-METADATA.json`, and verify the GitHub build-provenance attestation.
+          UNSIGNED
+          fi
+          cat >> notes.md <<'NOTES'
 
           **Not for real keys.** The signing and seed commands stay behind a
           development guard. Anything typed into an everyday computer should be
@@ -276,8 +311,12 @@ jobs:
           # away: only the tarballs were ever attached.
           # Upload into a draft first. When immutable releases are enabled, the
           # final publication locks the complete asset set and tag together.
+          release_flags=(--draft)
+          if [ "$CLEARSIGN_RELEASE_MODE" = unsigned-evaluation ]; then
+            release_flags+=(--prerelease)
+          fi
           gh release create "${GITHUB_REF_NAME}" \
-            --draft \
+            "${release_flags[@]}" \
             --title "${GITHUB_REF_NAME}" \
             --notes-file notes.md \
             dist/*.tar.gz dist/clearsign.html dist/SHA256SUMS dist/BINARY-SHA256 dist/BUILD-METADATA.json dist/ClearSign.spdx.json \
@@ -343,7 +382,7 @@ jobs:
             || { echo "app/build.sh did not produce desktop/src/index.html" >&2; exit 1; }
           echo "front end: $(wc -c < desktop/src/index.html) bytes"
       - name: Prepare macOS Developer ID signing and notarization
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v')
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
         shell: bash
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -403,7 +442,7 @@ jobs:
             echo "APPLE_TEAM_ID=$APPLE_TEAM_ID"
           } >> "$GITHUB_ENV"
       - name: Prepare Windows Authenticode signing
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v')
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
         shell: pwsh
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
@@ -462,7 +501,7 @@ jobs:
             npm run build -- -- --locked
           fi
       - name: Verify macOS signature, notarization and stapling
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v')
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
         shell: bash
         run: |
           set -euo pipefail
@@ -478,6 +517,21 @@ jobs:
           spctl --assess --type execute --verbose=4 "${apps[0]}"
           xcrun stapler validate "${apps[0]}"
           xcrun stapler validate "${images[0]}"
+      - name: Verify the evaluation macOS artifacts are unsigned
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'unsigned-evaluation'
+        shell: bash
+        run: |
+          set -euo pipefail
+          apps=(desktop/src-tauri/target/release/bundle/macos/*.app)
+          images=(desktop/src-tauri/target/release/bundle/dmg/*.dmg)
+          [ "${#apps[@]}" = 1 ] && [ "${#images[@]}" = 1 ] \
+            || { echo "::error::expected one macOS app and one DMG" >&2; exit 1; }
+          for path in "${apps[0]}" "${images[0]}"; do
+            if codesign -d "$path" >/dev/null 2>&1; then
+              echo "::error::unsigned-evaluation artifact contains a code signature: $path" >&2
+              exit 1
+            fi
+          done
       - name: Install and launch the macOS DMG
         if: runner.os == 'macOS'
         shell: bash
@@ -522,7 +576,7 @@ jobs:
           kill "$app_pid"
           wait "$app_pid" || true
       - name: Verify Windows Authenticode signatures and timestamps
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v')
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'signed'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -542,6 +596,21 @@ jobs:
             }
             if ($null -eq $signature.TimeStamperCertificate) {
               throw "Missing trusted timestamp on ${path}"
+            }
+          }
+      - name: Verify the evaluation Windows artifacts are unsigned
+        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && vars.CLEARSIGN_RELEASE_MODE == 'unsigned-evaluation'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $paths = @('desktop/src-tauri/target/release/clearsign-desktop.exe')
+          $paths += @(Get-ChildItem desktop/src-tauri/target/release/bundle/msi/*.msi | ForEach-Object FullName)
+          $paths += @(Get-ChildItem desktop/src-tauri/target/release/bundle/nsis/*.exe | ForEach-Object FullName)
+          if ($paths.Count -ne 3) { throw "Expected three unsigned Windows files, found $($paths.Count)" }
+          foreach ($path in $paths) {
+            $signature = Get-AuthenticodeSignature $path
+            if ($signature.Status -ne 'NotSigned') {
+              throw "Unsigned evaluation artifact has unexpected signature status on ${path}: $($signature.Status)"
             }
           }
       - name: Install the native UI test driver

@@ -2,8 +2,8 @@
 
 This document describes the repository's release controls. It does not claim
 that already-published downloads were retroactively signed. ClearSign v0.1.2 is
-an unsigned evaluation release. A future release tag cannot publish unless the
-macOS and Windows signing checks below pass.
+an unsigned evaluation release. Every future release tag requires an explicit
+mode; an unset or unknown mode fails before packaging begins.
 
 ## What the workflow enforces
 
@@ -11,7 +11,16 @@ Branch and manual builds remain unsigned. They exercise packaging, installation
 and smoke tests without consuming notarization requests or exposing signing
 credentials to ordinary development builds.
 
-For a `v*` tag, `.github/workflows/release.yml` fails closed:
+Set the public repository variable `CLEARSIGN_RELEASE_MODE` to exactly one of:
+
+- `signed`: a normal stable release. The macOS and Windows credential and
+  verification gates below are mandatory.
+- `unsigned-evaluation`: a temporary evaluation release. Platform signing and
+  notarization credentials are not loaded, macOS and Windows artifacts are
+  checked to be unsigned, `BUILD-METADATA.json` records that status, the release
+  notes begin with an explicit warning, and GitHub publishes it as a prerelease.
+
+For a `v*` tag, `.github/workflows/release.yml` then fails closed:
 
 - macOS requires a Developer ID Application certificate and App Store Connect
   API key. The workflow imports them into a temporary keychain, asks Tauri to
@@ -26,7 +35,8 @@ For a `v*` tag, `.github/workflows/release.yml` fails closed:
   release metadata and GitHub's OIDC-backed build-provenance attestation.
 - Every candidate includes `ClearSign.spdx.json`, an SPDX JSON software bill of
   materials. `BUILD-METADATA.json` records the source commit and the different
-  signing guarantees by platform. Both files are covered by `SHA256SUMS`.
+  signing guarantees by platform, including the selected release mode. Both
+  files are covered by `SHA256SUMS`.
 - Pull requests and releases run `cargo audit` against the desktop lockfile.
   Published vulnerabilities and RustSec `unsound` warnings block the build;
   unmaintained and yanked transitive packages remain visible as warnings.
@@ -120,18 +130,24 @@ that the program is safe.
 
 1. Confirm all product versions and the dated changelog agree. Refresh canonical
    reproducible hashes in the separate release-hash step before tagging.
-2. Confirm the Apple membership, certificate and API key are active. Confirm the
-   Windows certificate is active and the timestamp service is reachable.
-3. Run the release workflow manually from the intended commit. This produces an
+2. Set `CLEARSIGN_RELEASE_MODE` through a reviewed repository-settings change.
+   Use `unsigned-evaluation` for the next evaluation tag or `signed` for a stable
+   release. Never use an approximate or third value.
+3. For `signed`, confirm the Apple membership, certificate and API key are active.
+   Confirm the Windows certificate is active and the timestamp service is reachable.
+   For `unsigned-evaluation`, confirm the release is intended only for evaluation
+   and that public copy does not imply platform publisher authentication.
+4. Run the release workflow manually from the intended commit. This produces an
    unsigned candidate and tests installers; it does not prove tag signing.
-4. Create the signed tag only from the reviewed commit. Never move or reuse a
-   release tag.
-5. Require the macOS signing/notarization step, Windows Authenticode step,
-   complete-candidate validation and provenance attestation to pass.
-6. Download the published assets onto clean macOS, Windows and Linux machines.
-   Verify signatures, checksums, provenance, installation, displayed version and
-   the historical transaction fixture before announcing the release.
-7. Preserve the workflow run URL, source commit, `SHA256SUMS`, metadata, SBOM and
+5. Create the tag only from the reviewed commit. Never move or reuse a release tag.
+6. Require complete-candidate validation and provenance attestation to pass. In
+   `signed` mode, also require signing, notarization and Authenticode checks. In
+   `unsigned-evaluation` mode, require the explicit unsigned-artifact checks and
+   confirm the GitHub release is marked prerelease.
+7. Download the published assets onto clean macOS, Windows and Linux machines.
+   Verify the mode, checksums, provenance, installation, displayed version and
+   historical transaction fixture. For `signed`, also verify platform signatures.
+8. Preserve the workflow run URL, source commit, `SHA256SUMS`, metadata, SBOM and
    notarization/signing evidence in the release record. Do not replace assets in
    place; issue a new version if any published byte must change.
 
@@ -140,7 +156,7 @@ in a workflow file. Create a GitHub environment named `release`, require a secon
 reviewer and prevent self-review; protect `v*` tags with a ruleset; and enable
 immutable releases. Until those three settings are visibly active, a maintainer
 account with tag and release permission remains a single-person publication
-path even though artifact signing itself fails closed.
+path even though the selected release mode itself fails closed.
 
 ## Desktop dependency remediation
 
@@ -167,7 +183,8 @@ First compare a download with `SHA256SUMS` from the same release:
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
-On macOS, inspect the Developer ID identity and notarization ticket:
+On a `signed` release, inspect the macOS Developer ID identity and notarization
+ticket. These commands are expected to reject an `unsigned-evaluation` build:
 
 ```sh
 codesign --verify --deep --strict --verbose=2 /Applications/ClearSign.app
@@ -175,7 +192,8 @@ spctl --assess --type execute --verbose=4 /Applications/ClearSign.app
 xcrun stapler validate /Applications/ClearSign.app
 ```
 
-On Windows, inspect the installer in PowerShell before running it:
+On a `signed` release, inspect the Windows installer in PowerShell before running
+it. An `unsigned-evaluation` build must report `NotSigned` instead:
 
 ```powershell
 Get-AuthenticodeSignature .\ClearSign_VERSION_x64-setup.exe | Format-List

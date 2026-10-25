@@ -77,10 +77,27 @@ def validate_assets(directory, version):
     return sorted(required)
 
 
-def distribution_security(ref_type, apple_team_id="", windows_thumbprint=""):
+TAG_RELEASE_MODES = {"signed", "unsigned-evaluation"}
+
+
+def normalized_release_mode(ref_type, configured_mode=""):
     if ref_type not in {"branch", "tag"}:
         raise ValueError("release reference type must be branch or tag")
-    signed_release = ref_type == "tag"
+    if ref_type == "branch":
+        return "branch-candidate"
+    mode = configured_mode.strip()
+    if mode not in TAG_RELEASE_MODES:
+        choices = ", ".join(sorted(TAG_RELEASE_MODES))
+        raise ValueError(
+            f"tag release mode must be explicitly set to one of: {choices}"
+        )
+    return mode
+
+
+def distribution_security(ref_type, release_mode="", apple_team_id="",
+                          windows_thumbprint=""):
+    mode = normalized_release_mode(ref_type, release_mode)
+    signed_release = mode == "signed"
     apple_team_id = apple_team_id.strip()
     windows_thumbprint = re.sub(r"\s", "", windows_thumbprint).upper()
     if signed_release:
@@ -103,14 +120,14 @@ def distribution_security(ref_type, apple_team_id="", windows_thumbprint=""):
             "codeSigned": False,
             "verification": (
                 "SHA-256 and GitHub artifact attestation"
-                if signed_release else "SHA-256"
+                if ref_type == "tag" else "SHA-256"
             ),
         },
     }
 
 
-def manifest(directory, version, commit, ref_type="branch", apple_team_id="",
-             windows_thumbprint=""):
+def manifest(directory, version, commit, ref_type="branch", release_mode="",
+             apple_team_id="", windows_thumbprint=""):
     assets = validate_assets(directory, version)
     metadata = directory / "BUILD-METADATA.json"
     metadata.write_text(json.dumps({
@@ -118,8 +135,9 @@ def manifest(directory, version, commit, ref_type="branch", apple_team_id="",
         "artifacts": assets,
         "reproducibleTarget": "aarch64-unknown-linux-musl",
         "referenceType": ref_type,
+        "releaseMode": normalized_release_mode(ref_type, release_mode),
         "distributionSecurity": distribution_security(
-            ref_type, apple_team_id, windows_thumbprint
+            ref_type, release_mode, apple_team_id, windows_thumbprint
         ),
     }, indent=2) + "\n")
     lines = []
@@ -131,8 +149,8 @@ def manifest(directory, version, commit, ref_type="branch", apple_team_id="",
     (directory / "SHA256SUMS").write_text("".join(lines))
 
 
-def verify(directory, version, commit, ref_type="branch", apple_team_id="",
-           windows_thumbprint=""):
+def verify(directory, version, commit, ref_type="branch", release_mode="",
+           apple_team_id="", windows_thumbprint=""):
     """Check the candidate's existing manifest without rewriting its evidence."""
     assets = validate_assets(directory, version)
     expected_names = set(assets) | {"BUILD-METADATA.json"}
@@ -157,8 +175,11 @@ def verify(directory, version, commit, ref_type="branch", apple_team_id="",
             or metadata.get("artifacts") != assets
             or metadata.get("reproducibleTarget") != "aarch64-unknown-linux-musl"
             or metadata.get("referenceType") != ref_type
+            or metadata.get("releaseMode") != normalized_release_mode(
+                ref_type, release_mode
+            )
             or metadata.get("distributionSecurity") != distribution_security(
-                ref_type, apple_team_id, windows_thumbprint
+                ref_type, release_mode, apple_team_id, windows_thumbprint
             )):
         raise ValueError("candidate metadata does not match the release")
 
@@ -166,6 +187,8 @@ def verify(directory, version, commit, ref_type="branch", apple_team_id="",
 if __name__ == "__main__":
     if sys.argv[1] == "check-version":
         check_version(Path(__file__).resolve().parent.parent, *sys.argv[2:])
+    elif sys.argv[1] == "check-mode":
+        normalized_release_mode(*sys.argv[2:])
     elif sys.argv[1] == "manifest":
         manifest(Path(sys.argv[2]), *sys.argv[3:])
     elif sys.argv[1] == "verify":

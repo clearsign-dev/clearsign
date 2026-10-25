@@ -43,8 +43,10 @@ keys into a development signer to demonstrate the workflow.
 - Keep platform signing/notarization status explicit. Checksums detect changes
   relative to a trusted checksum; they do not establish publisher identity on
   their own. Unsigned builds are evaluation releases, not a finished custody
-  distribution strategy. Future tagged releases require the credential-backed,
-  fail-closed checks in [release signing and verification](15-release-signing.md).
+  distribution strategy. Every tag requires an explicit release mode. Stable
+  releases use the credential-backed, fail-closed signing checks; the temporary
+  unsigned mode publishes only a visibly marked prerelease as described in
+  [release signing and verification](15-release-signing.md).
 - Retain a rollback procedure, supported-release policy and private vulnerability
   reporting route. Do not silently replace existing release assets.
 

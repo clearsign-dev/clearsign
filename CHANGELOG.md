@@ -15,13 +15,16 @@ generated from the measurements.
 
 ### Release identity and provenance
 
-Future release tags now fail unless the macOS application and DMG are Developer
-ID signed, notarized and stapled and the Windows application, MSI and NSIS
-installer carry valid, timestamped Authenticode signatures. Branch candidates
-remain unsigned for reproducibility and installer testing. Release candidates
-also include an SPDX JSON SBOM and receive GitHub OIDC-backed build-provenance
-attestations; `BUILD-METADATA.json` records the distinct guarantees for macOS,
-Windows and Linux. The already-published v0.1.2 assets remain unsigned.
+Every release tag now requires an explicit `CLEARSIGN_RELEASE_MODE` repository
+variable. `signed` fails unless the macOS application and DMG are Developer ID
+signed, notarized and stapled and the Windows application, MSI and NSIS installer
+carry valid, timestamped Authenticode signatures. `unsigned-evaluation` verifies
+that those platform artifacts are unsigned and publishes only as a warning-marked
+GitHub prerelease. Branch candidates remain unsigned for reproducibility and
+installer testing. Release candidates also include an SPDX JSON SBOM and receive
+GitHub OIDC-backed build-provenance attestations; `BUILD-METADATA.json` records
+the selected mode and distinct guarantees for macOS, Windows and Linux. The
+already-published v0.1.2 assets remain unsigned.
 
 The desktop lockfile also moves `plist` from 1.8.0 to 1.10.3,
 `quick-xml` from 0.38.4 to 0.42.0 and `tokio` from 1.53.1 to 1.54.1, clearing

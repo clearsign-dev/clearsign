@@ -13,7 +13,7 @@ included in its assets; consult the [changelog](CHANGELOG.md) when choosing a ve
 
 The desktop reviewer does not need keys and does not sign transactions. It is a second opinion, not a trusted display: a compromised computer can alter what you see. Compare the recomputed hash with the signing device and follow your existing approval procedure. A successful decode is not a safety assessment of the destination contract.
 
-The dedicated signer and seL4 platform are experimental and have been tested in emulation, not on production hardware. The published v0.1.2 installers are not code-signed; future tags now fail unless macOS and Windows signing checks pass. The [release-signing record](docs/15-release-signing.md) names the credentials and platform guarantees. The [verification record](docs/03-verification-status.md) distinguishes the reported human review from later AI-assisted checks and records the outstanding review and hardware work.
+The dedicated signer and seL4 platform are experimental and have been tested in emulation, not on production hardware. The published v0.1.2 installers are not code-signed. A tag now fails unless the repository explicitly selects either a signed stable release or an unsigned evaluation prerelease; signed mode requires macOS and Windows signing checks to pass. The [release-signing record](docs/15-release-signing.md) names the modes, credentials and platform guarantees. The [verification record](docs/03-verification-status.md) distinguishes the reported human review from later AI-assisted checks and records the outstanding review and hardware work.
 
 ## Try the Reviewer
 
