@@ -75,13 +75,13 @@ impl Authorization {
             .ok_or(AuthorizationSignatureError::InvalidYParity)?;
         let signature = Signature::from_scalars(self.r.0, self.s.0)
             .map_err(|_| AuthorizationSignatureError::InvalidScalar)?;
-        if signature.normalize_s().is_some() {
+        if signature.normalize_s() != signature {
             return Err(AuthorizationSignatureError::HighS);
         }
         let key =
             VerifyingKey::recover_from_prehash(&self.signature_hash(), &signature, recovery_id)
                 .map_err(|_| AuthorizationSignatureError::RecoveryFailed)?;
-        let point = key.to_encoded_point(false);
+        let point = key.to_sec1_point(false);
         let coordinates = point
             .as_bytes()
             .get(1..)

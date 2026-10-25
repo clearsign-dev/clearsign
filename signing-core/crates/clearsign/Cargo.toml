@@ -14,7 +14,7 @@ std = []
 [dependencies]
 # RustCrypto, no_std, no default features.
 sha3 = { version = "0.10", default-features = false }
-k256 = { version = "0.13", default-features = false, features = ["ecdsa", "arithmetic"] }
+k256 = { version = "0.14", default-features = false, features = ["ecdsa", "arithmetic"] }
 
 [lints.rust]
 unsafe_code = "forbid"
