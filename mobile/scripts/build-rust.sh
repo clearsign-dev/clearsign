@@ -7,6 +7,7 @@ MOBILE_DIR=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 REPO_DIR=$(CDPATH= cd -- "$MOBILE_DIR/.." && pwd)
 MANIFEST="$REPO_DIR/signing-core/Cargo.toml"
 MODULE_NATIVE="$MOBILE_DIR/modules/clearsign-core/native"
+MODULE_IOS_NATIVE="$MOBILE_DIR/modules/clearsign-core/ios/native"
 
 case "$PLATFORM" in
   ios)
@@ -20,8 +21,8 @@ case "$PLATFORM" in
         -p clearsign-native --target "$target"
     done
 
-    rm -rf "$MODULE_NATIVE/ios"
-    mkdir -p "$MODULE_NATIVE/ios"
+    rm -rf "$MODULE_IOS_NATIVE"
+    mkdir -p "$MODULE_IOS_NATIVE"
     TMP=$(mktemp -d)
     trap 'rm -rf "$TMP"' EXIT
     lipo -create \
@@ -33,7 +34,7 @@ case "$PLATFORM" in
       -headers "$MODULE_NATIVE/include" \
       -library "$TMP/libclearsign_native-simulator.a" \
       -headers "$MODULE_NATIVE/include" \
-      -output "$MODULE_NATIVE/ios/ClearSignNative.xcframework"
+      -output "$MODULE_IOS_NATIVE/ClearSignNative.xcframework"
     ;;
   android)
     : "${ANDROID_NDK_HOME:?ANDROID_NDK_HOME must point to an Android NDK installation}"

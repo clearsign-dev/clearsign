@@ -13,8 +13,8 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'
-  s.vendored_frameworks = '../native/ios/ClearSignNative.xcframework'
-  s.preserve_paths = '../native/ios/ClearSignNative.xcframework'
+  s.vendored_frameworks = 'native/ClearSignNative.xcframework'
+  s.preserve_paths = 'native/ClearSignNative.xcframework'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
