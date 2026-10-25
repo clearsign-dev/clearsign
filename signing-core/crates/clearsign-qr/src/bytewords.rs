@@ -49,7 +49,7 @@ pub fn encode(payload: &[u8]) -> String {
 /// Decode minimal Bytewords, checking and removing the trailing CRC-32.
 pub fn decode(s: &str) -> Result<Vec<u8>, Error> {
     let bytes = s.as_bytes();
-    if bytes.len() % 2 != 0 {
+    if !bytes.len().is_multiple_of(2) {
         return Err(Error::Bytewords("odd number of characters"));
     }
     let mut out = Vec::with_capacity(bytes.len() / 2);

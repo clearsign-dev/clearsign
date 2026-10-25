@@ -22,6 +22,10 @@ use alloy_primitives::{
 use alloy_sol_types::{SolCall, sol};
 use clearsign::{DomainVersion, SafeTransaction, Severity, TxType, U256};
 use proptest::prelude::*;
+use secp256k1::{
+    Message, Secp256k1,
+    ecdsa::{RecoverableSignature, RecoveryId, Signature},
+};
 
 sol! {
     function transferOwnership(address newOwner);
@@ -41,6 +45,26 @@ sol! {
 
 fn cu(v: AU256) -> U256 {
     U256(v.to_be_bytes::<32>())
+}
+
+fn recover_authority_reference(auth: &SignedAuthorization) -> Result<[u8; 20], ()> {
+    let mut compact = [0u8; 64];
+    compact[..32].copy_from_slice(&auth.r().to_be_bytes::<32>());
+    compact[32..].copy_from_slice(&auth.s().to_be_bytes::<32>());
+    let mut normalized = Signature::from_compact(&compact).map_err(|_| ())?;
+    normalized.normalize_s();
+    if normalized.serialize_compact() != compact {
+        return Err(());
+    }
+    let recovery_id = RecoveryId::from_u8_masked(auth.y_parity());
+    let signature = RecoverableSignature::from_compact(&compact, recovery_id).map_err(|_| ())?;
+    let message = Message::from_digest(auth.inner().signature_hash().0);
+    let public_key = Secp256k1::verification_only()
+        .recover_ecdsa(message, &signature)
+        .map_err(|_| ())?;
+    let encoded = public_key.serialize_uncompressed();
+    let hash = alloy_primitives::keccak256(&encoded[1..]);
+    hash[12..].try_into().map_err(|_| ())
 }
 
 fn arb_address() -> impl Strategy<Value = Address> {
@@ -227,10 +251,10 @@ proptest! {
             prop_assert_eq!(a.r, cu(b.r()));
             prop_assert_eq!(a.s, cu(b.s()));
             prop_assert_eq!(a.signature_hash(), b.inner().signature_hash().0);
-            match (a.recover_authority(), b.recover_authority()) {
-                (Ok(ours), Ok(reference)) => prop_assert_eq!(ours, reference.into_array()),
+            match (a.recover_authority(), recover_authority_reference(b)) {
+                (Ok(ours), Ok(reference)) => prop_assert_eq!(ours, reference),
                 (Err(_), Err(_)) => {}
-                (ours, reference) => prop_assert!(false, "authority recovery differs: ours={ours:?}, alloy={reference:?}"),
+                (ours, reference) => prop_assert!(false, "authority recovery differs: ours={ours:?}, reference={reference:?}"),
             }
         }
         prop_assert_eq!(parsed.signing_hash, tx.signature_hash().0);
@@ -240,13 +264,13 @@ proptest! {
         let candidates = auths.iter().filter(|a| {
             (a.inner().chain_id.is_zero() || a.inner().chain_id == AU256::from(chain_id))
                 && a.inner().nonce != u64::MAX
-                && a.recover_authority().is_ok()
+                && recover_authority_reference(a).is_ok()
         }).count();
         let delegating = auths.iter().filter(|a| {
             (a.inner().chain_id.is_zero() || a.inner().chain_id == AU256::from(chain_id))
                 && a.inner().nonce != u64::MAX
                 && a.inner().address != Address::ZERO
-                && a.recover_authority().is_ok()
+                && recover_authority_reference(a).is_ok()
         }).count();
         let critical = r.findings().iter().filter(|f| f.code == "ACCOUNT_DELEGATION").count();
         prop_assert_eq!(critical, delegating);

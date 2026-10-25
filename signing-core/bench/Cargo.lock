@@ -83,7 +83,6 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "borsh",
- "k256 0.13.4",
  "serde",
  "thiserror",
 ]
@@ -868,6 +867,7 @@ dependencies = [
 name = "clearsign"
 version = "0.1.2"
 dependencies = [
+ "crypto-bigint 0.7.8",
  "k256 0.14.0",
  "sha3 0.10.9",
 ]

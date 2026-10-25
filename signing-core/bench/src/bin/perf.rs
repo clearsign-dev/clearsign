@@ -170,7 +170,7 @@ fn multisend(n: usize) -> Vec<u8> {
     len[24..].copy_from_slice(&(packed.len() as u64).to_be_bytes());
     d.extend_from_slice(&len);
     d.extend_from_slice(&packed);
-    while (d.len() - 4) % 32 != 0 {
+    while !(d.len() - 4).is_multiple_of(32) {
         d.push(0);
     }
     d

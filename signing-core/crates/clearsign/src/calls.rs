@@ -2006,7 +2006,7 @@ fn selector_text(data: &[u8]) -> String {
 }
 
 fn signature_summary(len: usize) -> String {
-    if len % 65 == 0 {
+    if len.is_multiple_of(65) {
         format!(
             "{len} bytes ({} owner signatures if all are 65-byte ECDSA)",
             len / 65

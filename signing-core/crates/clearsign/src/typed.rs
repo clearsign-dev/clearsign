@@ -191,12 +191,12 @@ fn parse_ty(s: &str) -> Result<Ty<'_>, TypedDataError> {
         }
         _ => {
             if let Some(bits) = sized("uint") {
-                if bits % 8 != 0 || bits > 256 {
+                if !bits.is_multiple_of(8) || bits > 256 {
                     return err(format!("{s:?} is not a valid integer type"));
                 }
                 Ty::Uint(bits)
             } else if let Some(bits) = sized("int") {
-                if bits % 8 != 0 || bits > 256 {
+                if !bits.is_multiple_of(8) || bits > 256 {
                     return err(format!("{s:?} is not a valid integer type"));
                 }
                 Ty::Int(bits)
@@ -440,7 +440,7 @@ fn hex_digits(s: &str) -> Option<&str> {
 fn bytes_value(v: &Value) -> Result<Vec<u8>, TypedDataError> {
     match v {
         Value::Str(s) => match hex_digits(s) {
-            Some(digits) if digits.len() % 2 == 0 => {
+            Some(digits) if digits.len().is_multiple_of(2) => {
                 hex::decode(digits).map_err(|_| TypedDataError(format!("{s:?} is not hexadecimal")))
             }
             _ => err(format!(

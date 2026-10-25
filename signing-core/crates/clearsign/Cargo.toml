@@ -15,6 +15,9 @@ std = []
 # RustCrypto, no_std, no default features.
 sha3 = { version = "0.10", default-features = false }
 k256 = { version = "0.14", default-features = false, features = ["ecdsa", "arithmetic"] }
+# RUSTSEC-2026-0387 is fixed in 0.7.6. Keep this bound beside every direct
+# k256 consumer so secondary workspaces cannot resolve the vulnerable 0.7.5.
+crypto-bigint = { version = ">=0.7.6, <0.8", default-features = false }
 
 [lints.rust]
 unsafe_code = "forbid"

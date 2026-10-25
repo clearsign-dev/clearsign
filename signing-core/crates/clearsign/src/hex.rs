@@ -41,7 +41,7 @@ pub fn decode(input: &str) -> Result<Vec<u8>, Error> {
         .strip_prefix("0x")
         .or_else(|| s.strip_prefix("0X"))
         .unwrap_or(s);
-    if s.len() % 2 != 0 {
+    if !s.len().is_multiple_of(2) {
         return Err(Error::InvalidHex);
     }
     let bytes = s.as_bytes();

@@ -105,7 +105,7 @@ fn multisend(calls: &[(u8, [u8; 20], u64, Vec<u8>)]) -> Vec<u8> {
     d.extend(word_u64(32));
     d.extend(word_u64(packed.len() as u64));
     d.extend_from_slice(&packed);
-    while (d.len() - 4) % 32 != 0 {
+    while !(d.len() - 4).is_multiple_of(32) {
         d.push(0);
     }
     d

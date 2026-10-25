@@ -3,7 +3,7 @@ name = "clearsign-desktop"
 description = "ClearSign — see what a transaction really does before you approve it."
 version = "0.1.2"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.87"
 license = "MIT OR Apache-2.0"
 publish = false
 

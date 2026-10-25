@@ -18,7 +18,7 @@ pub fn checksummed(addr: &Address) -> String {
     out.push_str("0x");
     for (i, c) in lower.chars().enumerate() {
         let hash_byte = hash.get(i / 2).copied().unwrap_or(0);
-        let nibble = if i % 2 == 0 {
+        let nibble = if i.is_multiple_of(2) {
             hash_byte >> 4
         } else {
             hash_byte & 0x0f
@@ -40,7 +40,7 @@ pub fn display(addr: &Address) -> String {
     let mut out = String::with_capacity(52);
     out.push_str("0x");
     for (i, c) in body.chars().enumerate() {
-        if i != 0 && i % 4 == 0 {
+        if i != 0 && i.is_multiple_of(4) {
             out.push(' ');
         }
         out.push(c);

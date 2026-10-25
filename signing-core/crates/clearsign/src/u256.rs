@@ -137,7 +137,7 @@ impl U256 {
         let mut out = String::with_capacity(len.saturating_add(len / 3));
         for (i, c) in plain.chars().enumerate() {
             let remaining = len.saturating_sub(i);
-            if i != 0 && remaining % 3 == 0 {
+            if i != 0 && remaining.is_multiple_of(3) {
                 out.push('_');
             }
             out.push(c);

@@ -69,7 +69,7 @@ fn call(sel: [u8; 4], words: &[Vec<u8>]) -> Vec<u8> {
 fn bytes_tail(data: &[u8]) -> Vec<u8> {
     let mut t = word_u64(data.len() as u64);
     t.extend_from_slice(data);
-    while t.len() % 32 != 0 {
+    while !t.len().is_multiple_of(32) {
         t.push(0);
     }
     t
