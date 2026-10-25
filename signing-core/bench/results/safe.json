@@ -41,16 +41,15 @@
       "onchain_sigs_checked": 809,
       "onchain_sigs_recovered_to_owner": 809,
       "outcome": {
-        "blind": 418,
-        "clear": 94,
+        "blind": 518,
+        "clear": 13,
         "critical": 17,
-        "warning": 119
+        "warning": 100
       },
       "outcome_multisig_only": {
-        "blind": 115,
-        "clear": 67,
-        "critical": 5,
-        "warning": 17
+        "blind": 186,
+        "clear": 13,
+        "critical": 5
       },
       "parse_refused": {},
       "records": 648,
@@ -140,16 +139,14 @@
       "onchain_sigs_checked": 638,
       "onchain_sigs_recovered_to_owner": 638,
       "outcome": {
-        "blind": 168,
-        "clear": 23,
+        "blind": 237,
+        "clear": 11,
         "critical": 215,
-        "warning": 62
+        "warning": 5
       },
       "outcome_multisig_only": {
-        "blind": 99,
-        "clear": 8,
-        "critical": 7,
-        "warning": 5
+        "blind": 112,
+        "critical": 7
       },
       "parse_refused": {},
       "records": 468,
@@ -223,7 +220,7 @@
         "SAFE_DELEGATECALL": 1,
         "SAFE_MULTISEND_BATCH": 203,
         "SAFE_OWNER_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 312,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 314,
         "TOKEN_APPROVAL": 100,
         "TOKEN_UNITS_RAW": 310,
         "UNKNOWN_SELECTOR": 207,
@@ -246,13 +243,13 @@
       "onchain_sigs_checked": 541,
       "onchain_sigs_recovered_to_owner": 541,
       "outcome": {
-        "blind": 206,
-        "clear": 211,
+        "blind": 416,
+        "clear": 1,
         "critical": 6
       },
       "outcome_multisig_only": {
-        "blind": 105,
-        "clear": 12,
+        "blind": 116,
+        "clear": 1,
         "critical": 5
       },
       "parse_refused": {},
@@ -332,8 +329,8 @@
       "onchain_sigs_checked": 652,
       "onchain_sigs_recovered_to_owner": 652,
       "outcome": {
-        "blind": 693,
-        "clear": 12,
+        "blind": 701,
+        "clear": 4,
         "critical": 202
       },
       "outcome_multisig_only": {},
@@ -415,7 +412,7 @@
         "SAFE_MODULE_CHANGE": 6,
         "SAFE_MULTISEND_BATCH": 128,
         "SAFE_OWNER_CHANGE": 14,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 69,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 74,
         "TOKEN_APPROVAL": 18,
         "TOKEN_UNITS_RAW": 39,
         "UNKNOWN_SELECTOR": 269,
@@ -441,16 +438,14 @@
       "onchain_sigs_checked": 444,
       "onchain_sigs_recovered_to_owner": 444,
       "outcome": {
-        "blind": 265,
-        "clear": 21,
-        "critical": 54,
-        "warning": 8
+        "blind": 293,
+        "clear": 1,
+        "critical": 54
       },
       "outcome_multisig_only": {
-        "blind": 95,
-        "clear": 10,
-        "critical": 36,
-        "warning": 5
+        "blind": 109,
+        "clear": 1,
+        "critical": 36
       },
       "parse_refused": {},
       "records": 348,
@@ -561,10 +556,8 @@
       "onchain_sigs_checked": 977,
       "onchain_sigs_recovered_to_owner": 977,
       "outcome": {
-        "blind": 870,
-        "clear": 65,
-        "critical": 41,
-        "warning": 1
+        "blind": 936,
+        "critical": 41
       },
       "outcome_multisig_only": {},
       "parse_refused": {},
@@ -614,7 +607,7 @@
         "PROXY_UPGRADE": 9,
         "SAFE_MULTISEND_BATCH": 25,
         "SAFE_OWNER_CHANGE": 6,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 22,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 31,
         "TOKEN_APPROVAL": 4,
         "TOKEN_UNITS_RAW": 22,
         "UNKNOWN_SELECTOR": 579
@@ -634,16 +627,14 @@
       "onchain_sigs_checked": 204,
       "onchain_sigs_recovered_to_owner": 204,
       "outcome": {
-        "blind": 572,
-        "clear": 116,
-        "critical": 15,
-        "warning": 7
+        "blind": 592,
+        "clear": 103,
+        "critical": 15
       },
       "outcome_multisig_only": {
-        "blind": 66,
-        "clear": 116,
-        "critical": 12,
-        "warning": 7
+        "blind": 86,
+        "clear": 103,
+        "critical": 12
       },
       "parse_refused": {},
       "records": 710,
@@ -712,7 +703,7 @@
         "ROLE_GRANT": 5,
         "SAFE_MULTISEND_BATCH": 9,
         "SAFE_OWNER_CHANGE": 2,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 1,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 20,
         "TOKEN_UNITS_RAW": 1,
         "UNKNOWN_SELECTOR": 7
       },
@@ -729,16 +720,16 @@
       "onchain_sigs_checked": 66,
       "onchain_sigs_recovered_to_owner": 66,
       "outcome": {
-        "blind": 7,
+        "blind": 8,
         "clear": 13,
         "critical": 21,
-        "warning": 3
+        "warning": 2
       },
       "outcome_multisig_only": {
-        "blind": 7,
+        "blind": 8,
         "clear": 13,
         "critical": 21,
-        "warning": 3
+        "warning": 2
       },
       "parse_refused": {},
       "records": 44,
@@ -776,6 +767,7 @@
         "SAFE_MULTISEND_BATCH": 3,
         "SAFE_OWNER_CHANGE": 3,
         "SAFE_THRESHOLD_CHANGE": 1,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 2,
         "UNKNOWN_SELECTOR": 4
       },
       "hash_agree_alloy": 17,
@@ -851,7 +843,7 @@
         "SAFE_MULTISEND_BATCH": 143,
         "SAFE_OWNER_CHANGE": 37,
         "SAFE_THRESHOLD_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 167,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 184,
         "TOKEN_APPROVAL": 88,
         "TOKEN_UNITS_RAW": 164,
         "UNKNOWN_SELECTOR": 179,
@@ -875,16 +867,14 @@
       "onchain_sigs_checked": 742,
       "onchain_sigs_recovered_to_owner": 742,
       "outcome": {
-        "blind": 178,
-        "clear": 70,
-        "critical": 61,
-        "warning": 40
+        "blind": 269,
+        "clear": 19,
+        "critical": 61
       },
       "outcome_multisig_only": {
-        "blind": 151,
-        "clear": 53,
-        "critical": 51,
-        "warning": 26
+        "blind": 221,
+        "clear": 9,
+        "critical": 51
       },
       "parse_refused": {},
       "records": 349,
@@ -991,8 +981,7 @@
       "onchain_sigs_checked": 200,
       "onchain_sigs_recovered_to_owner": 200,
       "outcome": {
-        "blind": 100,
-        "clear": 100
+        "blind": 200
       },
       "outcome_multisig_only": {},
       "parse_refused": {},
@@ -1033,7 +1022,7 @@
         "SAFE_MULTISEND_BATCH": 10,
         "SAFE_OWNER_CHANGE": 9,
         "SAFE_THRESHOLD_CHANGE": 2,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 8,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 22,
         "TOKEN_APPROVAL": 1,
         "TOKEN_UNITS_RAW": 8,
         "UNKNOWN_SELECTOR": 65
@@ -1059,16 +1048,14 @@
       "onchain_sigs_checked": 189,
       "onchain_sigs_recovered_to_owner": 189,
       "outcome": {
-        "blind": 63,
-        "clear": 20,
-        "critical": 16,
-        "warning": 9
+        "blind": 79,
+        "clear": 13,
+        "critical": 16
       },
       "outcome_multisig_only": {
-        "blind": 34,
-        "clear": 12,
-        "critical": 15,
-        "warning": 9
+        "blind": 50,
+        "clear": 5,
+        "critical": 15
       },
       "parse_refused": {},
       "records": 108,
@@ -1130,7 +1117,7 @@
       "confirmation_sigs_checked": 107,
       "confirmation_sigs_other_type": 73,
       "confirmation_sigs_recovered_to_owner": 107,
-      "critical_excluding_standing": 14,
+      "critical_excluding_standing": 13,
       "domain_from_service_hash": 45,
       "domain_from_signatures": 73,
       "executed": 114,
@@ -1139,11 +1126,12 @@
         "COMPARE_SAFE_TX_HASH": 118,
         "EMPTY_CALL": 1,
         "OWNERSHIP_ACCEPT": 1,
+        "SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT": 1,
         "SAFE_EXEC_SUBMISSION": 1,
         "SAFE_MODULE_CHANGE": 2,
         "SAFE_MULTISEND_BATCH": 53,
-        "SAFE_OWNER_CHANGE": 8,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 62,
+        "SAFE_OWNER_CHANGE": 7,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 64,
         "TOKEN_APPROVAL": 37,
         "TOKEN_UNITS_RAW": 57,
         "UNKNOWN_SELECTOR": 70,
@@ -1165,16 +1153,14 @@
       "onchain_sigs_checked": 104,
       "onchain_sigs_recovered_to_owner": 104,
       "outcome": {
-        "blind": 68,
-        "clear": 33,
-        "critical": 14,
-        "warning": 3
+        "blind": 89,
+        "clear": 16,
+        "critical": 13
       },
       "outcome_multisig_only": {
-        "blind": 3,
-        "clear": 26,
-        "critical": 6,
-        "warning": 1
+        "blind": 14,
+        "clear": 16,
+        "critical": 6
       },
       "parse_refused": {},
       "records": 118,
@@ -1241,7 +1227,7 @@
         "SAFE_MULTISEND_BATCH": 90,
         "SAFE_OWNER_CHANGE": 18,
         "SAFE_THRESHOLD_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 44,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 100,
         "TOKEN_APPROVAL": 35,
         "TOKEN_UNITS_RAW": 37,
         "UNKNOWN_SELECTOR": 167,
@@ -1264,16 +1250,14 @@
       "onchain_sigs_checked": 372,
       "onchain_sigs_recovered_to_owner": 372,
       "outcome": {
-        "blind": 159,
-        "clear": 8,
-        "critical": 74,
-        "warning": 3
+        "blind": 166,
+        "clear": 4,
+        "critical": 74
       },
       "outcome_multisig_only": {
-        "blind": 78,
+        "blind": 81,
         "clear": 1,
-        "critical": 67,
-        "warning": 3
+        "critical": 67
       },
       "parse_refused": {},
       "records": 244,
@@ -1341,7 +1325,7 @@
       "confirmation_sigs_checked": 644,
       "confirmation_sigs_other_type": 165,
       "confirmation_sigs_recovered_to_owner": 644,
-      "critical_excluding_standing": 14,
+      "critical_excluding_standing": 13,
       "domain_from_service_hash": 0,
       "domain_from_signatures": 335,
       "executed": 326,
@@ -1352,10 +1336,11 @@
         "MULTISEND_CALLS_NOT_SHOWN": 9,
         "OWNERSHIP_ACCEPT": 2,
         "ROLE_GRANT": 10,
+        "SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT": 1,
         "SAFE_EXEC_SUBMISSION": 2,
         "SAFE_MULTISEND_BATCH": 53,
-        "SAFE_OWNER_CHANGE": 4,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 164,
+        "SAFE_OWNER_CHANGE": 3,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 177,
         "TOKEN_APPROVAL": 2,
         "TOKEN_UNITS_RAW": 164,
         "UNKNOWN_SELECTOR": 71,
@@ -1383,16 +1368,16 @@
       "onchain_sigs_checked": 634,
       "onchain_sigs_recovered_to_owner": 634,
       "outcome": {
-        "blind": 77,
-        "clear": 200,
-        "critical": 14,
-        "warning": 44
+        "blind": 240,
+        "clear": 72,
+        "critical": 13,
+        "warning": 10
       },
       "outcome_multisig_only": {
-        "blind": 77,
-        "clear": 200,
-        "critical": 14,
-        "warning": 44
+        "blind": 240,
+        "clear": 72,
+        "critical": 13,
+        "warning": 10
       },
       "parse_refused": {},
       "records": 335,
@@ -1471,16 +1456,14 @@
       "onchain_sigs_checked": 583,
       "onchain_sigs_recovered_to_owner": 583,
       "outcome": {
-        "blind": 538,
-        "clear": 38,
-        "critical": 6,
-        "warning": 32
+        "blind": 605,
+        "clear": 3,
+        "critical": 6
       },
       "outcome_multisig_only": {
-        "blind": 150,
-        "clear": 24,
-        "critical": 2,
-        "warning": 25
+        "blind": 196,
+        "clear": 3,
+        "critical": 2
       },
       "parse_refused": {},
       "records": 614,
@@ -1565,7 +1548,7 @@
         "SAFE_DELEGATECALL": 5,
         "SAFE_MULTISEND_BATCH": 125,
         "SAFE_OWNER_CHANGE": 12,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 102,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 107,
         "TIMELOCK_SCHEDULE": 1,
         "TOKEN_APPROVAL": 2,
         "TOKEN_UNITS_RAW": 101,
@@ -1595,16 +1578,14 @@
       "onchain_sigs_checked": 357,
       "onchain_sigs_recovered_to_owner": 357,
       "outcome": {
-        "blind": 130,
-        "clear": 102,
-        "critical": 21,
-        "warning": 1
+        "blind": 230,
+        "clear": 3,
+        "critical": 21
       },
       "outcome_multisig_only": {
-        "blind": 130,
-        "clear": 102,
-        "critical": 20,
-        "warning": 1
+        "blind": 230,
+        "clear": 3,
+        "critical": 20
       },
       "parse_refused": {},
       "records": 254,
@@ -1679,7 +1660,7 @@
         "SAFE_MODULE_CHANGE": 1,
         "SAFE_MULTISEND_BATCH": 208,
         "SAFE_OWNER_CHANGE": 3,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 113,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 116,
         "TOKEN_APPROVAL": 102,
         "TOKEN_UNITS_RAW": 106,
         "UNKNOWN_SELECTOR": 414,
@@ -1702,16 +1683,14 @@
       "onchain_sigs_checked": 356,
       "onchain_sigs_recovered_to_owner": 356,
       "outcome": {
-        "blind": 409,
-        "clear": 13,
-        "critical": 16,
-        "warning": 2
+        "blind": 413,
+        "clear": 11,
+        "critical": 16
       },
       "outcome_multisig_only": {
-        "blind": 108,
-        "clear": 13,
-        "critical": 15,
-        "warning": 2
+        "blind": 112,
+        "clear": 11,
+        "critical": 15
       },
       "parse_refused": {},
       "records": 440,
@@ -1775,7 +1754,7 @@
         "PROXY_UPGRADE": 1,
         "SAFE_MULTISEND_BATCH": 126,
         "SAFE_OWNER_CHANGE": 4,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 200,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 201,
         "TOKEN_APPROVAL": 77,
         "TOKEN_UNITS_RAW": 185,
         "UNKNOWN_SELECTOR": 204,
@@ -1796,16 +1775,16 @@
       "onchain_sigs_checked": 503,
       "onchain_sigs_recovered_to_owner": 503,
       "outcome": {
-        "blind": 201,
-        "clear": 116,
+        "blind": 331,
+        "clear": 17,
         "critical": 12,
-        "warning": 63
+        "warning": 32
       },
       "outcome_multisig_only": {
-        "blind": 63,
-        "clear": 65,
+        "blind": 139,
+        "clear": 17,
         "critical": 12,
-        "warning": 60
+        "warning": 32
       },
       "parse_refused": {},
       "records": 392,
@@ -1880,7 +1859,7 @@
         "SAFE_MULTISEND_BATCH": 191,
         "SAFE_OWNER_CHANGE": 12,
         "SAFE_THRESHOLD_CHANGE": 4,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 242,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 245,
         "TOKEN_APPROVAL": 146,
         "TOKEN_UNITS_RAW": 242,
         "UNKNOWN_SELECTOR": 284,
@@ -1907,16 +1886,14 @@
       "onchain_sigs_checked": 788,
       "onchain_sigs_recovered_to_owner": 788,
       "outcome": {
-        "blind": 283,
-        "clear": 95,
-        "critical": 38,
-        "warning": 13
+        "blind": 381,
+        "clear": 10,
+        "critical": 38
       },
       "outcome_multisig_only": {
-        "blind": 283,
-        "clear": 95,
-        "critical": 37,
-        "warning": 13
+        "blind": 381,
+        "clear": 10,
+        "critical": 37
       },
       "parse_refused": {},
       "records": 429,
@@ -1990,7 +1967,7 @@
         "SAFE_MULTISEND_BATCH": 111,
         "SAFE_OWNER_CHANGE": 9,
         "SAFE_THRESHOLD_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 156,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 158,
         "TIMELOCK_SCHEDULE": 1,
         "TOKEN_APPROVAL": 22,
         "TOKEN_UNITS_RAW": 151,
@@ -2013,16 +1990,14 @@
       "onchain_sigs_checked": 238,
       "onchain_sigs_recovered_to_owner": 238,
       "outcome": {
-        "blind": 352,
-        "clear": 53,
-        "critical": 26,
-        "warning": 27
+        "blind": 423,
+        "clear": 9,
+        "critical": 26
       },
       "outcome_multisig_only": {
-        "blind": 4,
-        "clear": 2,
-        "critical": 15,
-        "warning": 2
+        "blind": 7,
+        "clear": 1,
+        "critical": 15
       },
       "parse_refused": {},
       "records": 458,
@@ -2121,7 +2096,7 @@
         "SAFE_MULTISEND_BATCH": 101,
         "SAFE_OWNER_CHANGE": 7,
         "SAFE_THRESHOLD_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 109,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 110,
         "TOKEN_APPROVAL": 1,
         "TOKEN_UNITS_RAW": 109,
         "UNKNOWN_SELECTOR": 114,
@@ -2143,16 +2118,14 @@
       "onchain_sigs_checked": 347,
       "onchain_sigs_recovered_to_owner": 347,
       "outcome": {
-        "blind": 114,
-        "clear": 113,
-        "critical": 13,
-        "warning": 1
+        "blind": 223,
+        "clear": 5,
+        "critical": 13
       },
       "outcome_multisig_only": {
-        "blind": 114,
-        "clear": 113,
-        "critical": 6,
-        "warning": 1
+        "blind": 223,
+        "clear": 5,
+        "critical": 6
       },
       "parse_refused": {},
       "records": 241,
@@ -2205,19 +2178,21 @@
         "COMPARE_SAFE_TX_HASH": 320,
         "EMPTY_CALL": 9,
         "MULTISEND_CALLS_NOT_SHOWN": 1,
+        "MULTISEND_WRONG_CHAIN": 2,
         "OWNERSHIP_ACCEPT": 2,
         "PROXY_UPGRADE": 5,
         "ROLE_RENOUNCE": 1,
-        "SAFE_DELEGATECALL": 17,
+        "SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT": 1,
+        "SAFE_DELEGATECALL": 19,
         "SAFE_EXEC_SUBMISSION": 5,
-        "SAFE_MODULE_CHANGE": 2,
-        "SAFE_MULTISEND_BATCH": 121,
-        "SAFE_OWNER_CHANGE": 30,
+        "SAFE_MODULE_CHANGE": 1,
+        "SAFE_MULTISEND_BATCH": 119,
+        "SAFE_OWNER_CHANGE": 29,
         "SAFE_THRESHOLD_CHANGE": 2,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 110,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 121,
         "SIGNATURE_NOT_CHAIN_BOUND": 4,
         "TOKEN_APPROVAL": 28,
-        "TOKEN_UNITS_RAW": 110,
+        "TOKEN_UNITS_RAW": 109,
         "UNKNOWN_SELECTOR": 129,
         "VALUE_WITH_CALL": 5
       },
@@ -2225,8 +2200,8 @@
       "hash_agree_service": 320,
       "hash_disagree_alloy": 0,
       "hash_disagree_service": 0,
-      "multisend_decoded": 121,
-      "multisend_inner_calls": 647,
+      "multisend_decoded": 119,
+      "multisend_inner_calls": 628,
       "multisig_safes": [
         "0x0BF186764D8333a938f35e5dD124a7b9b9dccDF9",
         "0x5DA07af8913A4EAf09E5F569c20138b658906c17",
@@ -2241,16 +2216,16 @@
       "onchain_sigs_checked": 639,
       "onchain_sigs_recovered_to_owner": 639,
       "outcome": {
-        "blind": 130,
-        "clear": 64,
-        "critical": 57,
-        "warning": 69
+        "blind": 238,
+        "clear": 16,
+        "critical": 56,
+        "warning": 10
       },
       "outcome_multisig_only": {
-        "blind": 119,
-        "clear": 62,
-        "critical": 51,
-        "warning": 69
+        "blind": 226,
+        "clear": 15,
+        "critical": 50,
+        "warning": 10
       },
       "parse_refused": {},
       "records": 320,
@@ -2351,16 +2326,14 @@
       "onchain_sigs_checked": 858,
       "onchain_sigs_recovered_to_owner": 858,
       "outcome": {
-        "blind": 453,
-        "clear": 101,
-        "critical": 16,
-        "warning": 2
+        "blind": 541,
+        "clear": 15,
+        "critical": 16
       },
       "outcome_multisig_only": {
-        "blind": 453,
-        "clear": 101,
-        "critical": 16,
-        "warning": 2
+        "blind": 541,
+        "clear": 15,
+        "critical": 16
       },
       "parse_refused": {},
       "records": 572,
@@ -2435,7 +2408,7 @@
         "SAFE_MULTISEND_BATCH": 125,
         "SAFE_OWNER_CHANGE": 20,
         "SAFE_THRESHOLD_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 4,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 9,
         "TIMELOCK_SCHEDULE": 19,
         "TOKEN_UNITS_RAW": 4,
         "UNKNOWN_SELECTOR": 182,
@@ -2458,13 +2431,13 @@
       "onchain_sigs_checked": 285,
       "onchain_sigs_recovered_to_owner": 285,
       "outcome": {
-        "blind": 180,
-        "clear": 13,
+        "blind": 184,
+        "clear": 9,
         "critical": 32
       },
       "outcome_multisig_only": {
-        "blind": 180,
-        "clear": 8,
+        "blind": 184,
+        "clear": 4,
         "critical": 15
       },
       "parse_refused": {},
@@ -2558,16 +2531,16 @@
       "onchain_sigs_checked": 673,
       "onchain_sigs_recovered_to_owner": 673,
       "outcome": {
-        "blind": 384,
-        "clear": 17,
+        "blind": 450,
+        "clear": 3,
         "critical": 24,
-        "warning": 53
+        "warning": 1
       },
       "outcome_multisig_only": {
-        "blind": 267,
-        "clear": 13,
+        "blind": 328,
+        "clear": 3,
         "critical": 18,
-        "warning": 52
+        "warning": 1
       },
       "parse_refused": {},
       "records": 478,
@@ -2683,7 +2656,7 @@
         "SAFE_MULTISEND_BATCH": 115,
         "SAFE_OWNER_CHANGE": 43,
         "SAFE_THRESHOLD_CHANGE": 10,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 237,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 259,
         "TOKEN_APPROVAL": 1,
         "TOKEN_UNITS_RAW": 237,
         "UNKNOWN_SELECTOR": 187,
@@ -2708,16 +2681,14 @@
       "onchain_sigs_checked": 909,
       "onchain_sigs_recovered_to_owner": 909,
       "outcome": {
-        "blind": 187,
-        "clear": 264,
-        "critical": 66,
-        "warning": 15
+        "blind": 438,
+        "clear": 28,
+        "critical": 66
       },
       "outcome_multisig_only": {
-        "blind": 187,
-        "clear": 263,
-        "critical": 33,
-        "warning": 15
+        "blind": 438,
+        "clear": 27,
+        "critical": 33
       },
       "parse_refused": {},
       "records": 532,

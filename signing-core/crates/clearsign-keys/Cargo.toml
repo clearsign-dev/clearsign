@@ -16,9 +16,12 @@ clearsign = { path = "../clearsign" }
 # BIP-39 encoding and seed derivation (rust-bitcoin). ASCII passphrases only, so no Unicode normalisation code is needed.
 bip39 = { version = "2.2", default-features = false, features = ["alloc"] }
 # BIP-32 derivation only; its own mnemonic feature needs std and is not used.
-bip32 = { version = "0.5", default-features = false, features = ["alloc", "secp256k1"] }
+bip32 = { version = "0.6", default-features = false, features = ["alloc", "secp256k1"] }
 # RustCrypto secp256k1 ECDSA: RFC 6979 deterministic nonces, low-S signatures.
-k256 = { version = "0.13", default-features = false, features = ["ecdsa", "arithmetic"] }
+k256 = { version = "0.14", default-features = false, features = ["ecdsa", "arithmetic"] }
+# RUSTSEC-2026-0387 is fixed in 0.7.6. Keep this direct lower bound so a
+# resolver cannot select the vulnerable 0.7.5 release through k256.
+crypto-bigint = { version = ">=0.7.6, <0.8", default-features = false }
 sha2 = { version = "0.10", default-features = false }
 zeroize = { version = "1", default-features = false, features = ["alloc"] }
 

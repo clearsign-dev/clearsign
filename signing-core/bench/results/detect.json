@@ -52,6 +52,7 @@
     {
       "all_codes": [
         "OWNERSHIP_TRANSFER",
+        "SELECTOR_IS_NOT_BEHAVIOUR",
         "COMPARE_SAFE_TX_HASH"
       ],
       "case": "radiant-arbitrum",
@@ -78,6 +79,7 @@
     {
       "all_codes": [
         "OWNERSHIP_TRANSFER",
+        "SELECTOR_IS_NOT_BEHAVIOUR",
         "COMPARE_SAFE_TX_HASH"
       ],
       "case": "radiant-bsc",
@@ -161,7 +163,7 @@
       "case": "superfortune",
       "chain_id": 56,
       "decisive": [
-        "SAFE_MULTISEND_BATCH"
+        "SELECTOR_IS_NOT_BEHAVIOUR"
       ],
       "incident": "SUPERFORTUNE AI",
       "key_lines": [
@@ -183,7 +185,7 @@
       "specific": false,
       "tx": "0xd2689d12b22720e2fabcbceba683dd6eec61ba644187d0a60faf397b6d2fda7b",
       "vector": "DECEIVED_INTENT",
-      "verdict": "review warnings"
+      "verdict": "DO NOT SIGN"
     },
     {
       "all_codes": [
@@ -194,9 +196,7 @@
       "case": "florence",
       "chain_id": 1,
       "decisive": [
-        "TOKEN_UNITS_RAW",
-        "SELECTOR_IS_NOT_BEHAVIOUR",
-        "COMPARE_SAFE_TX_HASH"
+        "SELECTOR_IS_NOT_BEHAVIOUR"
       ],
       "incident": "Florence Finance",
       "key_lines": [
@@ -212,7 +212,7 @@
       "specific": false,
       "tx": "0x67a7a5f258378f953e1561a25f0e264d88ac229d4c6ec871b67a2b399137fed8",
       "vector": "DECEIVED_INTENT",
-      "verdict": "nothing flagged"
+      "verdict": "DO NOT SIGN"
     },
     {
       "all_codes": [
@@ -371,7 +371,6 @@
       "case": "nexus-mutual",
       "chain_id": 1,
       "decisive": [
-        "TOKEN_UNITS_RAW",
         "SELECTOR_IS_NOT_BEHAVIOUR"
       ],
       "incident": "Nexus Mutual founder",
@@ -387,7 +386,7 @@
       "specific": false,
       "tx": "0x4ddcc21c6de13b3cf472c8d4cdafd80593e0fc286c67ea144a76dbeddb7f3629",
       "vector": "SIGNING_DECEPTION_EOA",
-      "verdict": "nothing flagged"
+      "verdict": "DO NOT SIGN"
     },
     {
       "all_codes": [
@@ -398,7 +397,7 @@
       "case": "poap-rpl",
       "chain_id": 1,
       "decisive": [
-        "TOKEN_APPROVAL"
+        "SELECTOR_IS_NOT_BEHAVIOUR"
       ],
       "incident": "POAP founder (listed as Rocket Pool)",
       "key_lines": [
@@ -412,7 +411,7 @@
       "specific": false,
       "tx": "0xd36e7d75f9d5ff768d5ae53277f44ce5d130c6362cb06ca12d02023bd0373add",
       "vector": "SIGNING_DECEPTION_EOA",
-      "verdict": "review warnings"
+      "verdict": "DO NOT SIGN"
     },
     {
       "all_codes": [
@@ -612,7 +611,7 @@
       "case": "eigenlayer",
       "chain_id": 1,
       "decisive": [
-        "SAFE_MULTISEND_BATCH"
+        "SELECTOR_IS_NOT_BEHAVIOUR"
       ],
       "incident": "EigenLayer (OTC address swap)",
       "key_lines": [
@@ -674,7 +673,7 @@
       "specific": false,
       "tx": "0x3f7e3d1a55d8aa5bbb3d1dc750df72b13fd2f1d122d83a6c0807b30d5d7587ac",
       "vector": "DECEIVED_INTENT",
-      "verdict": "review warnings"
+      "verdict": "DO NOT SIGN"
     },
     {
       "all_codes": [],

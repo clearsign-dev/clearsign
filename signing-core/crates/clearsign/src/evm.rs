@@ -4,6 +4,8 @@ use alloc::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 
+use k256::ecdsa::{RecoveryId, Signature, VerifyingKey};
+
 use crate::address::{self, Address};
 use crate::calls::{self, CallContext, Operation};
 use crate::keccak::keccak256;
@@ -37,6 +39,91 @@ pub struct Authorization {
     pub y_parity: u8,
     pub r: U256,
     pub s: U256,
+}
+
+/// Why an EIP-7702 authorization signature cannot identify an authority.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AuthorizationSignatureError {
+    InvalidYParity,
+    InvalidScalar,
+    HighS,
+    RecoveryFailed,
+}
+
+impl Authorization {
+    /// `keccak256(0x05 || rlp([chain_id, address, nonce]))`, as defined by EIP-7702.
+    pub fn signature_hash(&self) -> [u8; 32] {
+        let mut payload = Vec::with_capacity(64);
+        append_rlp_uint(&mut payload, &self.chain_id);
+        append_rlp_bytes(&mut payload, &self.address);
+        append_rlp_uint(&mut payload, &self.nonce);
+
+        let mut encoded = Vec::with_capacity(payload.len().saturating_add(3));
+        encoded.push(0x05);
+        append_rlp_list_header(&mut encoded, payload.len());
+        encoded.extend_from_slice(&payload);
+        keccak256(&encoded)
+    }
+
+    /// Recover the account that signed this tuple after enforcing EIP-2 low-S
+    /// and secp256k1 scalar/parity constraints.
+    pub fn recover_authority(&self) -> Result<Address, AuthorizationSignatureError> {
+        if self.y_parity > 1 {
+            return Err(AuthorizationSignatureError::InvalidYParity);
+        }
+        let recovery_id = RecoveryId::from_byte(self.y_parity)
+            .ok_or(AuthorizationSignatureError::InvalidYParity)?;
+        let signature = Signature::from_scalars(self.r.0, self.s.0)
+            .map_err(|_| AuthorizationSignatureError::InvalidScalar)?;
+        if signature.normalize_s() != signature {
+            return Err(AuthorizationSignatureError::HighS);
+        }
+        let key =
+            VerifyingKey::recover_from_prehash(&self.signature_hash(), &signature, recovery_id)
+                .map_err(|_| AuthorizationSignatureError::RecoveryFailed)?;
+        let point = key.to_sec1_point(false);
+        let coordinates = point
+            .as_bytes()
+            .get(1..)
+            .ok_or(AuthorizationSignatureError::RecoveryFailed)?;
+        let hash = keccak256(coordinates);
+        let mut authority = [0u8; 20];
+        authority.copy_from_slice(
+            hash.get(12..)
+                .ok_or(AuthorizationSignatureError::RecoveryFailed)?,
+        );
+        Ok(authority)
+    }
+}
+
+fn significant_bytes(value: &U256) -> &[u8] {
+    let first = value.0.iter().position(|byte| *byte != 0).unwrap_or(32);
+    value.0.get(first..).unwrap_or(&[])
+}
+
+fn append_rlp_uint(out: &mut Vec<u8>, value: &U256) {
+    append_rlp_bytes(out, significant_bytes(value));
+}
+
+fn append_rlp_bytes(out: &mut Vec<u8>, bytes: &[u8]) {
+    if bytes.len() == 1 && bytes.first().is_some_and(|byte| *byte < 0x80) {
+        out.extend_from_slice(bytes);
+        return;
+    }
+    let len = u8::try_from(bytes.len()).unwrap_or(u8::MAX);
+    out.push(0x80u8.saturating_add(len));
+    out.extend_from_slice(bytes);
+}
+
+fn append_rlp_list_header(out: &mut Vec<u8>, payload_len: usize) {
+    let len = u8::try_from(payload_len).unwrap_or(u8::MAX);
+    if payload_len <= 55 {
+        out.push(0xc0u8.saturating_add(len));
+    } else {
+        // The three fixed authorization fields encode to at most 63 bytes.
+        out.push(0xf8);
+        out.push(len);
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -352,11 +439,13 @@ fn parse_authorizations(item: &Item<'_>) -> Result<Vec<Authorization>, Error> {
         if nonce.to_u64().is_none() {
             return Err(Error::IntegerOverflow);
         }
-        let y_parity = match y_parity.as_uint()?.to_u64() {
-            Some(0) => 0,
-            Some(1) => 1,
-            _ => return Err(Error::NonCanonical("authorization y_parity is not 0 or 1")),
-        };
+        // The field itself is uint8. Values other than 0 and 1 make only this
+        // tuple's signature invalid, so the review reports that tuple as skipped.
+        let y_parity = y_parity
+            .as_uint()?
+            .to_u64()
+            .and_then(|value| u8::try_from(value).ok())
+            .ok_or(Error::IntegerOverflow)?;
         out.push(Authorization {
             chain_id: chain_id.as_uint()?,
             address,
@@ -484,6 +573,7 @@ pub fn review_evm_transaction(tx: &EvmTransaction) -> Review {
             &tx.data,
             CallContext {
                 safe: None,
+                authenticated_safe: None,
                 operation: Operation::Call,
                 chain_id: tx.chain_id.and_then(|c| c.to_u64()),
                 depth: 0,
@@ -509,26 +599,46 @@ pub fn review_evm_transaction(tx: &EvmTransaction) -> Review {
     review
 }
 
-/// EIP-7702: each authorization lets code run as the account that signed it.
-///
-/// That account is recovered from the tuple's signature, which needs elliptic
-/// curve arithmetic this crate deliberately does not carry; the review names it
-/// as "the account that signed authorization N", which is the account sending
-/// this transaction when it sponsors its own delegation.
+fn signature_error(error: AuthorizationSignatureError) -> &'static str {
+    match error {
+        AuthorizationSignatureError::InvalidYParity => "yParity is not 0 or 1",
+        AuthorizationSignatureError::InvalidScalar => {
+            "r or s is zero or outside the secp256k1 scalar range"
+        }
+        AuthorizationSignatureError::HighS => "s is above the EIP-2 low-S limit",
+        AuthorizationSignatureError::RecoveryFailed => "no authority can be recovered",
+    }
+}
+
+/// EIP-7702 processing stops at the first failed check for each tuple. Checks
+/// that require chain state are never inferred from the unsigned bytes.
 fn review_authorizations(review: &mut Review, tx: &EvmTransaction) {
     let total = tx.authorizations.len();
+    let recoveries: Vec<Result<Address, AuthorizationSignatureError>> = tx
+        .authorizations
+        .iter()
+        .map(Authorization::recover_authority)
+        .collect();
     for (i, a) in tx.authorizations.iter().enumerate() {
         let n = i.saturating_add(1);
-        let will_skip = a.nonce == U256::from_u64(u64::MAX);
-        let mut s = Section::new(&format!(
+        let chain_matches = tx
+            .chain_id
+            .is_some_and(|chain_id| a.chain_id.is_zero() || a.chain_id == chain_id);
+        let nonce_is_max = a.nonce == U256::from_u64(u64::MAX);
+        let recovery = recoveries
+            .get(i)
+            .copied()
+            .unwrap_or(Err(AuthorizationSignatureError::RecoveryFailed));
+        let will_skip = !chain_matches || nonce_is_max || recovery.is_err();
+        let mut section = Section::new(&format!(
             "{} {n} of {total}",
             if will_skip {
                 "Skipped account authorization"
             } else {
-                "Account delegation"
+                "Account authorization"
             }
         ));
-        s.field(
+        section.field(
             "Valid on chain ID",
             if a.chain_id.is_zero() {
                 String::from("0 — EVERY chain")
@@ -536,33 +646,127 @@ fn review_authorizations(review: &mut Review, tx: &EvmTransaction) {
                 a.chain_id.to_decimal()
             },
         );
-        s.field(
+        section.field(
+            "Stateless signature",
+            match recovery {
+                Ok(_) => String::from("VALID: canonical low-S signature"),
+                Err(error) => format!("INVALID: {}", signature_error(error)),
+            },
+        );
+        section.field(
+            "Recovered authority",
+            match recovery {
+                Ok(authority) => address::display(&authority),
+                Err(_) => String::from("UNAVAILABLE"),
+            },
+        );
+        section.field(
             if will_skip {
-                "Requested code address"
+                "Authorization address (not applied)"
             } else {
-                "Delegates to code at"
+                "Requested code address"
             },
             address::display(&a.address),
         );
-        s.field("Authorization nonce", a.nonce.to_decimal());
-        review.sections.push(s);
-        if will_skip {
+        section.field("Authorization nonce", a.nonce.to_decimal());
+        section.field(
+            "Transaction sender relationship",
+            String::from("UNKNOWN: the unsigned transaction may be sponsored"),
+        );
+
+        let duplicate = match recovery {
+            Ok(authority) => recoveries
+                .iter()
+                .take(i)
+                .position(|earlier| *earlier == Ok(authority)),
+            Err(_) => None,
+        };
+        if let Some(earlier) = duplicate {
+            section.field(
+                "Repeated authority",
+                format!(
+                    "YES: also authorization {}; the last valid occurrence wins",
+                    earlier.saturating_add(1)
+                ),
+            );
+        }
+
+        let state_status = if !chain_matches {
+            "UNKNOWN on its authorized chain; not checked because this transaction chain skips the tuple"
+        } else if nonce_is_max {
+            "UNKNOWN; not checked because the maximum nonce makes this tuple skip"
+        } else if recovery.is_err() {
+            "UNKNOWN; not checked because the signature makes this tuple skip"
+        } else {
+            "UNKNOWN: current authority nonce and code are not in the signed bytes"
+        };
+        section.field("State-dependent effectiveness", String::from(state_status));
+        review.sections.push(section);
+
+        if let Some(earlier) = duplicate {
             review.find(
                 Severity::Warning,
-                "AUTHORIZATION_WILL_BE_SKIPPED",
+                "DUPLICATE_AUTHORITY",
                 format!(
-                    "Authorization {n} has nonce 2^64 - 1. EIP-7702 processors skip that tuple, so it does not change the account's delegation."
+                    "Authorization {n} and authorization {} recover to the same authority. EIP-7702 uses the last occurrence that passes every stateless and state-dependent check; these bytes do not prove which occurrences are effective.",
+                    earlier.saturating_add(1)
+                ),
+            );
+        }
+
+        if !chain_matches {
+            review.find(
+                Severity::Warning,
+                "AUTHORIZATION_CHAIN_MISMATCH",
+                format!(
+                    "Authorization {n} is skipped before its requested address is interpreted: its chain ID {} is neither 0 nor the transaction chain ID {}. Its state-dependent validity on the authorized chain is unknown.",
+                    a.chain_id.to_decimal(),
+                    tx.chain_id
+                        .map_or_else(|| String::from("none"), |id| id.to_decimal())
                 ),
             );
             continue;
         }
+        if nonce_is_max {
+            review.find(
+                Severity::Warning,
+                "AUTHORIZATION_WILL_BE_SKIPPED",
+                format!(
+                    "Authorization {n} has nonce 2^64 - 1. EIP-7702 processors skip that tuple before signature or state checks, so it does not change the recovered authority's delegation."
+                ),
+            );
+            continue;
+        }
+        let authority = match recovery {
+            Ok(authority) => authority,
+            Err(error) => {
+                review.find(
+                    Severity::Warning,
+                    "AUTHORIZATION_INVALID_SIGNATURE",
+                    format!(
+                        "Authorization {n} is skipped because its stateless signature is invalid ({}). No authority or delegation effect can be claimed.",
+                        signature_error(error)
+                    ),
+                );
+                continue;
+            }
+        };
+
+        review.find(
+            Severity::Blind,
+            "AUTHORIZATION_STATE_UNKNOWN",
+            format!(
+                "Authorization {n} has a valid signature from {}, but whether it takes effect is UNKNOWN: the signed bytes do not prove the authority's current nonce or that its code is empty or already delegated.",
+                address::checksummed(&authority)
+            ),
+        );
         if a.address == address::ZERO {
             review.find(
                 Severity::Info,
-                "DELEGATION_CLEARED",
+                "DELEGATION_CLEAR_REQUESTED",
                 format!(
-                    "Authorization {n} clears the signing account's delegation, so it behaves as an \
-                     ordinary account again."
+                    "Authorization {n} requests clearing the delegation of recovered authority {} if every state-dependent check passes. The outer transaction sender may be a sponsor and is not assumed to be this authority.",
+                    address::checksummed(&authority)
                 ),
             );
             continue;
@@ -571,10 +775,9 @@ fn review_authorizations(review: &mut Review, tx: &EvmTransaction) {
             Severity::Critical,
             "ACCOUNT_DELEGATION",
             format!(
-                "Authorization {n} makes the code at {} run as the account that signed it, \
-                 usually you. That code can move everything the account holds, now and later, \
-                 until the delegation is replaced. Nothing in these bytes says what it does.",
-                address::checksummed(&a.address)
+                "Authorization {n} requests that code at {} run as recovered authority {} if every state-dependent check passes. The transaction may be sponsored, so the authority is not assumed to be its sender. That code can move everything the authority holds, now and later, until the delegation is replaced. Nothing in these bytes says what it does.",
+                address::checksummed(&a.address),
+                address::checksummed(&authority)
             ),
         );
         if a.chain_id.is_zero() {

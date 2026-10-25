@@ -84,6 +84,9 @@ pub struct Field {
 /// An `eth_signTypedData_v4` request.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypedData {
+    /// Account requested by the RPC caller. This is request metadata, not part
+    /// of the EIP-712 hash, so it is displayed but never treated as signed.
+    pub requested_signer: Option<Address>,
     pub types: Vec<(String, Vec<Field>)>,
     pub primary_type: String,
     pub domain: Value,
@@ -188,12 +191,12 @@ fn parse_ty(s: &str) -> Result<Ty<'_>, TypedDataError> {
         }
         _ => {
             if let Some(bits) = sized("uint") {
-                if bits % 8 != 0 || bits > 256 {
+                if !bits.is_multiple_of(8) || bits > 256 {
                     return err(format!("{s:?} is not a valid integer type"));
                 }
                 Ty::Uint(bits)
             } else if let Some(bits) = sized("int") {
-                if bits % 8 != 0 || bits > 256 {
+                if !bits.is_multiple_of(8) || bits > 256 {
                     return err(format!("{s:?} is not a valid integer type"));
                 }
                 Ty::Int(bits)
@@ -437,7 +440,7 @@ fn hex_digits(s: &str) -> Option<&str> {
 fn bytes_value(v: &Value) -> Result<Vec<u8>, TypedDataError> {
     match v {
         Value::Str(s) => match hex_digits(s) {
-            Some(digits) if digits.len() % 2 == 0 => {
+            Some(digits) if digits.len().is_multiple_of(2) => {
                 hex::decode(digits).map_err(|_| TypedDataError(format!("{s:?} is not hexadecimal")))
             }
             _ => err(format!(
@@ -673,6 +676,13 @@ fn review_with(
 ) -> Result<Review, TypedDataError> {
     // The domain: who checks the signature, and on which chain.
     let mut d = Section::new("Signing domain");
+    d.field(
+        "Requested signing account (RPC metadata, not signed)",
+        td.requested_signer
+            .as_ref()
+            .map(address::display)
+            .unwrap_or_else(|| String::from("not supplied")),
+    );
     let domain_fields = types.fields("EIP712Domain")?;
     let mut verifying: Option<Address> = None;
     let mut chain_bound = false;

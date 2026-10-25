@@ -22,14 +22,14 @@ permissions:
 jobs:
   validate:
     name: release validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       release_mode: ${{ steps.release_policy.outputs.release_mode }}
       apple_team_id: ${{ steps.release_policy.outputs.apple_team_id }}
       windows_certificate_thumbprint: ${{ steps.release_policy.outputs.windows_certificate_thumbprint }}
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
       - name: Validate and freeze the release policy
@@ -53,9 +53,18 @@ jobs:
           python3 -m unittest discover -s scripts -p 'test_*.py'
           python3 scripts/release_manifest.py check-version "${GITHUB_REF_NAME}" "${GITHUB_REF_TYPE}"
           node --test app/backend-desktop.test.mjs
-      - name: Audit the desktop dependency lockfile
+      - name: Audit dependency lockfiles
         run: |
           cargo install cargo-audit --version 0.22.2 --locked
+          cargo tree --locked --manifest-path desktop/src-tauri/Cargo.toml --edges normal,build >/dev/null
+          # Alloy retains its disabled k256 backend in these lockfiles. Audit
+          # may ignore that optional package only while Cargo proves it is not
+          # reachable in the configured graphs.
+          test -z "$(cargo tree --locked --target all --manifest-path signing-core/Cargo.toml -i crypto-bigint@0.5.5 2>/dev/null)"
+          test -z "$(cargo tree --locked --target all --manifest-path signing-core/bench/Cargo.toml -i crypto-bigint@0.5.5 2>/dev/null)"
+          cargo audit --file signing-core/Cargo.lock --deny unsound --ignore RUSTSEC-2026-0387
+          cargo audit --file signing-core/bench/Cargo.lock --deny unsound --ignore RUSTSEC-2026-0387
+          cargo audit --file signing-core/fuzz/Cargo.lock --deny unsound
           cargo audit --file desktop/src-tauri/Cargo.lock --deny unsound
       - name: Verify and test the Linux desktop dependency backport
         run: |
@@ -86,9 +95,9 @@ jobs:
           # ever. Rust cross-compiles this target from arm64 without help, and
           # neither macOS build was ever reproducible, so nothing is lost.
           - { os: macos-latest,  target: x86_64-apple-darwin }
-          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-24.04, target: x86_64-unknown-linux-musl }
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Add the target to the pinned toolchain
         working-directory: signing-core
         run: rustup target add ${{ matrix.target }}
@@ -110,7 +119,7 @@ jobs:
           cp ../LICENSE-MIT ../LICENSE-APACHE "dist/$name/"
           tar -C dist -czf "dist/$name.tar.gz" "$name"
           shasum -a 256 "dist/$name.tar.gz" > "dist/$name.tar.gz.sha256"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ matrix.target }}
           path: signing-core/dist/*.tar.gz*
@@ -123,11 +132,11 @@ jobs:
     # a bare runner instead it is a different binary, and the instructions fail
     # for everyone who follows them.
     name: aarch64-unknown-linux-musl (canonical)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Allow the arm64 canonical image to run here
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
         with:
           platforms: arm64
       - name: Fetch the crate sources named by Cargo.lock
@@ -137,6 +146,7 @@ jobs:
         run: |
           cp signing-core/EXPECTED-HASHES.txt /tmp/committed-hashes.txt
           SKIP_HOST_BUILD=1 ARTIFACTS=/tmp/repro signing-core/scripts/reproducible-cross-check.sh
+          cp signing-core/EXPECTED-HASHES.txt /tmp/candidate-hashes.txt
       - name: Require recorded hashes for a tag
         run: |
           set -euo pipefail
@@ -165,13 +175,13 @@ jobs:
           # The hash people actually compare against EXPECTED-HASHES.txt is the
           # binary's, not the archive's. Publish both and say which is which.
           ( cd "signing-core/dist/$name" && shasum -a 256 clearsign ) \
-            | sed 's|$| (binary, compare with signing-core/EXPECTED-HASHES.txt)|' \
+            | sed 's|$| (canonical binary hash)|' \
             > signing-core/dist/BINARY-SHA256
           cat signing-core/dist/BINARY-SHA256
           diff <(awk '{print $1}' signing-core/dist/BINARY-SHA256) \
-               <(awk '/  clearsign$/{print $1}' /tmp/committed-hashes.txt) \
-            || { echo "::error::the packaged binary is not the one EXPECTED-HASHES.txt describes" >&2; exit 1; }
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+               <(awk '/  clearsign$/{print $1}' /tmp/candidate-hashes.txt) \
+            || { echo "::error::the packaged binary differs from the canonical build output" >&2; exit 1; }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: aarch64-unknown-linux-musl
           path: |
@@ -181,19 +191,19 @@ jobs:
   artifacts:
     needs: [validate, build, reproducible, desktop]
     name: validate complete release candidate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           path: dist
           merge-multiple: true
       - name: Generate the SPDX software bill of materials
-        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
+        uses: anchore/sbom-action@66cbf4bc1f1c0d2edc94016e65bc221b6bb0ad6c # v0.24.3
         with:
           path: .
           format: spdx-json
@@ -213,24 +223,51 @@ jobs:
             "$CLEARSIGN_RELEASE_MODE" "$APPLE_TEAM_ID" "$WINDOWS_CERTIFICATE_THUMBPRINT"
       - name: Attest the release candidate's build provenance
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: actions/attest-build-provenance@43d14bc2b83dec42d39ecae14e916627a18bb661 # v3
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: dist/*
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-candidate
           path: dist/*
 
+  signer-image:
+    needs: validate
+    if: startsWith(github.ref, 'refs/tags/v')
+    name: signer image matches its recorded hashes
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Allow the arm64 canonical image to run here
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        with:
+          platforms: arm64
+      - name: Fetch the crate sources named by Cargo.lock
+        working-directory: signing-core
+        run: cargo fetch --locked
+      - name: Rebuild twice and require the recorded image hashes
+        run: |
+          set -euo pipefail
+          cp platform/signer-image/EXPECTED-HASHES.txt /tmp/recorded-signer-image-hashes.txt
+          platform/signer-image/check-reproducible.sh
+          if ! diff -u /tmp/recorded-signer-image-hashes.txt platform/signer-image/EXPECTED-HASHES.txt; then
+            echo "::error::platform/signer-image/EXPECTED-HASHES.txt does not describe this release." >&2
+            echo "Regenerate it before tagging:" >&2
+            echo "" >&2
+            echo "    platform/signer-image/check-reproducible.sh" >&2
+            exit 1
+          fi
+
   publish:
-    needs: [validate, artifacts]
+    needs: [validate, artifacts, signer-image]
     environment: release
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-candidate
           path: dist
@@ -368,13 +405,13 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-22.04]
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Linux build dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf webkit2gtk-driver xvfb libfuse2
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
       - name: Add the WebAssembly target
@@ -672,8 +709,13 @@ jobs:
         shell: pwsh
         run: |
           function Assert-ReleaseSignature([string]$Path) {
-            if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_THUMBPRINT)) { return }
             $signature = Get-AuthenticodeSignature $Path
+            if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_THUMBPRINT)) {
+              if ($signature.Status -ne 'NotSigned') {
+                throw "Unsigned evaluation file has unexpected signature status on ${Path}: $($signature.Status)"
+              }
+              return
+            }
             if ($signature.Status -ne 'Valid' -or
                 $signature.SignerCertificate.Thumbprint -ne $env:WINDOWS_SIGNING_THUMBPRINT -or
                 $null -eq $signature.TimeStamperCertificate) {
@@ -774,7 +816,7 @@ jobs:
           }
           Remove-Item "$env:RUNNER_TEMP\clearsign-code-signing.pfx" -Force -ErrorAction SilentlyContinue
           Remove-Item 'desktop/src-tauri/tauri.windows-signing.generated.json' -Force -ErrorAction SilentlyContinue
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: success() || failure()
         with:
           name: app-${{ matrix.os }}

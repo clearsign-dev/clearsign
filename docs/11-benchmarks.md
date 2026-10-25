@@ -42,38 +42,38 @@ given those bytes.
 
 | Chain | Transactions | Chain-specific types | Provable | Accepted | Exact digest | Clear | Warning | BLIND | CRITICAL |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Ethereum | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 740 | 30 | 382 | 48 |
-| OP Mainnet | 923 | 24 | 899 | 899 | 899 | 3 | 6 | 887 | 3 |
-| BNB Chain | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 365 | 54 | 751 | 30 |
-| Gnosis | 440 | 0 | 440 | 440 | 440 | 16 | 0 | 348 | 76 |
+| Ethereum | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 406 | 0 | 746 | 48 |
+| OP Mainnet | 923 | 24 | 899 | 899 | 899 | 1 | 0 | 895 | 3 |
+| BNB Chain | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 192 | 0 | 978 | 30 |
+| Gnosis | 440 | 0 | 440 | 440 | 440 | 11 | 0 | 353 | 76 |
 | Unichain | 193 | 24 | 169 | 169 | 169 | 0 | 0 | 169 | 0 |
-| Polygon | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 131 | 18 | 1,017 | 34 |
-| Monad | 407 | 0 | 407 | 407 | 407 | 2 | 0 | 405 | 0 |
-| Sonic | 165 | 0 | 165 | 165 | 165 | 5 | 1 | 159 | 0 |
-| X Layer | 210 | 24 | 186 | 186 | 186 | 6 | 5 | 175 | 0 |
+| Polygon | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 56 | 0 | 1,110 | 34 |
+| Monad | 407 | 0 | 407 | 407 | 407 | 1 | 0 | 406 | 0 |
+| Sonic | 165 | 0 | 165 | 165 | 165 | 4 | 0 | 161 | 0 |
+| X Layer | 210 | 24 | 186 | 186 | 186 | 4 | 0 | 182 | 0 |
 | opBNB | 124 | 24 | 100 | 100 | 100 | 4 | 0 | 96 | 0 |
-| zkSync Era | 25 | 5 | 20 | 20 | 20 | 5 | 1 | 14 | 0 |
-| World Chain | 412 | 24 | 388 | 388 | 388 | 10 | 0 | 378 | 0 |
-| HyperEVM | 76 | 0 | 76 | 76 | 76 | 3 | 0 | 73 | 0 |
-| Morph | 17 | 0 | 17 | 17 | 17 | 13 | 0 | 4 | 0 |
+| zkSync Era | 25 | 5 | 20 | 20 | 20 | 2 | 0 | 18 | 0 |
+| World Chain | 412 | 24 | 388 | 388 | 388 | 4 | 0 | 384 | 0 |
+| HyperEVM | 76 | 0 | 76 | 76 | 76 | 2 | 0 | 74 | 0 |
+| Morph | 17 | 0 | 17 | 17 | 17 | 11 | 0 | 6 | 0 |
 | peaq | 8 | 0 | 8 | 8 | 8 | 2 | 0 | 6 | 0 |
 | MegaETH | 541 | 24 | 517 | 517 | 517 | 0 | 0 | 517 | 0 |
 | Mantle | 46 | 24 | 22 | 22 | 22 | 1 | 0 | 21 | 0 |
 | Kaia | 32 | 0 | 3 | 3 | 3 | 1 | 0 | 2 | 0 |
-| Base | 1,200 | 5 | 1,195 | 1,195 | 1,195 | 78 | 13 | 1,079 | 25 |
-| Plasma | 213 | 0 | 213 | 213 | 213 | 31 | 0 | 104 | 78 |
-| Arbitrum One | 96 | 24 | 72 | 72 | 72 | 31 | 3 | 37 | 1 |
-| Celo | 241 | 168 | 73 | 73 | 73 | 33 | 0 | 40 | 0 |
-| Hemi | 38 | 24 | 14 | 14 | 14 | 0 | 1 | 13 | 0 |
-| Avalanche C-Chain | 57 | 0 | 57 | 57 | 57 | 7 | 1 | 48 | 1 |
+| Base | 1,200 | 5 | 1,195 | 1,195 | 1,195 | 44 | 0 | 1,126 | 25 |
+| Plasma | 213 | 0 | 213 | 213 | 213 | 8 | 0 | 127 | 78 |
+| Arbitrum One | 96 | 24 | 72 | 72 | 72 | 18 | 0 | 53 | 1 |
+| Celo | 241 | 168 | 73 | 73 | 73 | 4 | 0 | 69 | 0 |
+| Hemi | 38 | 24 | 14 | 14 | 14 | 0 | 0 | 14 | 0 |
+| Avalanche C-Chain | 57 | 0 | 57 | 57 | 57 | 1 | 0 | 55 | 1 |
 | Ink | 102 | 24 | 78 | 78 | 78 | 0 | 0 | 77 | 1 |
-| Linea | 28 | 0 | 28 | 28 | 28 | 7 | 0 | 21 | 0 |
+| Linea | 28 | 0 | 28 | 28 | 28 | 5 | 0 | 23 | 0 |
 | Berachain | 32 | 24 | 8 | 8 | 8 | 0 | 0 | 8 | 0 |
-| Scroll | 28 | 0 | 28 | 28 | 28 | 3 | 0 | 25 | 0 |
+| Scroll | 28 | 0 | 28 | 28 | 28 | 1 | 0 | 27 | 0 |
 | Katana | 38 | 24 | 14 | 14 | 14 | 0 | 0 | 14 | 0 |
-| Sepolia (test network) | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 135 | 41 | 1,015 | 9 |
+| Sepolia (test network) | 1,200 | 0 | 1,200 | 1,200 | 1,200 | 118 | 0 | 1,074 | 8 |
 | Aurora | 1 | 0 | 1 | 1 | 1 | 0 | 0 | 1 | 0 |
-| **All** | **10,493** | **466** | **9,998** | **9,998** | **9,998** | **1,632** | **174** | **7,886** | **306** |
+| **All** | **10,493** | **466** | **9,998** | **9,998** | **9,998** | **901** | **0** | **8,792** | **305** |
 
 **Before this round of work, 204 of these were refused** (type 0x01: 31, type 0x03: 81, type 0x04: 92) — EIP-2930, EIP-4844
 and EIP-7702 transactions, which the decoder did not read. They are now decoded, and the
@@ -107,34 +107,34 @@ two or more. Three checks were made on every transaction:
 
 | Chain | Records | Safes | = Safe's service | = alloy | Owner signatures | Signatures accepted on-chain | Clear | Warning | BLIND | CRITICAL |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Ethereum | 648 | 10 | 648/648 | 648/648 | 812/812 | 809/809 | 94 | 119 | 418 | 17 |
-| OP Mainnet | 468 | 10 | 468/468 | 468/468 | 659/659 | 638/638 | 23 | 62 | 168 | 215 |
-| BNB Chain | 423 | 10 | 423/423 | 423/423 | 541/541 | 541/541 | 211 | 0 | 206 | 6 |
-| Gnosis | 907 | 10 | 907/907 | 907/907 | 652/652 | 652/652 | 12 | 0 | 693 | 202 |
-| Unichain | 348 | 10 | 348/348 | 348/348 | 469/469 | 444/444 | 21 | 8 | 265 | 54 |
-| Polygon | 977 | 10 | 977/977 | 977/977 | 977/977 | 977/977 | 65 | 1 | 870 | 41 |
-| Sonic | 710 | 10 | 710/710 | 710/710 | 210/210 | 204/204 | 116 | 7 | 572 | 15 |
-| X Layer | 44 | 1 | 44/44 | 44/44 | 78/78 | 66/66 | 13 | 3 | 7 | 21 |
+| Ethereum | 648 | 10 | 648/648 | 648/648 | 812/812 | 809/809 | 13 | 100 | 518 | 17 |
+| OP Mainnet | 468 | 10 | 468/468 | 468/468 | 659/659 | 638/638 | 11 | 5 | 237 | 215 |
+| BNB Chain | 423 | 10 | 423/423 | 423/423 | 541/541 | 541/541 | 1 | 0 | 416 | 6 |
+| Gnosis | 907 | 10 | 907/907 | 907/907 | 652/652 | 652/652 | 4 | 0 | 701 | 202 |
+| Unichain | 348 | 10 | 348/348 | 348/348 | 469/469 | 444/444 | 1 | 0 | 293 | 54 |
+| Polygon | 977 | 10 | 977/977 | 977/977 | 977/977 | 977/977 | 0 | 0 | 936 | 41 |
+| Sonic | 710 | 10 | 710/710 | 710/710 | 210/210 | 204/204 | 103 | 0 | 592 | 15 |
+| X Layer | 44 | 1 | 44/44 | 44/44 | 78/78 | 66/66 | 13 | 2 | 8 | 21 |
 | opBNB | 17 | 7 | 17/17 | 17/17 | 33/33 | 33/33 | 3 | 0 | 2 | 12 |
-| zkSync Era | 349 | 10 | 349/349 | 349/349 | 804/804 | 742/742 | 70 | 40 | 178 | 61 |
-| World Chain | 200 | 2 | 200/200 | 200/200 | 200/200 | 200/200 | 100 | 0 | 100 | 0 |
-| Morph | 108 | 10 | 108/108 | 108/108 | 189/189 | 189/189 | 20 | 9 | 63 | 16 |
-| MegaETH | 118 | 10 | 118/118 | 118/118 | 107/107 | 104/104 | 33 | 3 | 68 | 14 |
-| Mantle | 244 | 10 | 244/244 | 244/244 | 375/375 | 372/372 | 8 | 3 | 159 | 74 |
-| Kaia | 335 | 10 | 335/335 | 335/335 | 644/644 | 634/634 | 200 | 44 | 77 | 14 |
-| Base | 614 | 10 | 614/614 | 614/614 | 587/587 | 583/583 | 38 | 32 | 538 | 6 |
-| Plasma | 254 | 10 | 254/254 | 254/254 | 392/392 | 357/357 | 102 | 1 | 130 | 21 |
-| Arbitrum One | 440 | 8 | 440/440 | 440/440 | 360/360 | 356/356 | 13 | 2 | 409 | 16 |
-| Celo | 392 | 10 | 392/392 | 392/392 | 519/519 | 503/503 | 116 | 63 | 201 | 12 |
-| Hemi | 429 | 10 | 429/429 | 429/429 | 811/811 | 788/788 | 95 | 13 | 283 | 38 |
-| Avalanche C-Chain | 458 | 10 | 458/458 | 458/458 | 244/244 | 238/238 | 53 | 27 | 352 | 26 |
-| Ink | 241 | 10 | 241/241 | 241/241 | 352/352 | 347/347 | 113 | 1 | 114 | 13 |
-| Linea | 320 | 10 | 320/320 | 320/320 | 672/672 | 639/639 | 64 | 69 | 130 | 57 |
-| Berachain | 572 | 10 | 572/572 | 572/572 | 865/865 | 858/858 | 101 | 2 | 453 | 16 |
-| Scroll | 225 | 10 | 225/225 | 225/225 | 287/287 | 285/285 | 13 | 0 | 180 | 32 |
-| Katana | 478 | 10 | 478/478 | 478/478 | 701/701 | 673/673 | 17 | 53 | 384 | 24 |
-| Aurora | 532 | 10 | 532/532 | 532/532 | 927/927 | 909/909 | 264 | 15 | 187 | 66 |
-| **All** | **10,851** | **248** | **10,851/10,851** | **10,851/10,851** | **13,467/13,467** | **13,141/13,141** | **1,978** | **577** | **7,207** | **1,089** |
+| zkSync Era | 349 | 10 | 349/349 | 349/349 | 804/804 | 742/742 | 19 | 0 | 269 | 61 |
+| World Chain | 200 | 2 | 200/200 | 200/200 | 200/200 | 200/200 | 0 | 0 | 200 | 0 |
+| Morph | 108 | 10 | 108/108 | 108/108 | 189/189 | 189/189 | 13 | 0 | 79 | 16 |
+| MegaETH | 118 | 10 | 118/118 | 118/118 | 107/107 | 104/104 | 16 | 0 | 89 | 13 |
+| Mantle | 244 | 10 | 244/244 | 244/244 | 375/375 | 372/372 | 4 | 0 | 166 | 74 |
+| Kaia | 335 | 10 | 335/335 | 335/335 | 644/644 | 634/634 | 72 | 10 | 240 | 13 |
+| Base | 614 | 10 | 614/614 | 614/614 | 587/587 | 583/583 | 3 | 0 | 605 | 6 |
+| Plasma | 254 | 10 | 254/254 | 254/254 | 392/392 | 357/357 | 3 | 0 | 230 | 21 |
+| Arbitrum One | 440 | 8 | 440/440 | 440/440 | 360/360 | 356/356 | 11 | 0 | 413 | 16 |
+| Celo | 392 | 10 | 392/392 | 392/392 | 519/519 | 503/503 | 17 | 32 | 331 | 12 |
+| Hemi | 429 | 10 | 429/429 | 429/429 | 811/811 | 788/788 | 10 | 0 | 381 | 38 |
+| Avalanche C-Chain | 458 | 10 | 458/458 | 458/458 | 244/244 | 238/238 | 9 | 0 | 423 | 26 |
+| Ink | 241 | 10 | 241/241 | 241/241 | 352/352 | 347/347 | 5 | 0 | 223 | 13 |
+| Linea | 320 | 10 | 320/320 | 320/320 | 672/672 | 639/639 | 16 | 10 | 238 | 56 |
+| Berachain | 572 | 10 | 572/572 | 572/572 | 865/865 | 858/858 | 15 | 0 | 541 | 16 |
+| Scroll | 225 | 10 | 225/225 | 225/225 | 287/287 | 285/285 | 9 | 0 | 184 | 32 |
+| Katana | 478 | 10 | 478/478 | 478/478 | 701/701 | 673/673 | 3 | 1 | 450 | 24 |
+| Aurora | 532 | 10 | 532/532 | 532/532 | 927/927 | 909/909 | 28 | 0 | 438 | 66 |
+| **All** | **10,851** | **248** | **10,851/10,851** | **10,851/10,851** | **13,467/13,467** | **13,141/13,141** | **402** | **160** | **9,203** | **1,086** |
 
 The previous live comparison covered 238 transactions on Ethereum alone ([09](09-against-real-transactions.md)).
 This one covers every network the application offers except Sepolia, whose log endpoint
@@ -156,14 +156,14 @@ The same corpora, read for what the reviewer told the person signing.
 
 | | Clear | Warning | BLIND | CRITICAL |
 |---|---:|---:|---:|---:|
-| Real transactions (9,998 accepted) | 16.3% | 1.7% | 78.9% | 3.1% |
-| Real Safe transactions (10,851) | 18.2% | 5.3% | 66.4% | 10.0% |
-| Safe transactions from real multisigs only (5,122) | 26.9% | 7.1% | 56.4% | 9.6% |
+| Real transactions (9,998 accepted) | 9.0% | 0.0% | 87.9% | 3.1% |
+| Real Safe transactions (10,851) | 3.7% | 1.5% | 84.8% | 10.0% |
+| Safe transactions from real multisigs only (5,122) | 6.8% | 1.1% | 82.6% | 9.5% |
 
 **BLIND is the number to look at.** It is the share of real activity the reviewer cannot
 read: swaps, staking, bridging, account-abstraction bundles and every other function outside
 its verified set. It refuses those rather than guessing, which is the design, but it means
-that on 56% of what real multisigs sign, its answer is "I cannot tell you what this does."
+that on 83% of what real multisigs sign, its answer is "I cannot tell you what this does."
 That is the honest size of the gap between this tool and a reviewer that understands DeFi.
 
 **CRITICAL in ordinary traffic is mostly correct.** On Safes it is made of:
@@ -171,13 +171,13 @@ That is the honest size of the gap between this tool and a reviewer that underst
 | Finding | Safe transactions | before this work |
 |---|---:|---:|
 | `UNLIMITED_APPROVAL` | 506 | 504 |
-| `SAFE_DELEGATECALL` | 271 | 271 |
-| `SAFE_OWNER_CHANGE` | 270 | 270 |
+| `SAFE_DELEGATECALL` | 273 | 271 |
+| `SAFE_OWNER_CHANGE` | 267 | 270 |
 | `APPROVAL_FOR_ALL` | 242 | 0 |
 | `PROXY_UPGRADE` | 73 | 0 |
 | `ROLE_GRANT` | 69 | 0 |
 | `SAFE_THRESHOLD_CHANGE` | 35 | 35 |
-| `SAFE_MODULE_CHANGE` | 32 | 32 |
+| `SAFE_MODULE_CHANGE` | 31 | 32 |
 | `OWNERSHIP_TRANSFER` | 8 | 0 |
 
 Unlimited approvals, owner changes, upgrades and role grants are exactly what a signer
@@ -212,8 +212,8 @@ the code before this work (commit `3258e8d3`) and once from the code after.
 | Uniswap V3 LP phishing | Ethereum |  | `setApprovalForAll` on Uniswap V3 positions to the phisher | DO NOT SIGN — BLIND, not decoded | **DO NOT SIGN** — `APPROVAL_FOR_ALL` |
 | Badger DAO | Ethereum | $120.0M | Unlimited `increaseAllowance` to the attacker, from an injected script | DO NOT SIGN — BLIND, not decoded | **DO NOT SIGN** — `UNLIMITED_APPROVAL` |
 | Badger DAO | Ethereum |  | Unlimited `increaseAllowance` to the attacker, from an injected script | DO NOT SIGN — BLIND, not decoded | **DO NOT SIGN** — `UNLIMITED_APPROVAL` |
-| Nexus Mutual founder | Ethereum | $8.0M | A plain transfer of 370,000 NXM to the attacker, behind a tampered MetaMask | Nothing flagged | Nothing flagged |
-| POAP founder (listed as Rocket Pool) | Ethereum | $3.8M | A bounded `approve` of RPL to a drainer | Warning — `TOKEN_APPROVAL` | Warning — `TOKEN_APPROVAL` |
+| Nexus Mutual founder | Ethereum | $8.0M | A plain transfer of 370,000 NXM to the attacker, behind a tampered MetaMask | Nothing flagged | DO NOT SIGN — BLIND, not decoded |
+| POAP founder (listed as Rocket Pool) | Ethereum | $3.8M | A bounded `approve` of RPL to a drainer | Warning — `TOKEN_APPROVAL` | DO NOT SIGN — BLIND, not decoded |
 | JayPegs Automart (SushiSwap MISO) | Ethereum | $3.1M | MISO `createMarket` with the attacker's address injected | DO NOT SIGN — BLIND, not decoded | DO NOT SIGN — BLIND, not decoded |
 | MM Finance (Cronos) | Cronos | $2.0M | `approve` to a fake router injected by DNS hijack, then a swap through it | **DO NOT SIGN** — `UNLIMITED_APPROVAL` | **DO NOT SIGN** — `UNLIMITED_APPROVAL` |
 | MM Finance (Cronos) | Cronos |  | `approve` to a fake router injected by DNS hijack, then a swap through it | DO NOT SIGN — BLIND, not decoded | DO NOT SIGN — BLIND, not decoded |
@@ -224,7 +224,7 @@ the code before this work (commit `3258e8d3`) and once from the code after.
 **The mechanism was named in 9 of these 13 incidents, up from 3.** What changed is
 specificity, not the verdict: before, most of these already ended in DO NOT SIGN, but only
 because the reviewer could not decode them — the same answer it gives to
-56% of ordinary multisig traffic. A warning that fires on most of
+83% of ordinary multisig traffic. A warning that fires on most of
 what you sign stops being read. Radiant's signers would have seen "unknown function"; they
 now see that they are handing ownership of the protocol to an address they do not control.
 
@@ -246,12 +246,12 @@ it did, and the victim was wrong about who they were paying:
 
 | Incident | What happened | What clearsign said |
 |---|---|---|
-| SUPERFORTUNE AI | A Safe batch paying a look-alike of the airdrop contract's address | Warning — `SAFE_MULTISEND_BATCH` |
-| Florence Finance | A Safe USDC transfer to an address-poisoning look-alike | Nothing flagged |
+| SUPERFORTUNE AI | A Safe batch paying a look-alike of the airdrop contract's address | DO NOT SIGN — BLIND, not decoded |
+| Florence Finance | A Safe USDC transfer to an address-poisoning look-alike | DO NOT SIGN — BLIND, not decoded |
 | Ionic Protocol | An admin Safe listing a counterfeit token as collateral | DO NOT SIGN — BLIND, not decoded |
 | Fake GIWA bridge | ETH deposited into a fake bridge portal | Nothing flagged |
 | Phantom Galaxies | A 0.1 ETH "mint fee" paid straight to a scammer | Nothing flagged |
-| EigenLayer (OTC address swap) | A Safe batch in which one recipient had been swapped by email | Warning — `SAFE_MULTISEND_BATCH` |
+| EigenLayer (OTC address swap) | A Safe batch in which one recipient had been swapped by email | DO NOT SIGN — BLIND, not decoded |
 | CoinDash ICO | ETH sent to the address that replaced the ICO address on a hacked site | Nothing flagged |
 
 An address-poisoning victim sees the attacker's address in full on clearsign's screen. It

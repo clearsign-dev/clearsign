@@ -102,7 +102,7 @@ impl Account {
 }
 
 pub(crate) fn address_of(key: &VerifyingKey) -> [u8; 20] {
-    let point = key.to_encoded_point(false);
+    let point = key.to_sec1_point(false);
     let bytes = point.as_bytes();
     // Uncompressed SEC1 is 0x04 || X (32) || Y (32); the address hashes X || Y.
     let hash = clearsign::keccak::keccak256(bytes.get(1..).unwrap_or(&[]));

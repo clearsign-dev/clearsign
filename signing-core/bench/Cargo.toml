@@ -18,9 +18,9 @@ clearsign-safe-json = { path = "../crates/clearsign-safe-json" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 flate2 = "1"
-alloy-consensus = { version = "2", features = ["std", "k256", "serde"] }
+alloy-consensus = { version = "2", features = ["std", "secp256k1", "serde"] }
 alloy-eips = { version = "2", features = ["std", "serde"] }
-alloy-primitives = { version = "1", features = ["std", "k256", "serde"] }
+alloy-primitives = { version = "1", features = ["std", "secp256k1", "serde"] }
 alloy-rpc-types-eth = { version = "2", features = ["std", "serde"] }
 alloy-sol-types = { version = "1", features = ["std", "eip712-serde"] }
 

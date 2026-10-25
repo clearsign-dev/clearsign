@@ -60,8 +60,10 @@ host_build() { # informational: the developer's own machine and toolchain
   )
 }
 
-WORK_A="$(mktemp -d)"; WORK_B="$(mktemp -d)"
-trap 'rm -rf "$WORK_A" "$WORK_B"' EXIT
+WORK_PARENT="$(mktemp -d "$REPO/.repro-work.XXXXXX")"
+WORK_A="$WORK_PARENT/one"; WORK_B="$WORK_PARENT/two"
+mkdir -p "$WORK_A" "$WORK_B"
+trap 'rm -rf "$WORK_PARENT"' EXIT
 echo "canonical environment: $DEBIAN_BUILD_IMAGE"
 echo "toolchain $TOOLCHAIN, target $TARGET"
 echo "preparing two identical source trees"

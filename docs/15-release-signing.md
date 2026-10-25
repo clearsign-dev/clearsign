@@ -133,8 +133,9 @@ that the program is safe.
 
 ## Release operator checklist
 
-1. Confirm all product versions and the dated changelog agree. Refresh canonical
-   reproducible hashes in the separate release-hash step before tagging.
+1. Confirm all product versions and the dated changelog agree. Refresh both the
+   canonical binary hashes and signer-image hashes before tagging. The tag
+   workflow rebuilds each twice and refuses stale records.
 2. Set `CLEARSIGN_RELEASE_MODE` through a reviewed repository-settings change.
    Use `unsigned-evaluation` for the next evaluation tag or `signed` for a stable
    release. Never use an approximate or third value.

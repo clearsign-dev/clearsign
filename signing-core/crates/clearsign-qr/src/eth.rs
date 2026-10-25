@@ -213,7 +213,7 @@ fn decode_keypath(r: &mut cbor::Reader<'_>) -> Result<(Vec<PathComponent>, Optio
         match r.uint()? {
             KEY_COMPONENTS => {
                 let len = r.array()?;
-                if len % 2 != 0 {
+                if !len.is_multiple_of(2) {
                     return Err(Error::Eip4527("keypath components are not pairs"));
                 }
                 let steps =

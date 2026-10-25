@@ -113,12 +113,12 @@ pub fn review_safe_transaction(tx: &SafeTransaction, version: DomainVersion) -> 
             DomainVersion::Legacy => "v1.1.x",
         }),
     );
+    s.field("safeTxGas", tx.safe_tx_gas.to_grouped_decimal());
+    s.field("baseGas", tx.base_gas.to_grouped_decimal());
     if !tx.gas_price.is_zero()
         || tx.gas_token != address::ZERO
         || tx.refund_receiver != address::ZERO
     {
-        s.field("safeTxGas", tx.safe_tx_gas.to_grouped_decimal());
-        s.field("baseGas", tx.base_gas.to_grouped_decimal());
         s.field("gasPrice", tx.gas_price.to_grouped_decimal());
         s.field("gasToken", address::display(&tx.gas_token));
         s.field("refundReceiver", address::display(&tx.refund_receiver));
@@ -135,8 +135,12 @@ pub fn review_safe_transaction(tx: &SafeTransaction, version: DomainVersion) -> 
         &tx.data,
         CallContext {
             safe: Some(tx.safe),
+            authenticated_safe: Some(tx.safe),
             operation: Operation::from_u8(tx.operation),
-            chain_id: tx.chain_id.to_u64(),
+            chain_id: match version {
+                DomainVersion::V1_3Plus => tx.chain_id.to_u64(),
+                DomainVersion::Legacy => None,
+            },
             depth: 1,
         },
     );

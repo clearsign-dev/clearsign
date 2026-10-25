@@ -38,6 +38,11 @@ impl Operation {
 pub struct CallContext {
     /// The Safe whose authority executes this call, if any.
     pub safe: Option<Address>,
+    /// A Safe identity established by the signed input rather than inferred from
+    /// a selector. This is deliberately separate from `safe`: decoding an
+    /// arbitrary target as `execTransaction` does not prove that target is a
+    /// Safe.
+    pub authenticated_safe: Option<Address>,
     pub operation: Operation,
     /// The chain these bytes commit to, when they commit to one. `None` for a
     /// pre-EIP-155 legacy transaction, where no chain can be confirmed.
@@ -333,6 +338,14 @@ pub fn review_call(
     }
 
     let outcome = decode_known(review, &mut s, to, selector, args, ctx);
+    if let Ok(decoded) = &outcome {
+        if !matches!(decoded, Decoded::Unknown)
+            && !selector_identity_is_authenticated(selector, &to, ctx)
+            && !selector_has_specialized_blind_finding(selector)
+        {
+            note_selector_is_not_behaviour(review, &to);
+        }
+    }
     match outcome {
         Ok(Decoded::Done) => review.sections.push(s),
         Ok(Decoded::Unknown) => {
@@ -376,6 +389,11 @@ pub fn review_call(
                 inner_data,
                 CallContext {
                     safe: Some(safe),
+                    authenticated_safe: if ctx.authenticated_safe == Some(safe) {
+                        Some(safe)
+                    } else {
+                        None
+                    },
                     operation,
                     chain_id: ctx.chain_id,
                     depth,
@@ -407,6 +425,10 @@ pub fn review_call(
                 // Safe; calls bundled by multicall are still made by the caller.
                 safe: match executor {
                     Executor::SameCaller => ctx.safe,
+                    Executor::Contract => None,
+                },
+                authenticated_safe: match executor {
+                    Executor::SameCaller => ctx.authenticated_safe,
                     Executor::Contract => None,
                 },
                 operation: Operation::Call,
@@ -591,6 +613,7 @@ fn review_batch(
                 call.data,
                 CallContext {
                     safe: ctx.safe,
+                    authenticated_safe: ctx.authenticated_safe,
                     operation: call.operation,
                     chain_id: ctx.chain_id,
                     depth,
@@ -651,6 +674,7 @@ fn review_batch(
             inner_data,
             CallContext {
                 safe: ctx.safe,
+                authenticated_safe: ctx.authenticated_safe,
                 operation,
                 chain_id: ctx.chain_id,
                 depth,
@@ -828,7 +852,6 @@ fn decode_known<'a>(
             s.field("Recipient, if it is a token", address::display(&recipient));
             s.field("Amount (raw integer units)", amount.to_grouped_decimal());
             note_raw_units(review);
-            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_APPROVE => {
@@ -878,7 +901,6 @@ fn decode_known<'a>(
                 );
                 note_raw_units(review);
             }
-            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_TRANSFER_FROM => {
@@ -900,7 +922,6 @@ fn decode_known<'a>(
                 amount.to_grouped_decimal(),
             );
             note_raw_units(review);
-            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_EXEC_TRANSACTION => {
@@ -1133,7 +1154,6 @@ fn decode_known<'a>(
                 }
                 note_raw_units(review);
             }
-            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_DECREASE_ALLOWANCE | SEL_DECREASE_APPROVAL => {
@@ -1155,7 +1175,6 @@ fn decode_known<'a>(
                 amount.to_grouped_decimal(),
             );
             note_raw_units(review);
-            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_SET_APPROVAL_FOR_ALL => {
@@ -1186,7 +1205,6 @@ fn decode_known<'a>(
             } else {
                 s.field("Approval", String::from("revoked"));
             }
-            note_selector_is_not_behaviour(review, &to);
             Ok(Decoded::Done)
         }
         SEL_PERMIT2_APPROVE => {
@@ -1862,7 +1880,7 @@ fn admin_finding(
     code: &'static str,
     what: &str,
 ) {
-    if ctx.safe == Some(to) {
+    if ctx.authenticated_safe == Some(to) {
         review.find(Severity::Critical, code, String::from(what));
     } else {
         review.find(
@@ -1915,6 +1933,31 @@ pub fn refund_finding(
 /// after its implementation changes. Nothing in the signed bytes says which.
 /// The decoder reads bytes and cannot read deployed code, so it reports the
 /// shape as a shape.
+fn selector_identity_is_authenticated(selector: [u8; 4], to: &Address, ctx: CallContext) -> bool {
+    let safe_selector = matches!(
+        selector,
+        SEL_EXEC_TRANSACTION
+            | SEL_ADD_OWNER_WITH_THRESHOLD
+            | SEL_REMOVE_OWNER
+            | SEL_SWAP_OWNER
+            | SEL_CHANGE_THRESHOLD
+            | SEL_ENABLE_MODULE
+            | SEL_DISABLE_MODULE
+            | SEL_SET_GUARD
+            | SEL_SET_FALLBACK_HANDLER
+            | SEL_CHANGE_MASTER_COPY
+    );
+    (safe_selector && ctx.authenticated_safe == Some(*to))
+        || (selector == SEL_PERMIT2_APPROVE && *to == PERMIT2 && ctx.chain_id.is_some())
+}
+
+fn selector_has_specialized_blind_finding(selector: [u8; 4]) -> bool {
+    matches!(
+        selector,
+        SEL_MULTICALL | SEL_TIMELOCK_SCHEDULE | SEL_TIMELOCK_EXECUTE | SEL_ACCOUNT_EXECUTE
+    )
+}
+
 fn note_selector_is_not_behaviour(review: &mut Review, to: &Address) {
     // One notice per destination, not one per review. Deduplicating on the code
     // alone meant a batch touching four contracts carried a single notice
@@ -1929,14 +1972,14 @@ fn note_selector_is_not_behaviour(review: &mut Review, to: &Address) {
         return;
     }
     review.find(
-        Severity::Info,
+        Severity::Blind,
         "SELECTOR_IS_NOT_BEHAVIOUR",
         format!(
-            "The call to {named} is shaped like a standard token function, and that is all these \
-             bytes establish. Whether that address is a token, and what its code does when called \
-             this way, is not in the signed bytes and was not checked. A contract can answer to a \
-             familiar selector however it likes, and a proxy can be pointed somewhere new between \
-             one transaction and the next."
+            "The call to {named} matches a recognised selector and ABI shape, and that is all these \
+             bytes establish. The target's identity and what its code does when called this way \
+             were not authenticated by the signed input. A contract can answer to a familiar \
+             selector however it likes, and a proxy can be pointed somewhere new between one \
+             transaction and the next."
         ),
     );
 }
@@ -1963,7 +2006,7 @@ fn selector_text(data: &[u8]) -> String {
 }
 
 fn signature_summary(len: usize) -> String {
-    if len % 65 == 0 {
+    if len.is_multiple_of(65) {
         format!(
             "{len} bytes ({} owner signatures if all are 65-byte ECDSA)",
             len / 65

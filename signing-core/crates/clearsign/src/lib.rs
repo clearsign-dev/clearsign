@@ -4,8 +4,7 @@
 //! using **only the bytes that will be signed**.
 //!
 //! This crate is the portable core of the signing project. It is `no_std` with
-//! `alloc`, has one direct dependency (Keccak hashing from RustCrypto, eight
-//! crates in total including transitive ones), forbids
+//! `alloc`, uses RustCrypto for Keccak hashing and secp256k1 recovery, forbids
 //! `unsafe`, and is linted so that it cannot index, unwrap, panic or perform
 //! unchecked arithmetic. See `docs/01-threat-model.md` for the invariants it
 //! must uphold; each invariant is referenced by ID in the code and tests.
@@ -38,8 +37,8 @@ pub mod u256;
 
 pub use error::Error;
 pub use evm::{
-    Authorization, EvmTransaction, TxType, parse_unsigned_transaction, review_evm_transaction,
-    review_transaction_bytes,
+    Authorization, AuthorizationSignatureError, EvmTransaction, TxType, parse_unsigned_transaction,
+    review_evm_transaction, review_transaction_bytes,
 };
 pub use review::{
     Finding, MAX_ACKNOWLEDGEABLE_FINDINGS, Review, Section, Severity, SigningTarget, TargetKind,

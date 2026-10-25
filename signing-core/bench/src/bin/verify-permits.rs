@@ -163,6 +163,7 @@ fn main() {
                 let sig = rsv(c.r, c.s, c.v);
                 for nonce in 0u64..50_000 {
                     let td = TypedData {
+                        requested_signer: None,
                         types: vec![
                             ("EIP712Domain".into(), dfields.clone()),
                             (
@@ -209,6 +210,7 @@ fn main() {
                 .ok()?;
                 let (dfields, dvalue) = domain_named(&dai_name, Some(&dai_version), DAI);
                 let td = TypedData {
+                    requested_signer: None,
                     types: vec![
                         ("EIP712Domain".into(), dfields),
                         (
@@ -245,6 +247,7 @@ fn main() {
                 let (dfields, dvalue) = domain_named("Permit2", None, PERMIT2);
                 let p = &c.permitSingle;
                 let td = TypedData {
+                    requested_signer: None,
                     types: vec![
                         ("EIP712Domain".into(), dfields),
                         (
@@ -278,6 +281,7 @@ fn main() {
                 let (dfields, dvalue) = domain_named("Permit2", None, PERMIT2);
                 let p = &c.permitBatch;
                 let td = TypedData {
+                    requested_signer: None,
                     types: vec![
                         ("EIP712Domain".into(), dfields),
                         (

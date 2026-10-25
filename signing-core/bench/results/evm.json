@@ -18,16 +18,18 @@
       "findings": {
         "ACCESS_LIST": 8,
         "ACCOUNT_DELEGATION": 25,
+        "AUTHORIZATION_STATE_UNKNOWN": 27,
         "BLOB_TRANSACTION": 11,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 8,
         "CONTRACT_CREATION": 2,
-        "DELEGATION_CLEARED": 2,
+        "DELEGATION_CLEAR_REQUESTED": 2,
+        "DUPLICATE_AUTHORITY": 1,
         "EMPTY_CALL": 13,
         "MALFORMED_ARGUMENTS": 8,
         "REPLAYABLE_NO_CHAIN_ID": 2,
         "SAFE_DELEGATECALL": 1,
         "SAFE_EXEC_SUBMISSION": 5,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 382,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 385,
         "SHORT_CALLDATA": 1,
         "SMART_ACCOUNT_BATCH": 6,
         "TOKEN_APPROVAL": 33,
@@ -40,10 +42,9 @@
       "name": "Ethereum",
       "native_transfers": 402,
       "outcome": {
-        "blind": 382,
-        "clear": 740,
-        "critical": 48,
-        "warning": 30
+        "blind": 746,
+        "clear": 406,
+        "critical": 48
       },
       "payload_not_proven": 0,
       "payload_proven": 1200,
@@ -273,6 +274,7 @@
       "findings": {
         "ACCOUNT_DELEGATION": 1,
         "APPROVAL_FOR_ALL": 2,
+        "AUTHORIZATION_STATE_UNKNOWN": 1,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 2,
         "CONTRACT_CREATION": 1,
         "SELECTOR_IS_NOT_BEHAVIOUR": 11,
@@ -285,10 +287,9 @@
       "name": "OP Mainnet",
       "native_transfers": 1,
       "outcome": {
-        "blind": 887,
-        "clear": 3,
-        "critical": 3,
-        "warning": 6
+        "blind": 895,
+        "clear": 1,
+        "critical": 3
       },
       "payload_not_proven": 0,
       "payload_proven": 899,
@@ -443,8 +444,10 @@
       "findings": {
         "ACCESS_LIST": 8,
         "ACCOUNT_DELEGATION": 15,
+        "AUTHORIZATION_STATE_UNKNOWN": 15,
         "BLOB_TRANSACTION": 6,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 2,
+        "DUPLICATE_AUTHORITY": 1,
         "EMPTY_CALL": 63,
         "MALFORMED_ARGUMENTS": 4,
         "REPLAYABLE_NO_CHAIN_ID": 5,
@@ -460,10 +463,9 @@
       "name": "BNB Chain",
       "native_transfers": 129,
       "outcome": {
-        "blind": 751,
-        "clear": 365,
-        "critical": 30,
-        "warning": 54
+        "blind": 978,
+        "clear": 192,
+        "critical": 30
       },
       "payload_not_proven": 0,
       "payload_proven": 1200,
@@ -788,12 +790,14 @@
       "failures": [],
       "findings": {
         "ACCOUNT_DELEGATION": 16,
+        "AUTHORIZATION_STATE_UNKNOWN": 16,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
+        "DUPLICATE_AUTHORITY": 9,
         "EMPTY_CALL": 1,
         "MALFORMED_ARGUMENTS": 60,
         "SAFE_EXEC_SUBMISSION": 6,
         "SAFE_MULTISEND_BATCH": 6,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 9,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 11,
         "SMART_ACCOUNT_BATCH": 1,
         "TOKEN_APPROVAL": 4,
         "TOKEN_UNITS_RAW": 9,
@@ -803,8 +807,8 @@
       "name": "Gnosis",
       "native_transfers": 11,
       "outcome": {
-        "blind": 348,
-        "clear": 16,
+        "blind": 353,
+        "clear": 11,
         "critical": 76
       },
       "payload_not_proven": 0,
@@ -923,13 +927,15 @@
         "ACCESS_LIST": 1,
         "ACCOUNT_DELEGATION": 22,
         "APPROVAL_FOR_ALL": 1,
+        "AUTHORIZATION_STATE_UNKNOWN": 23,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 6,
-        "DELEGATION_CLEARED": 1,
+        "DELEGATION_CLEAR_REQUESTED": 1,
+        "DUPLICATE_AUTHORITY": 13,
         "EMPTY_CALL": 24,
         "MALFORMED_ARGUMENTS": 7,
         "SAFE_EXEC_SUBMISSION": 33,
         "SAFE_MULTISEND_BATCH": 11,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 102,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 127,
         "SHORT_CALLDATA": 7,
         "SMART_ACCOUNT_BATCH": 1,
         "TOKEN_APPROVAL": 23,
@@ -941,10 +947,9 @@
       "name": "Polygon",
       "native_transfers": 34,
       "outcome": {
-        "blind": 1017,
-        "clear": 131,
-        "critical": 34,
-        "warning": 18
+        "blind": 1110,
+        "clear": 56,
+        "critical": 34
       },
       "payload_not_proven": 0,
       "payload_proven": 1200,
@@ -1106,8 +1111,8 @@
       "name": "Monad",
       "native_transfers": 1,
       "outcome": {
-        "blind": 405,
-        "clear": 2
+        "blind": 406,
+        "clear": 1
       },
       "payload_not_proven": 0,
       "payload_proven": 407,
@@ -1173,9 +1178,8 @@
       "name": "Sonic",
       "native_transfers": 4,
       "outcome": {
-        "blind": 159,
-        "clear": 5,
-        "warning": 1
+        "blind": 161,
+        "clear": 4
       },
       "payload_not_proven": 0,
       "payload_proven": 165,
@@ -1248,9 +1252,8 @@
       "name": "X Layer",
       "native_transfers": 4,
       "outcome": {
-        "blind": 175,
-        "clear": 6,
-        "warning": 5
+        "blind": 182,
+        "clear": 4
       },
       "payload_not_proven": 0,
       "payload_proven": 186,
@@ -1362,9 +1365,8 @@
       "name": "zkSync Era",
       "native_transfers": 2,
       "outcome": {
-        "blind": 14,
-        "clear": 5,
-        "warning": 1
+        "blind": 18,
+        "clear": 2
       },
       "payload_not_proven": 0,
       "payload_proven": 20,
@@ -1410,8 +1412,8 @@
       "name": "World Chain",
       "native_transfers": 4,
       "outcome": {
-        "blind": 378,
-        "clear": 10
+        "blind": 384,
+        "clear": 4
       },
       "payload_not_proven": 0,
       "payload_proven": 388,
@@ -1511,8 +1513,8 @@
       "name": "HyperEVM",
       "native_transfers": 1,
       "outcome": {
-        "blind": 73,
-        "clear": 3
+        "blind": 74,
+        "clear": 2
       },
       "payload_not_proven": 0,
       "payload_proven": 76,
@@ -1589,8 +1591,8 @@
       "name": "Morph",
       "native_transfers": 1,
       "outcome": {
-        "blind": 4,
-        "clear": 13
+        "blind": 6,
+        "clear": 11
       },
       "payload_not_proven": 0,
       "payload_proven": 17,
@@ -1766,13 +1768,14 @@
       "findings": {
         "ACCESS_LIST": 5,
         "ACCOUNT_DELEGATION": 9,
+        "AUTHORIZATION_STATE_UNKNOWN": 9,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 15,
         "CONTRACT_CREATION": 2,
         "EMPTY_CALL": 7,
         "MALFORMED_ARGUMENTS": 7,
         "SAFE_EXEC_SUBMISSION": 1,
         "SAFE_MULTISEND_BATCH": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 52,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 53,
         "TOKEN_APPROVAL": 13,
         "TOKEN_UNITS_RAW": 47,
         "UNKNOWN_EXECUTION_MODE": 1,
@@ -1783,10 +1786,9 @@
       "name": "Base",
       "native_transfers": 37,
       "outcome": {
-        "blind": 1079,
-        "clear": 78,
-        "critical": 25,
-        "warning": 13
+        "blind": 1126,
+        "clear": 44,
+        "critical": 25
       },
       "payload_not_proven": 0,
       "payload_proven": 1195,
@@ -2156,8 +2158,8 @@
       "name": "Plasma",
       "native_transfers": 8,
       "outcome": {
-        "blind": 104,
-        "clear": 31,
+        "blind": 127,
+        "clear": 8,
         "critical": 78
       },
       "payload_not_proven": 0,
@@ -2195,7 +2197,7 @@
       "findings": {
         "SAFE_DELEGATECALL": 1,
         "SAFE_EXEC_SUBMISSION": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 16,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 17,
         "TOKEN_APPROVAL": 3,
         "TOKEN_UNITS_RAW": 15,
         "UNKNOWN_SELECTOR": 37,
@@ -2204,10 +2206,9 @@
       "name": "Arbitrum One",
       "native_transfers": 18,
       "outcome": {
-        "blind": 37,
-        "clear": 31,
-        "critical": 1,
-        "warning": 3
+        "blind": 53,
+        "clear": 18,
+        "critical": 1
       },
       "payload_not_proven": 0,
       "payload_proven": 72,
@@ -2266,8 +2267,8 @@
       "name": "Celo",
       "native_transfers": 3,
       "outcome": {
-        "blind": 40,
-        "clear": 33
+        "blind": 69,
+        "clear": 4
       },
       "payload_not_proven": 0,
       "payload_proven": 73,
@@ -2316,8 +2317,7 @@
       "name": "Hemi",
       "native_transfers": 0,
       "outcome": {
-        "blind": 13,
-        "warning": 1
+        "blind": 14
       },
       "payload_not_proven": 0,
       "payload_proven": 14,
@@ -2357,10 +2357,9 @@
       "name": "Avalanche C-Chain",
       "native_transfers": 1,
       "outcome": {
-        "blind": 48,
-        "clear": 7,
-        "critical": 1,
-        "warning": 1
+        "blind": 55,
+        "clear": 1,
+        "critical": 1
       },
       "payload_not_proven": 0,
       "payload_proven": 57,
@@ -2487,8 +2486,8 @@
       "name": "Linea",
       "native_transfers": 4,
       "outcome": {
-        "blind": 21,
-        "clear": 7
+        "blind": 23,
+        "clear": 5
       },
       "payload_not_proven": 0,
       "payload_proven": 28,
@@ -2570,8 +2569,8 @@
       "name": "Scroll",
       "native_transfers": 1,
       "outcome": {
-        "blind": 25,
-        "clear": 3
+        "blind": 27,
+        "clear": 1
       },
       "payload_not_proven": 0,
       "payload_proven": 28,
@@ -2651,14 +2650,14 @@
         "ACCESS_LIST": 7,
         "ACCOUNT_DELEGATION": 1,
         "APPROVAL_FOR_ALL": 1,
+        "AUTHORIZATION_STATE_UNKNOWN": 1,
         "BLOB_TRANSACTION": 64,
         "CARRIED_CALL_SEMANTICS_UNVERIFIED": 1,
         "CONTRACT_CREATION": 4,
         "EMPTY_CALL": 38,
-        "SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT": 2,
+        "SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT": 3,
         "SAFE_EXEC_SUBMISSION": 1,
-        "SAFE_OWNER_CHANGE": 1,
-        "SELECTOR_IS_NOT_BEHAVIOUR": 63,
+        "SELECTOR_IS_NOT_BEHAVIOUR": 66,
         "SMART_ACCOUNT_BATCH": 1,
         "TOKEN_APPROVAL": 39,
         "TOKEN_UNITS_RAW": 55,
@@ -2669,10 +2668,9 @@
       "name": "Sepolia (test network)",
       "native_transfers": 80,
       "outcome": {
-        "blind": 1015,
-        "clear": 135,
-        "critical": 9,
-        "warning": 41
+        "blind": 1074,
+        "clear": 118,
+        "critical": 8
       },
       "payload_not_proven": 0,
       "payload_proven": 1200,

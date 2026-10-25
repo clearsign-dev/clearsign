@@ -376,7 +376,7 @@ fn inv7_random_inputs_never_panic() {
     for i in 0..60_000u32 {
         let mut b = rng.bytes(700);
         // Bias a third of inputs towards structurally plausible transactions.
-        if i % 3 == 0 {
+        if i.is_multiple_of(3) {
             b.insert(0, 0x02);
         }
         if let Ok(tx) = parse_unsigned_transaction(&b) {
@@ -386,7 +386,7 @@ fn inv7_random_inputs_never_panic() {
 
         let op = (rng.next() % 3) as u8;
         let mut data = b.clone();
-        if i % 2 == 0 && data.len() >= 4 {
+        if i.is_multiple_of(2) && data.len() >= 4 {
             let sels = clearsign::calls::KNOWN_SIGNATURES;
             let sel = sels[(rng.next() as usize) % sels.len()].0;
             data[..4].copy_from_slice(&sel);
@@ -406,7 +406,7 @@ fn inv7_mutated_real_transactions_never_panic() {
             let idx = (rng.next() as usize) % b.len();
             b[idx] = rng.next() as u8;
         }
-        if rng.next() % 5 == 0 {
+        if rng.next().is_multiple_of(5) {
             let cut = (rng.next() as usize) % b.len();
             b.truncate(cut);
         }

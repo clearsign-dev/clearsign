@@ -69,7 +69,7 @@ fn call(sel: [u8; 4], words: &[Vec<u8>]) -> Vec<u8> {
 fn bytes_tail(data: &[u8]) -> Vec<u8> {
     let mut t = word_u64(data.len() as u64);
     t.extend_from_slice(data);
-    while t.len() % 32 != 0 {
+    while !t.len().is_multiple_of(32) {
         t.push(0);
     }
     t
@@ -113,12 +113,19 @@ fn severity_of(r: &Review, code: &str) -> Severity {
 // ------------------------------------------------------------ ownership
 
 #[test]
-fn a_disguised_ownership_transfer_is_named_not_blind() {
+fn a_disguised_ownership_transfer_is_named_and_target_identity_stays_blind() {
     // The shape of Radiant Capital, 16 Oct 2024: the Safe calls
     // transferOwnership(attacker) on the contract that controls the protocol.
     let r = review(PROTOCOL, transfer_ownership(ATTACKER));
     assert_eq!(severity_of(&r, "OWNERSHIP_TRANSFER"), Severity::Critical);
-    assert!(!r.has("UNKNOWN_SELECTOR"), "must be decoded, not BLIND");
+    assert!(
+        !r.has("UNKNOWN_SELECTOR"),
+        "the ABI shape should be decoded"
+    );
+    assert_eq!(
+        severity_of(&r, "SELECTOR_IS_NOT_BEHAVIOUR"),
+        Severity::Blind
+    );
     let text = r.render();
     assert!(
         text.contains("0x6666 6666 6666 6666 6666 6666 6666 6666 6666 6666"),
@@ -133,7 +140,7 @@ fn renouncing_ownership_is_critical_and_accepting_is_a_warning() {
     assert_eq!(severity_of(&r, "OWNERSHIP_RENOUNCE"), Severity::Critical);
     let r = review(PROTOCOL, SEL_ACCEPT_OWNERSHIP.to_vec());
     assert_eq!(severity_of(&r, "OWNERSHIP_ACCEPT"), Severity::Warning);
-    assert_eq!(r.highest_severity(), Some(Severity::Warning));
+    assert_eq!(r.highest_severity(), Some(Severity::Blind));
 }
 
 #[test]
@@ -312,7 +319,7 @@ fn an_unlimited_increase_allowance_is_as_critical_as_an_unlimited_approve() {
         PROTOCOL,
         call(SEL_DECREASE_ALLOWANCE, &[word_addr(ATTACKER), word_u64(5)]),
     );
-    assert_eq!(r.highest_severity(), Some(Severity::Info));
+    assert_eq!(r.highest_severity(), Some(Severity::Blind));
 }
 
 #[test]
@@ -333,7 +340,7 @@ fn approval_for_all_is_critical_and_its_revocation_is_not() {
         ),
     );
     assert!(!r.has("APPROVAL_FOR_ALL"));
-    assert_eq!(r.highest_severity(), Some(Severity::Info));
+    assert_eq!(r.highest_severity(), Some(Severity::Blind));
 }
 
 #[test]
@@ -456,6 +463,42 @@ fn permit2_shape_on_another_address_is_called_out() {
         permit2_approve(PROTOCOL, ATTACKER, word_u64(1), 1),
     );
     assert_eq!(severity_of(&r, "NOT_PERMIT2_ADDRESS"), Severity::Warning);
+    assert_eq!(
+        severity_of(&r, "SELECTOR_IS_NOT_BEHAVIOUR"),
+        Severity::Blind
+    );
+}
+
+#[test]
+fn canonical_permit2_is_clean_only_when_its_chain_and_address_are_signed() {
+    let data = permit2_approve(PROTOCOL, ATTACKER, word_u64(0), 1);
+    let modern = review(PERMIT2, data.clone());
+    assert!(
+        !modern.has("SELECTOR_IS_NOT_BEHAVIOUR"),
+        "{}",
+        modern.render()
+    );
+
+    let legacy = review_safe_transaction(&safe_call(PERMIT2, data, 0), DomainVersion::Legacy);
+    assert_eq!(
+        severity_of(&legacy, "SELECTOR_IS_NOT_BEHAVIOUR"),
+        Severity::Blind
+    );
+}
+
+#[test]
+fn safe_selectors_are_authenticated_only_on_the_safe_from_the_signed_domain() {
+    let data = call(SEL_CHANGE_THRESHOLD, &[word_u64(2)]);
+    let on_safe = review(SAFE, data.clone());
+    assert!(on_safe.has("SAFE_THRESHOLD_CHANGE"));
+    assert!(!on_safe.has("SELECTOR_IS_NOT_BEHAVIOUR"));
+
+    let elsewhere = review(PROTOCOL, data);
+    assert!(elsewhere.has("SAFE_ADMIN_SELECTOR_ON_OTHER_CONTRACT"));
+    assert_eq!(
+        severity_of(&elsewhere, "SELECTOR_IS_NOT_BEHAVIOUR"),
+        Severity::Blind
+    );
 }
 
 #[test]
@@ -799,7 +842,250 @@ fn increase_approval_is_read_like_increase_allowance() {
         PROTOCOL,
         call(SEL_DECREASE_APPROVAL, &[word_addr(ATTACKER), word_u64(1)]),
     );
-    assert_eq!(r.highest_severity(), Some(Severity::Info));
+    assert_eq!(r.highest_severity(), Some(Severity::Blind));
+}
+
+fn exec_transaction_shape() -> Vec<u8> {
+    let mut data = call(
+        SEL_EXEC_TRANSACTION,
+        &[
+            word_addr(PROTOCOL),
+            word_u64(0),
+            word_u64(320),
+            word_u64(0),
+            word_u64(0),
+            word_u64(0),
+            word_u64(0),
+            word_addr([0; 20]),
+            word_addr([0; 20]),
+            word_u64(352),
+        ],
+    );
+    data.extend(word_u64(0));
+    data.extend(word_u64(0));
+    data
+}
+
+fn empty_bytes_shape(selector: [u8; 4], head: &[Vec<u8>]) -> Vec<u8> {
+    let mut data = call(selector, head);
+    data.extend(word_u64(0));
+    data
+}
+
+fn arbitrary_target_shapes() -> Vec<([u8; 4], Vec<u8>)> {
+    let address = word_addr(ATTACKER);
+    let uint = word_u64(1);
+    let zero = word_u64(0);
+    vec![
+        (
+            SEL_TRANSFER,
+            call(SEL_TRANSFER, &[address.clone(), uint.clone()]),
+        ),
+        (
+            SEL_APPROVE,
+            call(SEL_APPROVE, &[address.clone(), zero.clone()]),
+        ),
+        (
+            SEL_TRANSFER_FROM,
+            call(
+                SEL_TRANSFER_FROM,
+                &[address.clone(), word_addr(SAFE), uint.clone()],
+            ),
+        ),
+        (SEL_EXEC_TRANSACTION, exec_transaction_shape()),
+        (
+            SEL_ADD_OWNER_WITH_THRESHOLD,
+            call(
+                SEL_ADD_OWNER_WITH_THRESHOLD,
+                &[address.clone(), uint.clone()],
+            ),
+        ),
+        (
+            SEL_REMOVE_OWNER,
+            call(
+                SEL_REMOVE_OWNER,
+                &[word_addr(SAFE), address.clone(), uint.clone()],
+            ),
+        ),
+        (
+            SEL_SWAP_OWNER,
+            call(
+                SEL_SWAP_OWNER,
+                &[word_addr(SAFE), address.clone(), word_addr(PROTOCOL)],
+            ),
+        ),
+        (
+            SEL_CHANGE_THRESHOLD,
+            call(SEL_CHANGE_THRESHOLD, core::slice::from_ref(&uint)),
+        ),
+        (
+            SEL_ENABLE_MODULE,
+            call(SEL_ENABLE_MODULE, core::slice::from_ref(&address)),
+        ),
+        (
+            SEL_DISABLE_MODULE,
+            call(SEL_DISABLE_MODULE, &[word_addr(SAFE), address.clone()]),
+        ),
+        (
+            SEL_SET_GUARD,
+            call(SEL_SET_GUARD, core::slice::from_ref(&address)),
+        ),
+        (
+            SEL_SET_FALLBACK_HANDLER,
+            call(SEL_SET_FALLBACK_HANDLER, core::slice::from_ref(&address)),
+        ),
+        (
+            SEL_CHANGE_MASTER_COPY,
+            call(SEL_CHANGE_MASTER_COPY, core::slice::from_ref(&address)),
+        ),
+        (
+            clearsign::multisend::SEL_MULTI_SEND,
+            empty_bytes_shape(clearsign::multisend::SEL_MULTI_SEND, &[word_u64(32)]),
+        ),
+        (
+            SEL_INCREASE_ALLOWANCE,
+            call(SEL_INCREASE_ALLOWANCE, &[address.clone(), zero.clone()]),
+        ),
+        (
+            SEL_DECREASE_ALLOWANCE,
+            call(SEL_DECREASE_ALLOWANCE, &[address.clone(), uint.clone()]),
+        ),
+        (
+            SEL_SET_APPROVAL_FOR_ALL,
+            call(SEL_SET_APPROVAL_FOR_ALL, &[address.clone(), zero.clone()]),
+        ),
+        (
+            SEL_PERMIT2_APPROVE,
+            call(
+                SEL_PERMIT2_APPROVE,
+                &[
+                    word_addr(PROTOCOL),
+                    address.clone(),
+                    zero.clone(),
+                    uint.clone(),
+                ],
+            ),
+        ),
+        (
+            SEL_TRANSFER_OWNERSHIP,
+            call(SEL_TRANSFER_OWNERSHIP, core::slice::from_ref(&address)),
+        ),
+        (SEL_RENOUNCE_OWNERSHIP, SEL_RENOUNCE_OWNERSHIP.to_vec()),
+        (SEL_ACCEPT_OWNERSHIP, SEL_ACCEPT_OWNERSHIP.to_vec()),
+        (
+            SEL_GRANT_ROLE,
+            call(SEL_GRANT_ROLE, &[vec![0; 32], address.clone()]),
+        ),
+        (
+            SEL_REVOKE_ROLE,
+            call(SEL_REVOKE_ROLE, &[vec![0; 32], address.clone()]),
+        ),
+        (
+            SEL_RENOUNCE_ROLE,
+            call(SEL_RENOUNCE_ROLE, &[vec![0; 32], address.clone()]),
+        ),
+        (
+            SEL_UPGRADE_TO,
+            call(SEL_UPGRADE_TO, core::slice::from_ref(&address)),
+        ),
+        (
+            SEL_UPGRADE_TO_AND_CALL,
+            empty_bytes_shape(SEL_UPGRADE_TO_AND_CALL, &[address.clone(), word_u64(64)]),
+        ),
+        (
+            SEL_CHANGE_ADMIN,
+            call(SEL_CHANGE_ADMIN, core::slice::from_ref(&address)),
+        ),
+        (
+            SEL_PROXY_ADMIN_UPGRADE,
+            call(
+                SEL_PROXY_ADMIN_UPGRADE,
+                &[word_addr(PROTOCOL), address.clone()],
+            ),
+        ),
+        (
+            SEL_PROXY_ADMIN_UPGRADE_AND_CALL,
+            empty_bytes_shape(
+                SEL_PROXY_ADMIN_UPGRADE_AND_CALL,
+                &[word_addr(PROTOCOL), address.clone(), word_u64(96)],
+            ),
+        ),
+        (
+            SEL_CHANGE_PROXY_ADMIN,
+            call(
+                SEL_CHANGE_PROXY_ADMIN,
+                &[word_addr(PROTOCOL), address.clone()],
+            ),
+        ),
+        (SEL_MULTICALL, multicall(&[])),
+        (SEL_TIMELOCK_SCHEDULE, schedule(PROTOCOL, &[], 1)),
+        (
+            SEL_TIMELOCK_EXECUTE,
+            empty_bytes_shape(
+                SEL_TIMELOCK_EXECUTE,
+                &[
+                    word_addr(PROTOCOL),
+                    zero.clone(),
+                    word_u64(160),
+                    vec![0; 32],
+                    vec![0; 32],
+                ],
+            ),
+        ),
+        (
+            SEL_SET_OWNER,
+            call(SEL_SET_OWNER, core::slice::from_ref(&address)),
+        ),
+        (
+            SEL_INCREASE_APPROVAL,
+            call(SEL_INCREASE_APPROVAL, &[address.clone(), zero.clone()]),
+        ),
+        (
+            SEL_DECREASE_APPROVAL,
+            call(SEL_DECREASE_APPROVAL, &[address.clone(), uint.clone()]),
+        ),
+        (
+            SEL_ACCOUNT_EXECUTE,
+            account_execute(mode(1, 0, [0; 4]), &encode_calls(&[])),
+        ),
+    ]
+}
+
+#[test]
+fn every_supported_shape_at_an_arbitrary_target_is_blind_and_acknowledged() {
+    let shapes = arbitrary_target_shapes();
+    assert_eq!(shapes.len(), KNOWN_SIGNATURES.len());
+
+    for (selector, signature) in KNOWN_SIGNATURES {
+        let matching: Vec<&Vec<u8>> = shapes
+            .iter()
+            .filter(|(candidate, _)| candidate == selector)
+            .map(|(_, data)| data)
+            .collect();
+        assert_eq!(matching.len(), 1, "fixture coverage for {signature}");
+
+        let review = review(PROTOCOL, matching[0].clone());
+        assert!(
+            !review.has("MALFORMED_ARGUMENTS"),
+            "{signature}: {}",
+            review.render()
+        );
+        let blind = review
+            .findings()
+            .iter()
+            .find(|finding| finding.severity == Severity::Blind)
+            .unwrap_or_else(|| {
+                panic!("{signature} produced no BLIND finding: {}", review.render())
+            });
+        assert!(
+            review
+                .required_acknowledgements()
+                .iter()
+                .any(|(_, code)| *code == blind.code),
+            "{signature}: BLIND finding {} was not acknowledgeable",
+            blind.code
+        );
+    }
 }
 
 /// ERC-7579 / ERC-7821 batch: abi.encode((address,uint256,bytes)[]).

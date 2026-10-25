@@ -77,7 +77,7 @@ impl<'a> Args<'a> {
     /// zero, as Solidity's decoder requires.
     pub fn uint_bits(&self, index: usize, bits: usize) -> Result<U256, Error> {
         let w = self.word(index)?;
-        if bits == 0 || bits > 256 || bits % 8 != 0 {
+        if bits == 0 || bits > 256 || !bits.is_multiple_of(8) {
             return Err(Error::IntegerOverflow);
         }
         let zero_bytes = 32usize.saturating_sub(bits / 8);

@@ -25,8 +25,10 @@ verify_kernel_tarball "$SRC" "$ROOT"
 # distinction matters: rustc's output differs between compiler hosts.
 echo "building the signer binary in the canonical environment ($TARGET)"
 TOOLCHAIN="$(sed -n 's/^channel = "\(.*\)"/\1/p' "$ROOT/signing-core/rust-toolchain.toml")"
-BUILDWORK="$(mktemp -d)"
-trap 'rm -rf "$BUILDWORK"' EXIT
+WORK_PARENT="$(mktemp -d "$ROOT/.signer-build-work.XXXXXX")"
+BUILDWORK="$WORK_PARENT/source"
+mkdir -p "$BUILDWORK"
+trap 'rm -rf "$WORK_PARENT"' EXIT
 (cd "$ROOT/signing-core" && tar --exclude ./target --exclude ./fuzz -cf - .) | (cd "$BUILDWORK" && tar -xf -)
 mkdir -p "$BUILDWORK/cargo-cache"
 cp -R "${CARGO_HOME:-$HOME/.cargo}/registry" "$BUILDWORK/cargo-cache/registry"

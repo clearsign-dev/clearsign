@@ -39,8 +39,15 @@ void notified(microkit_channel ch)
         microkit_dbg_puts("WALLET_UI|signer refused the request\n");
         return;
     }
-    microkit_dbg_puts(rev[1] == 4 ? "WALLET_UI|signer verdict received: CRITICAL\n"
-                                  : "WALLET_UI|signer verdict received: not critical\n");
+    if (rev[1] <= 2) {
+        microkit_dbg_puts("WALLET_UI|signer verdict received: reviewed, no blocking finding\n");
+    } else if (rev[1] == 3) {
+        microkit_dbg_puts("WALLET_UI|signer verdict received: BLIND; approval blocked\n");
+    } else if (rev[1] == 4) {
+        microkit_dbg_puts("WALLET_UI|signer verdict received: CRITICAL\n");
+    } else {
+        microkit_dbg_puts("WALLET_UI|signer verdict received: invalid severity; approval blocked\n");
+    }
 
     microkit_dbg_puts("WALLET_UI|attempting to overwrite the signer's verdict with 'no risk'...\n");
     ((uint8_t *)review_vaddr)[1] = 0; /* review region is mapped read-only here: seL4 must fault */
