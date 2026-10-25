@@ -572,14 +572,14 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 
 [[package]]
 name = "authority"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "clearsign",
 ]
 
 [[package]]
 name = "authority-agent"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "authority",
  "clearsign",
@@ -870,7 +870,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "crypto-bigint 0.7.7",
  "k256 0.14.0",
@@ -879,7 +879,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-cli"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "clearsign",
  "clearsign-keys",
@@ -892,7 +892,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-device"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "clearsign",
  "clearsign-keys",
@@ -903,7 +903,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-difftest"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "alloy-consensus",
  "alloy-dyn-abi",
@@ -919,7 +919,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-ffi"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "authority",
  "clearsign",
@@ -927,7 +927,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-keys"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "bip32",
  "bip39",
@@ -940,7 +940,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-qr"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "clearsign",
  "sha2 0.10.9",
@@ -948,7 +948,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-safe-json"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "clearsign",
  "serde",
@@ -957,7 +957,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-wasm"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "clearsign",
  "clearsign-safe-json",

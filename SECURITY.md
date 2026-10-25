@@ -79,7 +79,7 @@ These are real, and reporting them tells me nothing new:
   because a recovery phrase typed into an everyday computer is exposed. Bypassing
   that gate on your own machine is not a finding; it is the door being where the
   sign says it is.
-- **The released binaries are not code-signed or notarised.**
+- **The released binaries are not publisher-signed or notarised.**
 - **The Linux desktop's glib dependency required a security backport.** v0.1.0
   and v0.1.1 use the affected upstream 0.18.5 source. The v0.1.2 source includes
   the exact upstream correction for RUSTSEC-2024-0429, with source-provenance

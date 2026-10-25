@@ -5,6 +5,7 @@ import unittest
 
 from release_signing import (
     DEFAULT_WINDOWS_TIMESTAMP_URL,
+    require_macos_adhoc_signature,
     require_credentials,
     windows_config,
     write_windows_config,
@@ -12,6 +13,45 @@ from release_signing import (
 
 
 class ReleaseSigningTests(unittest.TestCase):
+    def test_unsigned_platform_checks_run_on_branch_candidates(self):
+        workflow = (
+            Path(__file__).resolve().parents[1] / ".github/workflows/release.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            "runner.os == 'macOS' && needs.validate.outputs.release_mode != 'signed'",
+            workflow,
+        )
+        self.assertIn(
+            "runner.os == 'Windows' && needs.validate.outputs.release_mode != 'signed'",
+            workflow,
+        )
+        self.assertIn("check-macos-adhoc", workflow)
+
+    def test_macos_evaluation_accepts_only_identity_free_adhoc_signatures(self):
+        require_macos_adhoc_signature(
+            "flags=0x20002(adhoc,linker-signed)\n"
+            "Signature=adhoc\n"
+            "TeamIdentifier=not set\n"
+        )
+
+        signed = (
+            "Signature size=9051\n"
+            "Authority=Developer ID Application: Example Corp (ABCDE12345)\n"
+            "TeamIdentifier=ABCDE12345\n"
+        )
+        with self.assertRaisesRegex(ValueError, "not ad-hoc"):
+            require_macos_adhoc_signature(signed)
+
+        with self.assertRaisesRegex(ValueError, "TeamIdentifier"):
+            require_macos_adhoc_signature(
+                "Signature=adhoc\nTeamIdentifier=ABCDE12345\n"
+            )
+
+        with self.assertRaisesRegex(ValueError, "signing authority"):
+            require_macos_adhoc_signature(
+                "Signature=adhoc\nTeamIdentifier=not set\nAuthority=Unexpected\n"
+            )
+
     def test_each_platform_requires_its_complete_secret_set(self):
         with self.assertRaisesRegex(ValueError, "APPLE_API_KEY_P8_BASE64"):
             require_credentials("macos", {

@@ -57,7 +57,7 @@ now matches on substance rather than on exact spacing, with a note saying why.
   of those ten fixes changed the code that decides whether a signature happens.
 - **Everything runs under emulation.** No hardware, no secure element, no verified
   boot. A signer in a virtual machine protects nothing from the machine hosting it.
-- **The application is not code-signed**, so both macOS and Windows will warn that
+- **The application is not publisher-signed**, so both macOS and Windows will warn that
   it comes from an unidentified developer.
 - **Zero people depend on this.** Every check above is the project marking its own
   work.

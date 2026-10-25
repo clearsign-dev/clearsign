@@ -80,12 +80,14 @@ class ReleaseTests(unittest.TestCase):
             self.write_assets(root)
             manifest(root, "0.1.2", "a" * 40, "tag", "signed", "ABCDE12345", "b" * 40)
             metadata = json.loads((root / "BUILD-METADATA.json").read_text())
-            self.assertTrue(metadata["distributionSecurity"]["macOS"]["codeSigned"])
+            self.assertTrue(metadata["distributionSecurity"]["macOS"]["publisherSigned"])
+            self.assertEqual(metadata["distributionSecurity"]["macOS"]["codeSignature"], "Developer ID")
             self.assertTrue(metadata["distributionSecurity"]["macOS"]["notarized"])
             self.assertEqual(metadata["distributionSecurity"]["macOS"]["teamId"], "ABCDE12345")
-            self.assertTrue(metadata["distributionSecurity"]["Windows"]["codeSigned"])
+            self.assertTrue(metadata["distributionSecurity"]["Windows"]["publisherSigned"])
+            self.assertEqual(metadata["distributionSecurity"]["Windows"]["codeSignature"], "Authenticode")
             self.assertEqual(metadata["distributionSecurity"]["Windows"]["certificateSha1"], "B" * 40)
-            self.assertFalse(metadata["distributionSecurity"]["Linux"]["codeSigned"])
+            self.assertFalse(metadata["distributionSecurity"]["Linux"]["publisherSigned"])
             self.assertEqual(metadata["releaseMode"], "signed")
             verify(root, "0.1.2", "a" * 40, "tag", "signed", "ABCDE12345", "b" * 40)
             with self.assertRaisesRegex(ValueError, "metadata"):
@@ -124,10 +126,15 @@ class ReleaseTests(unittest.TestCase):
             manifest(root, "0.1.2", "a" * 40, "tag", "unsigned-evaluation")
             metadata = json.loads((root / "BUILD-METADATA.json").read_text())
             self.assertEqual(metadata["releaseMode"], "unsigned-evaluation")
-            self.assertFalse(metadata["distributionSecurity"]["macOS"]["codeSigned"])
+            self.assertFalse(metadata["distributionSecurity"]["macOS"]["publisherSigned"])
+            self.assertEqual(
+                metadata["distributionSecurity"]["macOS"]["codeSignature"],
+                "identity-free ad-hoc or none",
+            )
             self.assertFalse(metadata["distributionSecurity"]["macOS"]["notarized"])
             self.assertIsNone(metadata["distributionSecurity"]["macOS"]["teamId"])
-            self.assertFalse(metadata["distributionSecurity"]["Windows"]["codeSigned"])
+            self.assertFalse(metadata["distributionSecurity"]["Windows"]["publisherSigned"])
+            self.assertIsNone(metadata["distributionSecurity"]["Windows"]["codeSignature"])
             self.assertIsNone(metadata["distributionSecurity"]["Windows"]["certificateSha1"])
             self.assertEqual(
                 metadata["distributionSecurity"]["Linux"]["verification"],
@@ -138,8 +145,8 @@ class ReleaseTests(unittest.TestCase):
     def test_branch_candidates_are_unsigned_regardless_of_tag_mode_variable(self):
         self.assertEqual(normalized_release_mode("branch", "signed"), "branch-candidate")
         security = distribution_security("branch", "signed", "ABCDE12345", "b" * 40)
-        self.assertFalse(security["macOS"]["codeSigned"])
-        self.assertFalse(security["Windows"]["codeSigned"])
+        self.assertFalse(security["macOS"]["publisherSigned"])
+        self.assertFalse(security["Windows"]["publisherSigned"])
 
     def test_tag_metadata_requires_expected_publisher_identities(self):
         for team, thumbprint in [("", "a" * 40), ("short", "a" * 40),

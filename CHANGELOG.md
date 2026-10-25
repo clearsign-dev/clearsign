@@ -7,7 +7,27 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
-## v0.1.3 — 2026-10-25
+## v0.1.4 — 2026-10-25
+
+This is the first publishable candidate containing all changes documented under
+v0.1.3 below: broader transaction and typed-data review, signing-boundary fixes,
+dependency remediation, benchmark evidence and release-integrity gates. The
+protected v0.1.3 tag produced no release because its fail-closed macOS evaluation
+check rejected an identity-free ad-hoc linker signature as though it were a
+publisher signature.
+
+### Fixed
+
+**The unsigned-evaluation macOS gate now distinguishes an ad-hoc linker
+signature from publisher signing.** Apple tooling may place an ad-hoc signature
+on an application even when no certificate is configured. The release gate now
+permits either no signature or an ad-hoc signature only when there is no signing
+authority and no TeamIdentifier. It separately requires Gatekeeper rejection,
+no stapled notarization ticket and an unsigned DMG. A Developer ID signature,
+team identity, certificate authority, accepted Gatekeeper assessment or stapled
+ticket still blocks the release.
+
+## v0.1.3 — 2026-10-25 (not published)
 
 Measured against real chains and real attacks before and after; the numbers
 below are from [docs/11-benchmarks.md](docs/11-benchmarks.md), which is
@@ -19,12 +39,14 @@ Every release tag now requires an explicit `CLEARSIGN_RELEASE_MODE` repository
 variable. `signed` fails unless the macOS application and DMG are Developer ID
 signed, notarized and stapled and the Windows application, MSI and NSIS installer
 carry valid, timestamped Authenticode signatures. `unsigned-evaluation` verifies
-that those platform artifacts are unsigned and publishes only as a warning-marked
-GitHub prerelease. Branch candidates remain unsigned for reproducibility and
-installer testing. Release candidates also include an SPDX JSON SBOM and receive
+that Windows and the macOS DMG are unsigned and that any macOS application
+signature is identity-free and ad hoc, then publishes only as a warning-marked
+GitHub prerelease. Branch candidates remain without publisher signatures for
+reproducibility and installer testing. Release candidates also include an SPDX
+JSON SBOM and receive
 GitHub OIDC-backed build-provenance attestations; `BUILD-METADATA.json` records
 the selected mode and distinct guarantees for macOS, Windows and Linux. The
-already-published v0.1.2 assets remain unsigned.
+already-published v0.1.2 assets remain without publisher signatures.
 
 The desktop lockfile also moves `plist` from 1.8.0 to 1.10.3,
 `quick-xml` from 0.38.4 to 0.42.0 and `tokio` from 1.53.1 to 1.54.1, clearing
