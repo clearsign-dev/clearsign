@@ -8,7 +8,11 @@ OUT="$HOME/.cache/osproject/signer-image"
 
 run() {
   docker volume rm -f osproject-signer-build >/dev/null 2>&1 || true
-  "$HERE/build.sh" >/dev/null
+  # Command substitutions do not reliably inherit `errexit`. Remove previous
+  # output and check the build explicitly so a failed build cannot make stale
+  # artifacts look reproducible.
+  rm -f "$OUT/Image" "$OUT/initramfs.cpio.gz" "$OUT/SHA256SUMS"
+  "$HERE/build.sh" >/dev/null || return
   shasum -a 256 "$OUT/Image" "$OUT/initramfs.cpio.gz" | awk '{print $1"  "$2}'
 }
 
