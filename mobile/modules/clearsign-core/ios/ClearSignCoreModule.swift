@@ -37,6 +37,7 @@ public class ClearSignCoreModule: Module {
       }
 
       var output = [UInt8](repeating: 0, count: Int(required))
+      let outputCapacity = output.count
       let written = input.withUnsafeBytes { inputBytes in
         output.withUnsafeMutableBytes { outputBytes in
           clearsign_review_safe_json(
@@ -45,7 +46,7 @@ public class ClearSignCoreModule: Module {
             parsedChainId,
             parsedVersion,
             outputBytes.bindMemory(to: UInt8.self).baseAddress,
-            output.count
+            outputCapacity
           )
         }
       }
