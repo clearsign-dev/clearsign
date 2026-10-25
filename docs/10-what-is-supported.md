@@ -89,5 +89,5 @@ transaction types. Any network connectivity from the signer.
 
 ## Evidence
 
-306 tests. See [03-verification-status.md](03-verification-status.md) for
+314 tests. See [03-verification-status.md](03-verification-status.md) for
 what each one establishes, and what it does not.
