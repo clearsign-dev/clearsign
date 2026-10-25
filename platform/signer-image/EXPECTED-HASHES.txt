@@ -1,9 +1,10 @@
 # The signer-only image, as built by platform/signer-image/build.sh in the
 # canonical environment (config/pins.env: DEBIAN_BUILD_IMAGE, Rust pinned by
-# signing-core/rust-toolchain.toml, kernel 6.18.52 from kernel.org).
+# signing-core/rust-toolchain.toml, kernel pinned in config/pins.env).
 #
 # Reproduce with platform/signer-image/check-reproducible.sh, which builds twice
-# in clean volumes and compares. The signer inside is the binary recorded in
-# signing-core/EXPECTED-HASHES.txt, and the build refuses to package any other.
+# in clean volumes and records the agreeing hashes. The signer inside is the
+# binary recorded in signing-core/EXPECTED-HASHES.txt, and the build refuses to
+# package any other.
 2aa6a4b8a0bedd695c4d331f7c824c96433290598869ec9a91720dd065c11a13  Image
-14df5792a4f7dc3f53a98d346758431f378cf1583dc37fe06847fe871ac686cb  initramfs.cpio.gz
+ffecf5eee4b57b3a4199dda6d0db37529c6170e8c9313fcaad50be010975d22e  initramfs.cpio.gz

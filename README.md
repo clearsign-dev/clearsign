@@ -8,12 +8,13 @@ ClearSign reviews Safe and supported EVM transactions locally. It decodes signed
 
 **Developer preview. Do not use the signing tools with real keys or funds.**
 
-The latest published download is v0.1.2. Changes made after that tag are not
-included in its assets; consult the [changelog](CHANGELOG.md) when choosing a version.
+See [GitHub Releases](https://github.com/clearsign-dev/clearsign/releases) for
+the latest published download, and consult the [changelog](CHANGELOG.md) when
+choosing a version.
 
 The desktop reviewer does not need keys and does not sign transactions. It is a second opinion, not a trusted display: a compromised computer can alter what you see. Compare the recomputed hash with the signing device and follow your existing approval procedure. A successful decode is not a safety assessment of the destination contract.
 
-The dedicated signer and seL4 platform are experimental and have been tested in emulation, not on production hardware. The published v0.1.2 installers are not code-signed. A tag now fails unless the repository explicitly selects either a signed stable release or an unsigned evaluation prerelease; signed mode requires macOS and Windows signing checks to pass. The [release-signing record](docs/15-release-signing.md) names the modes, credentials and platform guarantees. The [verification record](docs/03-verification-status.md) distinguishes the reported human review from later AI-assisted checks and records the outstanding review and hardware work.
+The dedicated signer and seL4 platform are experimental and have been tested in emulation, not on production hardware. The v0.1.3 release is configured as an unsigned evaluation prerelease. A tag fails unless the repository explicitly selects either a signed stable release or an unsigned evaluation prerelease; signed mode requires macOS and Windows signing checks to pass. The [release-signing record](docs/15-release-signing.md) names the modes, credentials and platform guarantees. The [verification record](docs/03-verification-status.md) distinguishes the reported human review from later AI-assisted checks and records the outstanding review and hardware work.
 
 ## Try the Reviewer
 
@@ -48,7 +49,7 @@ Unsupported formats and unknown calls are refused or marked BLIND — which is m
 [Benchmarks](docs/11-benchmarks.md), generated from the measurements, record what ClearSign does on real data and where it stops:
 
 - On 9,998 real transactions from 31 chains it committed to exactly the digest each sender signed, every time. On 10,851 real Safe transactions from 27 chains its hash agreed with Safe's service and with an independent implementation every time, and every owner signature recovered over it.
-- Replayed from the chain, 13 attacks that deceived signers — Bybit, WazirX, Radiant, Badger and the 2025 EIP-7702 drains among them: the mechanism was named in 9 (up from 3), one more was refused as unreadable, one drew a warning, one plain token transfer was shown faithfully but not flagged, and one used a format ClearSign does not read. Address-poisoning and impersonation cases are not caught: those transactions say exactly what they do.
+- Replayed from the chain, 13 attacks that deceived signers — Bybit, WazirX, Radiant, Badger and the 2025 EIP-7702 drains among them: the mechanism was named in 9 (up from 3), three more were blocked as BLIND, and one used a format ClearSign does not read. Address-poisoning and impersonation cases are not caught: those transactions say exactly what they do.
 - Of $21 billion lost across DeFiLlama's 1,293 recorded hacks, about 10% went through a deceived signer. Most of the rest was key theft or contract bugs, which no signing reviewer can see. ClearSign addresses one layer of the problem, not the whole of it.
 
 ## Network Access

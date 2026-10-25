@@ -37,7 +37,8 @@ attacking:
   delegatecall, an owner or threshold change, an implementation or fallback
   handler change, or an unlimited approval, reaching exit code 0.
 - **A Safe transaction hash that differs from what the chain would compute.** It
-  has agreed with Safe's own service on 238 real transactions; find the 239th.
+  agreed with Safe's service and alloy on 10,851 of 10,851 sampled transactions
+  across 27 chains; find one that disagrees.
 - **A panic, hang or unbounded allocation from any input.** `clippy` denies
   indexing, `unwrap`, `expect`, `panic` and unchecked arithmetic in the decoder
   and key crates, so a crash means the denial has a hole in it.

@@ -2,8 +2,9 @@
 
 This document describes the repository's release controls. It does not claim
 that already-published downloads were retroactively signed. ClearSign v0.1.2 is
-an unsigned evaluation release. Every future release tag requires an explicit
-mode; an unset or unknown mode fails before packaging begins.
+unsigned, and v0.1.3 is configured as an unsigned evaluation release. Every
+future release tag requires an explicit mode; an unset or unknown mode fails
+before packaging begins.
 
 ## What the workflow enforces
 
@@ -158,11 +159,13 @@ that the program is safe.
    place; issue a new version if any published byte must change.
 
 Repository administration is part of this gate and cannot be encoded completely
-in a workflow file. Create a GitHub environment named `release`, require a second
-reviewer and prevent self-review; protect `v*` tags with a ruleset; and enable
-immutable releases. Until those three settings are visibly active, a maintainer
-account with tag and release permission remains a single-person publication
-path even though the selected release mode itself fails closed.
+in a workflow file. The `release` environment exists and accepts only `v*` tags,
+an active tag ruleset prevents those release tags from being updated or deleted,
+and immutable releases are enabled for future publications. The environment
+cannot yet require a second reviewer or prevent self-review because the
+organization has only one member. Until independent approval is configured, a
+maintainer account with tag and release permission remains a single-person
+publication path even though the selected release mode itself fails closed.
 
 ## Desktop dependency remediation
 
