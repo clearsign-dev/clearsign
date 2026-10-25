@@ -3,9 +3,10 @@
 This document describes the repository's release controls. It does not claim
 that already-published downloads were retroactively signed. ClearSign v0.1.2 is
 unsigned. The protected v0.1.3 tag produced no release because its macOS
-evaluation gate rejected an identity-free ad-hoc linker signature. v0.1.4 is
-configured as an unsigned evaluation release. Every future release tag requires
-an explicit mode; an unset or unknown mode fails before packaging begins.
+evaluation gate rejected an identity-free ad-hoc linker signature. v0.1.4 was
+published as an unsigned evaluation release, and v0.1.5 is configured the same
+way. Every future release tag requires an explicit mode; an unset or unknown
+mode fails before packaging begins.
 
 ## What the workflow enforces
 

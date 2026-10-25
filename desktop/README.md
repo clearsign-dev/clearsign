@@ -29,12 +29,15 @@ from.
 
 ## What it does not do
 
-No network connection. No keys. No files written. It takes text in and gives a
-review back; your hardware wallet still signs.
+Pasted, dropped and imported records are reviewed without a network connection.
+The optional fetch-by-hash action contacts Safe's transaction service, then
+reviews the returned fields locally and ignores its decoded description. No
+keys are accepted and no transaction is signed; your hardware wallet still
+signs.
 
 ## Signing and notarisation
 
-The v0.1.4 application is not publisher-signed or notarized, so macOS and
+The v0.1.5 application is not publisher-signed or notarized, so macOS and
 Windows warn that it comes from an unidentified developer. The macOS linker may
 add an identity-free ad-hoc signature; that is not a Developer ID signature.
 Until a signed release replaces it, the honest check is the hash of what you

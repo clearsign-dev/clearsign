@@ -865,7 +865,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "crypto-bigint 0.7.8",
  "k256 0.14.0",
@@ -890,7 +890,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-safe-json"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "clearsign",
  "serde",

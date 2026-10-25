@@ -7,7 +7,7 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
-## Unreleased
+## v0.1.5 — 2026-10-26
 
 ### Added
 
