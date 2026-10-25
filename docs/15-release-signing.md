@@ -159,11 +159,12 @@ that the program is safe.
    place; issue a new version if any published byte must change.
 
 Repository administration is part of this gate and cannot be encoded completely
-in a workflow file. The `release` environment exists and accepts only `v*` tags.
-It cannot yet require a second reviewer or prevent self-review because the
-organization has only one member. A `v*` tag ruleset and immutable releases also
-remain to be enabled. Until independent approval and those controls are visibly
-active, a maintainer account with tag and release permission remains a
+in a workflow file. The `release` environment exists and accepts only `v*` tags,
+and an active tag ruleset prevents those release tags from being updated or
+deleted. The environment cannot yet require a second reviewer or prevent
+self-review because the organization has only one member. Immutable releases
+also remain to be enabled. Until independent approval and that control are
+visibly active, a maintainer account with tag and release permission remains a
 single-person publication path even though the selected release mode itself
 fails closed.
 
