@@ -67,7 +67,7 @@ fn audit_f1_a_copy_of_a_review_cannot_shed_its_findings() {
         approve(&copy, &[]).is_err(),
         "a copy of a CRITICAL review must not be approvable with nothing"
     );
-    assert!(approve(&copy, &[(1, "UNLIMITED_APPROVAL")]).is_ok());
+    assert!(approve(&copy, &copy.required_acknowledgements()).is_ok());
 }
 
 #[test]

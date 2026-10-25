@@ -167,14 +167,33 @@ fn safe_vector_a_plain_transfer() {
     );
 
     let review = review_safe_transaction(&tx, v);
-    assert!(
-        review.highest_severity() < Some(Severity::Blind),
-        "{}",
-        review.render()
-    );
+    assert_eq!(review.highest_severity(), Some(Severity::Blind));
     let text = review.render();
     assert!(text.contains("ERC-20 transfer"));
     assert!(text.contains("1_000_000_000"));
+}
+
+#[test]
+fn safe_gas_limits_are_always_rendered_even_without_a_refund() {
+    let zero = safe_tx(1, USDC, "0x", 0, 42);
+    let nonzero = SafeTransaction {
+        safe_tx_gas: U256::from_u64(45_746),
+        base_gas: U256::from_u64(21_000),
+        ..zero.clone()
+    };
+
+    let zero_text = review_safe_transaction(&zero, DomainVersion::V1_3Plus).render();
+    let nonzero_text = review_safe_transaction(&nonzero, DomainVersion::V1_3Plus).render();
+    assert!(zero_text.contains("safeTxGas") && zero_text.contains("baseGas"));
+    assert!(nonzero_text.contains("safeTxGas") && nonzero_text.contains("45_746"));
+    assert!(nonzero_text.contains("baseGas") && nonzero_text.contains("21_000"));
+    assert_ne!(zero_text, nonzero_text);
+    for text in [zero_text, nonzero_text] {
+        assert!(
+            !text.contains("gasPrice"),
+            "zero refund fields stay collapsed: {text}"
+        );
+    }
 }
 
 /// Vector B: modelled on the February 2025 Bybit pattern. A DELEGATECALL whose

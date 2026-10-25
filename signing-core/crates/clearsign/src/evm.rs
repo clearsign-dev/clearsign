@@ -484,6 +484,7 @@ pub fn review_evm_transaction(tx: &EvmTransaction) -> Review {
             &tx.data,
             CallContext {
                 safe: None,
+                authenticated_safe: None,
                 operation: Operation::Call,
                 chain_id: tx.chain_id.and_then(|c| c.to_u64()),
                 depth: 0,

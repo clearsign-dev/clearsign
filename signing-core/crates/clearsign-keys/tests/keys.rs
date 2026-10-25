@@ -177,7 +177,7 @@ fn safe_vector_a() -> SafeTransaction {
 #[test]
 fn safe_owner_signature_matches_cast() {
     let review = clearsign::review_safe_transaction(&safe_vector_a(), DomainVersion::V1_3Plus);
-    let approval = approve(&review, &[]).unwrap();
+    let approval = approve(&review, &[(1, "SELECTOR_IS_NOT_BEHAVIOUR")]).unwrap();
     let account = Wallet::from_mnemonic(TEST_MNEMONIC, "")
         .unwrap()
         .ethereum_account(0)
@@ -199,7 +199,11 @@ fn eip1559_signature_matches_cast_mktx() {
         approve(&review, &[]).err(),
         Some(KeyError::UnacknowledgedFinding("UNLIMITED_APPROVAL"))
     );
-    let approval = approve(&review, &[(1, "UNLIMITED_APPROVAL")]).unwrap();
+    let approval = approve(
+        &review,
+        &[(1, "UNLIMITED_APPROVAL"), (2, "SELECTOR_IS_NOT_BEHAVIOUR")],
+    )
+    .unwrap();
     let account = Wallet::from_mnemonic(TEST_MNEMONIC, "")
         .unwrap()
         .ethereum_account(0)
@@ -264,7 +268,9 @@ fn approval_requires_exact_acknowledgements() {
         Some(KeyError::UnexpectedAcknowledgement)
     );
     // Acknowledging something on a clean review is refused.
-    let clean = clearsign::review_safe_transaction(&safe_vector_a(), DomainVersion::V1_3Plus);
+    let mut empty = safe_vector_a();
+    empty.data.clear();
+    let clean = clearsign::review_safe_transaction(&empty, DomainVersion::V1_3Plus);
     assert_eq!(
         approve(&clean, &[(1, "SAFE_DELEGATECALL")]).err(),
         Some(KeyError::UnexpectedAcknowledgement)
@@ -306,7 +312,7 @@ fn signatures_are_low_s_and_deterministic() {
         let mut tx = safe_vector_a();
         tx.nonce = U256::from_u64(nonce);
         let review = clearsign::review_safe_transaction(&tx, DomainVersion::V1_3Plus);
-        let approval = approve(&review, &[]).unwrap();
+        let approval = approve(&review, &[(1, "SELECTOR_IS_NOT_BEHAVIOUR")]).unwrap();
         let a = account.sign(&approval).unwrap();
         let b = account.sign(&approval).unwrap();
         assert_eq!(a, b, "RFC 6979 signatures must be deterministic");

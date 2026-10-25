@@ -99,7 +99,7 @@ fn ordinary_batch_is_readable_and_is_not_critical() {
         &batch_tx(MULTISEND_1_3_0, BATCH_TWO_CALLS),
         DomainVersion::V1_3Plus,
     );
-    assert_eq!(max_severity(&review), Severity::Warning);
+    assert_eq!(max_severity(&review), Severity::Blind);
     assert!(codes(&review).contains(&"SAFE_MULTISEND_BATCH"));
     assert!(!codes(&review).contains(&"SAFE_DELEGATECALL"));
     assert!(!codes(&review).contains(&"CARRIED_CALL_SEMANTICS_UNVERIFIED"));
@@ -112,6 +112,31 @@ fn ordinary_batch_is_readable_and_is_not_critical() {
     // The recipient and amount of each inner call are shown, not summarised away.
     assert!(text.contains("1_500_000"), "{text}");
     assert!(text.contains("MultiSendCallOnly 1.3.0"), "{text}");
+}
+
+#[test]
+fn legacy_domain_never_uses_unsigned_chain_metadata_to_authenticate_multisend() {
+    let ethereum = batch_tx(MULTISEND_1_3_0, BATCH_TWO_CALLS);
+    let mut unlisted = ethereum.clone();
+    unlisted.chain_id = U256::from_u64(31_337);
+
+    assert_eq!(
+        clearsign::safe_transaction_hash(&ethereum, DomainVersion::Legacy),
+        clearsign::safe_transaction_hash(&unlisted, DomainVersion::Legacy)
+    );
+
+    let ethereum_review = review_safe_transaction(&ethereum, DomainVersion::Legacy);
+    let unlisted_review = review_safe_transaction(&unlisted, DomainVersion::Legacy);
+    for review in [&ethereum_review, &unlisted_review] {
+        assert!(codes(review).contains(&"MULTISEND_WRONG_CHAIN"));
+        assert!(codes(review).contains(&"SAFE_DELEGATECALL"));
+        assert!(!codes(review).contains(&"SAFE_MULTISEND_BATCH"));
+        assert!(!review.render().contains("Batch call 1"));
+    }
+    assert_eq!(
+        ethereum_review.required_acknowledgements(),
+        unlisted_review.required_acknowledgements()
+    );
 }
 
 #[test]
@@ -255,7 +280,7 @@ fn the_same_batch_is_decoded_on_a_chain_that_publishes_it() {
         let mut tx = batch_tx(MULTISEND_1_3_0, BATCH_TWO_CALLS);
         tx.chain_id = U256::from_u64(chain);
         let review = review_safe_transaction(&tx, DomainVersion::V1_3Plus);
-        assert_eq!(max_severity(&review), Severity::Warning, "chain {chain}");
+        assert_eq!(max_severity(&review), Severity::Blind, "chain {chain}");
         assert!(
             codes(&review).contains(&"SAFE_MULTISEND_BATCH"),
             "chain {chain}"

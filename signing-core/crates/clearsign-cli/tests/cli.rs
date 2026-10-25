@@ -163,7 +163,7 @@ fn qr_review_reads_an_animated_request() {
     let path = write_codes(&QR_PARTS);
     let out = run(&["qr-review", path.to_str().unwrap()], "", false);
     let stdout = text(&out.stdout);
-    assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
+    assert_eq!(out.status.code(), Some(2), "{}", text(&out.stderr));
     assert!(
         // The wallet's own label is shown quoted, because it is the wallet talking.
         stdout.contains(r#"Requested by ..................... "metamask""#),
@@ -189,7 +189,16 @@ fn qr_review_refuses_an_incomplete_request() {
 #[test]
 fn qr_sign_matches_cast_and_answers_with_an_eth_signature() {
     let path = write_codes(&[QR_SINGLE]);
-    let out = run(&["qr-sign", path.to_str().unwrap()], MNEMONIC, true);
+    let out = run(
+        &[
+            "qr-sign",
+            path.to_str().unwrap(),
+            "--ack",
+            "1:SELECTOR_IS_NOT_BEHAVIOUR",
+        ],
+        MNEMONIC,
+        true,
+    );
     let stdout = text(&out.stdout);
     assert_eq!(out.status.code(), Some(0), "{}", text(&out.stderr));
     assert!(stdout.contains("ur:eth-signature/"), "{stdout}");
@@ -212,7 +221,16 @@ fn qr_sign_refuses_when_the_request_names_a_different_signer() {
     // phrase and the device must refuse rather than hand back a useless signature.
     let path = write_codes(&[QR_SINGLE]);
     let other = "legal winner thank year wave sausage worth useful legal winner thank yellow";
-    let out = run(&["qr-sign", path.to_str().unwrap()], other, true);
+    let out = run(
+        &[
+            "qr-sign",
+            path.to_str().unwrap(),
+            "--ack",
+            "1:SELECTOR_IS_NOT_BEHAVIOUR",
+        ],
+        other,
+        true,
+    );
     assert_eq!(out.status.code(), Some(1));
     assert!(
         text(&out.stderr).contains("QR_WRONG_SIGNER"),
