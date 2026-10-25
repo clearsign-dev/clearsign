@@ -117,17 +117,20 @@ def distribution_security(ref_type, release_mode="", apple_team_id="",
             raise ValueError("tag metadata requires a Windows certificate thumbprint")
     return {
         "macOS": {
-            "codeSigned": signed_release,
+            "publisherSigned": signed_release,
+            "codeSignature": (
+                "Developer ID" if signed_release else "identity-free ad-hoc or none"
+            ),
             "notarized": signed_release,
             "teamId": apple_team_id if signed_release else None,
         },
         "Windows": {
-            "codeSigned": signed_release,
-            "signature": "Authenticode" if signed_release else None,
+            "publisherSigned": signed_release,
+            "codeSignature": "Authenticode" if signed_release else None,
             "certificateSha1": windows_thumbprint if signed_release else None,
         },
         "Linux": {
-            "codeSigned": False,
+            "publisherSigned": False,
             "verification": (
                 "SHA-256 and GitHub artifact attestation"
                 if ref_type == "tag" else "SHA-256"

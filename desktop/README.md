@@ -34,15 +34,18 @@ review back; your hardware wallet still signs.
 
 ## Signing and notarisation
 
-The v0.1.3 application is not code-signed, so macOS and Windows warn
-that it comes from an unidentified developer. Until a signed release replaces
-it, the honest check is the hash of what you downloaded, not the badge on it.
+The v0.1.4 application is not publisher-signed or notarized, so macOS and
+Windows warn that it comes from an unidentified developer. The macOS linker may
+add an identity-free ad-hoc signature; that is not a Developer ID signature.
+Until a signed release replaces it, the honest check is the hash of what you
+downloaded, not the badge on it.
 
 The release workflow requires an explicit mode for every tag. `signed` fails
 unless macOS is Developer ID signed, notarized and stapled and Windows is
 Authenticode signed and timestamped. `unsigned-evaluation` skips those credentials,
-checks that the platform artifacts are unsigned, and can publish only as a GitHub
-prerelease with a warning in its notes and metadata. Branch builds remain unsigned.
+requires no platform publisher identity or notarization, and can publish only as
+a GitHub prerelease with a warning in its notes and metadata. Branch builds also
+remain without publisher signatures.
 Linux packages use checksums and GitHub build provenance. The required accounts,
 variables, secrets, verification commands and recurring costs are in the
 [release-signing record](../docs/15-release-signing.md).

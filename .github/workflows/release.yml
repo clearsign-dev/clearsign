@@ -293,10 +293,10 @@ jobs:
             cat >> notes.md <<'WARNING'
           **Unsigned evaluation release. Not approved for high-value custody.**
 
-          The macOS and Windows artifacts in this prerelease are deliberately
-          unsigned. Their checksums and GitHub build provenance authenticate bytes
-          only after you establish trust in this repository and workflow; they do
-          not authenticate ClearSign as the platform publisher.
+          The macOS and Windows artifacts in this prerelease are deliberately not
+          publisher-signed or notarized. Their checksums and GitHub build provenance
+          authenticate bytes only after you establish trust in this repository and
+          workflow; they do not authenticate ClearSign as the platform publisher.
 
           ---
 
@@ -588,8 +588,8 @@ jobs:
           spctl --assess --type execute --verbose=4 "${apps[0]}"
           xcrun stapler validate "${apps[0]}"
           xcrun stapler validate "${images[0]}"
-      - name: Verify the evaluation macOS artifacts are unsigned
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'unsigned-evaluation'
+      - name: Verify the evaluation macOS artifacts have no publisher identity
+        if: runner.os == 'macOS' && needs.validate.outputs.release_mode != 'signed'
         shell: bash
         run: |
           set -euo pipefail
@@ -597,9 +597,37 @@ jobs:
           images=(desktop/src-tauri/target/release/bundle/dmg/*.dmg)
           [ "${#apps[@]}" = 1 ] && [ "${#images[@]}" = 1 ] \
             || { echo "::error::expected one macOS app and one DMG" >&2; exit 1; }
+          app_details="$RUNNER_TEMP/clearsign-app-signature.txt"
+          if codesign -d --verbose=4 "${apps[0]}" >"$app_details" 2>&1; then
+            # Current Apple linkers add an identity-free ad-hoc signature even
+            # when no signing certificate is configured. It is not publisher
+            # authentication, so accept it only after proving that it has no
+            # team identifier or certificate authority.
+            python3 scripts/release_signing.py check-macos-adhoc "$app_details"
+          elif ! grep -Fq 'code object is not signed at all' "$app_details"; then
+            cat "$app_details" >&2
+            echo "::error::could not classify the macOS application signature" >&2
+            exit 1
+          fi
+
+          image_details="$RUNNER_TEMP/clearsign-dmg-signature.txt"
+          if codesign -d --verbose=4 "${images[0]}" >"$image_details" 2>&1; then
+            cat "$image_details" >&2
+            echo "::error::unsigned-evaluation DMG contains a code signature" >&2
+            exit 1
+          elif ! grep -Fq 'code object is not signed at all' "$image_details"; then
+            cat "$image_details" >&2
+            echo "::error::could not classify the macOS DMG signature" >&2
+            exit 1
+          fi
+
+          if spctl --assess --type execute "${apps[0]}" >/dev/null 2>&1; then
+            echo "::error::Gatekeeper accepted an unsigned-evaluation application" >&2
+            exit 1
+          fi
           for path in "${apps[0]}" "${images[0]}"; do
-            if codesign -d "$path" >/dev/null 2>&1; then
-              echo "::error::unsigned-evaluation artifact contains a code signature: $path" >&2
+            if xcrun stapler validate "$path" >/dev/null 2>&1; then
+              echo "::error::unsigned-evaluation artifact has a stapled ticket: $path" >&2
               exit 1
             fi
           done
@@ -670,7 +698,7 @@ jobs:
             }
           }
       - name: Verify the evaluation Windows artifacts are unsigned
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'unsigned-evaluation'
+        if: runner.os == 'Windows' && needs.validate.outputs.release_mode != 'signed'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'

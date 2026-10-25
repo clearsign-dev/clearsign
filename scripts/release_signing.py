@@ -31,6 +31,28 @@ REQUIRED_CREDENTIALS = {
 DEFAULT_WINDOWS_TIMESTAMP_URL = "http://timestamp.digicert.com"
 
 
+def require_macos_adhoc_signature(details):
+    """Accept only a macOS ad-hoc signature with no publisher identity."""
+    fields = {}
+    authorities = []
+    for raw_line in details.splitlines():
+        line = raw_line.strip()
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key == "Authority":
+            authorities.append(value)
+        else:
+            fields[key] = value
+
+    if fields.get("Signature") != "adhoc":
+        raise ValueError("macOS evaluation app is not ad-hoc signed")
+    if fields.get("TeamIdentifier") != "not set":
+        raise ValueError("macOS evaluation app contains a TeamIdentifier")
+    if authorities:
+        raise ValueError("macOS evaluation app contains a signing authority")
+
+
 def require_credentials(platform, environ=None):
     environ = os.environ if environ is None else environ
     try:
@@ -81,9 +103,15 @@ def main(argv):
         timestamp_url = argv[3] if len(argv) == 4 else DEFAULT_WINDOWS_TIMESTAMP_URL
         write_windows_config(argv[1], argv[2], timestamp_url)
         return
+    if len(argv) == 2 and argv[0] == "check-macos-adhoc":
+        require_macos_adhoc_signature(
+            Path(argv[1]).read_text(encoding="utf-8", errors="replace")
+        )
+        return
     raise SystemExit(
         "usage: release_signing.py check-env PLATFORM | "
-        "windows-config OUTPUT THUMBPRINT [TIMESTAMP_URL]"
+        "windows-config OUTPUT THUMBPRINT [TIMESTAMP_URL] | "
+        "check-macos-adhoc DETAILS_FILE"
     )
 
 

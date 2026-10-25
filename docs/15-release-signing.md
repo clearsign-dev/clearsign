@@ -2,23 +2,26 @@
 
 This document describes the repository's release controls. It does not claim
 that already-published downloads were retroactively signed. ClearSign v0.1.2 is
-unsigned, and v0.1.3 is configured as an unsigned evaluation release. Every
-future release tag requires an explicit mode; an unset or unknown mode fails
-before packaging begins.
+unsigned. The protected v0.1.3 tag produced no release because its macOS
+evaluation gate rejected an identity-free ad-hoc linker signature. v0.1.4 is
+configured as an unsigned evaluation release. Every future release tag requires
+an explicit mode; an unset or unknown mode fails before packaging begins.
 
 ## What the workflow enforces
 
-Branch and manual builds remain unsigned. They exercise packaging, installation
-and smoke tests without consuming notarization requests or exposing signing
-credentials to ordinary development builds.
+Branch and manual builds remain without publisher identities. They exercise
+packaging, installation and smoke tests without consuming notarization requests
+or exposing signing credentials to ordinary development builds.
 
 Set the public repository variable `CLEARSIGN_RELEASE_MODE` to exactly one of:
 
 - `signed`: a normal stable release. The macOS and Windows credential and
   verification gates below are mandatory.
 - `unsigned-evaluation`: a temporary evaluation release. Platform signing and
-  notarization credentials are not loaded, macOS and Windows artifacts are
-  checked to be unsigned, `BUILD-METADATA.json` records that status, the release
+  notarization credentials are not loaded. Windows artifacts and the macOS DMG
+  must be unsigned. The macOS application may carry only an identity-free ad-hoc
+  linker signature: no authority, no TeamIdentifier, no Gatekeeper acceptance
+  and no stapled ticket. `BUILD-METADATA.json` records the mode, the release
   notes begin with an explicit warning, and GitHub publishes it as a prerelease.
 
 The validation job normalizes and snapshots this mode plus the public Apple Team
@@ -144,12 +147,13 @@ that the program is safe.
    Confirm the Windows certificate is active and the timestamp service is reachable.
    For `unsigned-evaluation`, confirm the release is intended only for evaluation
    and that public copy does not imply platform publisher authentication.
-4. Run the release workflow manually from the intended commit. This produces an
-   unsigned candidate and tests installers; it does not prove tag signing.
+4. Run the release workflow manually from the intended commit. This produces a
+   candidate without publisher identities and tests installers; it does not
+   prove tag signing.
 5. Create the tag only from the reviewed commit. Never move or reuse a release tag.
 6. Require complete-candidate validation and provenance attestation to pass. In
    `signed` mode, also require signing, notarization and Authenticode checks. In
-   `unsigned-evaluation` mode, require the explicit unsigned-artifact checks and
+   `unsigned-evaluation` mode, require the explicit no-publisher-identity checks and
    confirm the GitHub release is marked prerelease.
 7. Download the published assets onto clean macOS, Windows and Linux machines.
    Verify the mode, checksums, provenance, installation, displayed version and
