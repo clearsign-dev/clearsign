@@ -34,7 +34,7 @@ review back; your hardware wallet still signs.
 
 ## Signing and notarisation
 
-The published v0.1.2 application is not code-signed, so macOS and Windows warn
+The published v0.1.3 application is not code-signed, so macOS and Windows warn
 that it comes from an unidentified developer. Until a signed release replaces
 it, the honest check is the hash of what you downloaded, not the badge on it.
 

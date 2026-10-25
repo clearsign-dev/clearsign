@@ -1,9 +1,9 @@
 # Release signing and verification
 
 This document describes the repository's release controls. It does not claim
-that already-published downloads were retroactively signed. ClearSign v0.1.2 is
-an unsigned evaluation release. Every future release tag requires an explicit
-mode; an unset or unknown mode fails before packaging begins.
+that already-published downloads were retroactively signed. ClearSign v0.1.2 and
+v0.1.3 are unsigned evaluation releases. Every future release tag requires an
+explicit mode; an unset or unknown mode fails before packaging begins.
 
 ## What the workflow enforces
 
