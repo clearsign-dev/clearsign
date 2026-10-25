@@ -41,6 +41,10 @@ case "$PLATFORM" in
       echo "cargo-ndk is required: cargo install cargo-ndk --locked" >&2
       exit 1
     }
+    rustup target add \
+      aarch64-linux-android \
+      armv7-linux-androideabi \
+      x86_64-linux-android
     rm -rf "$MODULE_NATIVE/android"
     (
       cd "$REPO_DIR/signing-core"
