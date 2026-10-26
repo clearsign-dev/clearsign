@@ -10,7 +10,7 @@ checksum = "3bc62ac97cc33321f50863d514c3bc38a453947a8f9e781137e47c7401020aed"
 
 [[package]]
 name = "authority"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "clearsign",
 ]
@@ -65,7 +65,7 @@ checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
 
 [[package]]
 name = "clearsign"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "crypto-bigint",
  "k256",
@@ -85,7 +85,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-qr"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "clearsign",
  "sha2 0.10.9",
@@ -93,7 +93,7 @@ dependencies = [
 
 [[package]]
 name = "clearsign-safe-json"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "clearsign",
  "serde",

@@ -49,7 +49,7 @@ export default function ScopeScreen() {
             ))}
           </View>
 
-          <Text style={[styles.version, { color: colors.inkFaint }]}>Mobile evaluation build 0.1.4 · Review API v1</Text>
+          <Text style={[styles.version, { color: colors.inkFaint }]}>Mobile evaluation build 0.1.5 · Review API v1</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
