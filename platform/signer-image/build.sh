@@ -55,8 +55,8 @@ cat > "$SRC/build-signer-image.sh" <<'IN'
 #!/usr/bin/env bash
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq >/dev/null
-apt-get install -y -qq --no-install-recommends build-essential bc bison flex libssl-dev \
+apt-get -o Acquire::Retries=5 update -qq >/dev/null
+apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends build-essential bc bison flex libssl-dev \
   libelf-dev xz-utils cpio python3 binutils >/dev/null
 KV="$1"
 export KBUILD_BUILD_TIMESTAMP="1970-01-01" KBUILD_BUILD_USER="builder" KBUILD_BUILD_HOST="osproject"
