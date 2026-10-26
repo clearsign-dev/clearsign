@@ -16,7 +16,7 @@ from what comparable projects actually took, not from optimism.
 |---|---|
 | The reviewer | Works. 314 tests, nine fuzz targets, reproducible builds, one external audit with all ten findings fixed |
 | The command-line tool | Works. Reads Safe's own JSON, catches the Bybit transaction, and agreed with Safe's service and alloy on 10,851 of 10,851 sampled Safe transaction hashes across 27 chains |
-| The desktop application | Builds, installs and runs on macOS, Windows and Linux in CI. v0.1.6 is configured as an unsigned evaluation prerelease; stable signing credentials are not provisioned |
+| The desktop application | Builds, installs and runs on macOS, Windows and Linux in CI. v0.1.7 is configured as an unsigned evaluation prerelease; stable signing credentials are not provisioned |
 | The compartment prototype | Runs on seL4 in an emulator: untrusted Linux, no shell, signer owns the console |
 | Users | **None.** This is the number that matters |
 

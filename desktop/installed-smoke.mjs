@@ -94,8 +94,13 @@ try {
   });
   session = opened.sessionId;
   assert.ok(session, 'native session was created');
-  // The Debian and AppImage checks share a runner account but must not share app history.
-  await evaluate('localStorage.clear(); sessionStorage.clear(); location.reload();');
+  // Linux packages share a runner account. Windows already gets a fresh WebView
+  // profile and denies storage access for this document origin.
+  await evaluate(`
+    try { localStorage.clear(); } catch {}
+    try { sessionStorage.clear(); } catch {}
+    location.reload();
+  `);
   await until(() => evaluate('return document.getElementById("version-line")?.innerText.includes(arguments[0])', [version]), 'Rust build version');
   await click('load-example');
   await until(async () => (await output()).includes('DO NOT SIGN'), 'critical historical review');

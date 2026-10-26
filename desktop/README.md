@@ -37,7 +37,7 @@ signs.
 
 ## Signing and notarisation
 
-The v0.1.6 application is not publisher-signed or notarized, so macOS and
+The v0.1.7 application is not publisher-signed or notarized, so macOS and
 Windows warn that it comes from an unidentified developer. The macOS linker may
 add an identity-free ad-hoc signature; that is not a Developer ID signature.
 Until a signed release replaces it, the honest check is the hash of what you
