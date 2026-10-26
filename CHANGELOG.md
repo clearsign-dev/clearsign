@@ -7,6 +7,13 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## v0.1.6 — 2026-10-26
+
+- Carries forward the v0.1.5 evaluation candidate, which was not published
+  after its emulated ARM signer-image check reached GitHub's six-hour limit.
+- Runs the unchanged two-build signer-image reproducibility gate on a native
+  ARM64 runner and exercises that gate during manual branch rehearsals.
+
 ## v0.1.5 — 2026-10-26
 
 ### Added

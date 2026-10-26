@@ -2,7 +2,7 @@
   "expo": {
     "name": "ClearSign",
     "slug": "clearsign",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "scheme": "clearsign",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

@@ -9,14 +9,18 @@
 # obvious next step and is not done yet.
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq >/dev/null 2>&1
-apt-get install -y -qq --no-install-recommends curl ca-certificates gcc libc6-dev locales >/dev/null 2>&1
+apt-get -o Acquire::Retries=5 update -qq >/dev/null 2>&1
+apt-get -o Acquire::Retries=5 install -y -qq --no-install-recommends curl ca-certificates gcc libc6-dev locales >/dev/null 2>&1
 TOOLCHAIN="$1"; TARGET="$2"; shift 2
 
 export TZ="${BUILD_TZ:-UTC}" LANG="${BUILD_LOCALE:-C.UTF-8}" LC_ALL="${BUILD_LOCALE:-C.UTF-8}"
 umask "${BUILD_UMASK:-022}"
 export RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo
-curl -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path --profile minimal \
+RUSTUP_INSTALLER="$(mktemp)"
+trap 'rm -f "$RUSTUP_INSTALLER"' EXIT
+curl -sSfL --retry 5 --retry-all-errors --retry-delay 2 \
+  --connect-timeout 20 --max-time 300 https://sh.rustup.rs -o "$RUSTUP_INSTALLER"
+sh "$RUSTUP_INSTALLER" -y --no-modify-path --profile minimal \
   --default-toolchain "$TOOLCHAIN" --target "$TARGET" >/dev/null
 export PATH="/opt/cargo/bin:$PATH"
 
