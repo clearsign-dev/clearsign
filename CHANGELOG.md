@@ -7,6 +7,13 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## v0.1.7 — 2026-10-26
+
+- Carries forward the unpublished v0.1.6 candidate after its Windows installer
+  smoke test reached a WebView storage API that the document origin denies.
+- Keeps Linux package-history isolation while allowing Windows to use the fresh
+  per-test WebView profile the harness already creates.
+
 ## v0.1.6 — 2026-10-26
 
 - Carries forward the v0.1.5 evaluation candidate, which was not published
