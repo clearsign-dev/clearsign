@@ -25,20 +25,32 @@ try {
 const vulnerabilities = report.vulnerabilities ?? {};
 const expected = {
   '@expo/cli': {
-    via: ['@expo/code-signing-certificates', 'node-forge', 'zod'],
+    via: ['@expo/config', '@expo/metro-config', '@expo/prebuild-config', 'zod'],
     nodes: ['node_modules/expo/node_modules/@expo/cli'],
   },
-  '@expo/code-signing-certificates': {
-    via: ['node-forge'],
-    nodes: ['node_modules/@expo/code-signing-certificates'],
+  '@expo/config': {
+    via: ['deepmerge'],
+    nodes: ['node_modules/@expo/config'],
+  },
+  '@expo/local-build-cache-provider': {
+    via: ['@expo/config'],
+    nodes: ['node_modules/@expo/local-build-cache-provider'],
+  },
+  '@expo/metro-config': {
+    via: ['@expo/config'],
+    nodes: ['node_modules/@expo/metro-config'],
+  },
+  '@expo/prebuild-config': {
+    via: ['@expo/config'],
+    nodes: ['node_modules/@expo/prebuild-config'],
+  },
+  deepmerge: {
+    via: ['https://github.com/advisories/GHSA-gcqx-w48m-w2h4'],
+    nodes: ['node_modules/deepmerge'],
   },
   expo: {
-    via: ['@expo/cli'],
+    via: ['@expo/cli', '@expo/config', '@expo/local-build-cache-provider', '@expo/metro-config'],
     nodes: ['node_modules/expo'],
-  },
-  'node-forge': {
-    via: ['https://github.com/advisories/GHSA-86w9-cpqp-85rv'],
-    nodes: ['node_modules/node-forge'],
   },
   zod: {
     via: ['https://github.com/advisories/GHSA-mrhx-c7xc-m3w5'],
@@ -66,6 +78,6 @@ if (JSON.stringify(normalizedGraph(vulnerabilities)) !== JSON.stringify(normaliz
 }
 
 process.stdout.write(
-  'Known Expo CLI advisories only: node-forge GHSA-86w9-cpqp-85rv and zod GHSA-mrhx-c7xc-m3w5.\n' +
+  'Known Expo CLI advisories only: deepmerge GHSA-gcqx-w48m-w2h4 and zod GHSA-mrhx-c7xc-m3w5.\n' +
     'They are build-tool dependencies in the current Expo SDK and have no compatible upstream fix.\n',
 );

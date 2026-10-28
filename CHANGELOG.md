@@ -40,6 +40,10 @@ that keeps people on a broken version.
   and fell back with a warning, so it did not test the locale variation the log
   claimed. Both builds share one frozen snapshot of the Cargo registry while
   retaining separate source trees and containers.
+- Mobile dependencies now match the current Expo 58 patch set. This removes the
+  `node-forge` signature-verification advisory; the audit gate records the
+  remaining Zod and `deepmerge` build-tool advisories exactly and still fails on
+  any unreviewed change to that graph.
 
 ## v0.1.7 — 2026-10-26
 

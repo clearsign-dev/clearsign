@@ -9,10 +9,13 @@ import { fileURLToPath } from 'node:url';
 const checker = fileURLToPath(new URL('./check-npm-audit.mjs', import.meta.url));
 const expected = {
   vulnerabilities: {
-    '@expo/cli': { via: ['@expo/code-signing-certificates', 'node-forge', 'zod'], nodes: ['node_modules/expo/node_modules/@expo/cli'] },
-    '@expo/code-signing-certificates': { via: ['node-forge'], nodes: ['node_modules/@expo/code-signing-certificates'] },
-    expo: { via: ['@expo/cli'], nodes: ['node_modules/expo'] },
-    'node-forge': { via: [{ url: 'https://github.com/advisories/GHSA-86w9-cpqp-85rv' }], nodes: ['node_modules/node-forge'] },
+    '@expo/cli': { via: ['@expo/config', '@expo/metro-config', '@expo/prebuild-config', 'zod'], nodes: ['node_modules/expo/node_modules/@expo/cli'] },
+    '@expo/config': { via: ['deepmerge'], nodes: ['node_modules/@expo/config'] },
+    '@expo/local-build-cache-provider': { via: ['@expo/config'], nodes: ['node_modules/@expo/local-build-cache-provider'] },
+    '@expo/metro-config': { via: ['@expo/config'], nodes: ['node_modules/@expo/metro-config'] },
+    '@expo/prebuild-config': { via: ['@expo/config'], nodes: ['node_modules/@expo/prebuild-config'] },
+    deepmerge: { via: [{ url: 'https://github.com/advisories/GHSA-gcqx-w48m-w2h4' }], nodes: ['node_modules/deepmerge'] },
+    expo: { via: ['@expo/cli', '@expo/config', '@expo/local-build-cache-provider', '@expo/metro-config'], nodes: ['node_modules/expo'] },
     zod: { via: [{ url: 'https://github.com/advisories/GHSA-mrhx-c7xc-m3w5' }], nodes: ['node_modules/zod'] },
   },
 };
