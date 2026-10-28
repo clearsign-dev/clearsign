@@ -36,19 +36,23 @@ mkdir -p "$STAGE/usr/bin" && cp "$HERE/guest/signer-request" "$STAGE/usr/bin/" &
 cp "$HERE/guest/compartment-demo.sh" "$STAGE/usr/bin/compartment-demo" && chmod 0755 "$STAGE/usr/bin/compartment-demo"
 # GrapheneOS hardened_malloc as the system-wide allocator (built by platform/grapheneos/build-hardened-malloc.sh)
 GOS="$HERE/../../grapheneos/out"
-if [[ -f "$GOS/libhardened_malloc.so" ]]; then
-  mkdir -p "$STAGE/usr/lib" "$STAGE/etc"
-  # Safety gate: a globally preloaded library with an unsatisfied dependency kills init.
-  NEEDED=$(/opt/homebrew/opt/llvm/bin/llvm-readelf -d "$GOS/libhardened_malloc.so" | grep NEEDED | grep -oE '\[[^]]+\]' | tr -d '[]')
-  for lib in $NEEDED; do
-    case "$lib" in libc.so.6|ld-linux-aarch64.so.1) ;; *) echo "refusing to preload: guest lacks $lib" >&2; exit 1 ;; esac
-  done
-  cp "$GOS/libhardened_malloc.so" "$STAGE/usr/lib/" && chmod 0755 "$STAGE/usr/lib/libhardened_malloc.so"
-  echo /usr/lib/libhardened_malloc.so > "$STAGE/etc/ld.so.preload"
-  cp "$GOS/write_after_free" "$GOS/write_after_free_static" "$STAGE/usr/bin/"
-  chmod 0755 "$STAGE/usr/bin/write_after_free" "$STAGE/usr/bin/write_after_free_static"
-  echo "including GrapheneOS hardened_malloc"
-fi
+for artifact in libhardened_malloc.so write_after_free write_after_free_static; do
+  [[ -f "$GOS/$artifact" ]] || {
+    echo "missing GrapheneOS allocator artifact $GOS/$artifact; run platform/grapheneos/build-hardened-malloc.sh" >&2
+    exit 1
+  }
+done
+mkdir -p "$STAGE/usr/lib" "$STAGE/etc"
+# Safety gate: a globally preloaded library with an unsatisfied dependency kills init.
+NEEDED=$(/opt/homebrew/opt/llvm/bin/llvm-readelf -d "$GOS/libhardened_malloc.so" | grep NEEDED | grep -oE '\[[^]]+\]' | tr -d '[]')
+for lib in $NEEDED; do
+  case "$lib" in libc.so.6|ld-linux-aarch64.so.1) ;; *) echo "refusing to preload: guest lacks $lib" >&2; exit 1 ;; esac
+done
+cp "$GOS/libhardened_malloc.so" "$STAGE/usr/lib/" && chmod 0755 "$STAGE/usr/lib/libhardened_malloc.so"
+echo /usr/lib/libhardened_malloc.so > "$STAGE/etc/ld.so.preload"
+cp "$GOS/write_after_free" "$GOS/write_after_free_static" "$STAGE/usr/bin/"
+chmod 0755 "$STAGE/usr/bin/write_after_free" "$STAGE/usr/bin/write_after_free_static"
+echo "including GrapheneOS hardened_malloc"
 ( cd "$STAGE" && find usr etc 2>/dev/null | LC_ALL=C sort | cpio -o -H newc -R 0:0 2>/dev/null | gzip -9n > "$BUILD/overlay.cpio.gz" )
 
 # 3. Base guest images.

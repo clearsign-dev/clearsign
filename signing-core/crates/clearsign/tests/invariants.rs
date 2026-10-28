@@ -8,11 +8,27 @@
 )]
 
 use clearsign::rlp;
-use clearsign::{DomainVersion, Error, SafeTransaction, Severity, TxType, U256};
+use clearsign::{
+    DomainVersion, Error, MAX_TRANSACTION_BYTES, SafeTransaction, Severity, TxType, U256,
+};
 use clearsign::{hex, parse_unsigned_transaction, review_evm_transaction, review_safe_transaction};
 
 const SAFE: [u8; 20] = [0x11; 20];
 const TOKEN: [u8; 20] = [0x22; 20];
+
+#[test]
+fn raw_transactions_are_bounded_at_the_public_parser() {
+    let at_limit = vec![0u8; MAX_TRANSACTION_BYTES];
+    assert_ne!(
+        parse_unsigned_transaction(&at_limit),
+        Err(Error::TooLarge("transaction exceeds 1 MiB"))
+    );
+    let oversized = vec![0u8; MAX_TRANSACTION_BYTES.saturating_add(1)];
+    assert_eq!(
+        parse_unsigned_transaction(&oversized),
+        Err(Error::TooLarge("transaction exceeds 1 MiB"))
+    );
+}
 
 fn safe_call(to: [u8; 20], data: Vec<u8>, operation: u8) -> SafeTransaction {
     SafeTransaction {

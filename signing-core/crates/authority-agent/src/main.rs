@@ -11,10 +11,11 @@
 //! | 2 | the review contains a BLIND finding |
 //! | 3 | the review contains a CRITICAL finding |
 
+use std::io::Read;
 use std::process::ExitCode;
 
 use authority::{approve_plan, execute, fingerprint, review_plan};
-use authority_agent::{LocalRunner, Policy, RunnerLimits, plan_from_json};
+use authority_agent::{LocalRunner, MAX_PROPOSAL_BYTES, Policy, RunnerLimits, plan_from_json};
 use clearsign::Severity;
 
 const USAGE: &str = "\
@@ -76,10 +77,20 @@ fn run_command(args: &[String], execute_it: bool) -> ExitCode {
     let Some(path) = path else {
         return fail("name the proposal file to read");
     };
-    let json = match std::fs::read_to_string(&path) {
-        Ok(text) => text,
+    let file = match std::fs::File::open(&path) {
+        Ok(file) => file,
         Err(e) => return fail(&format!("cannot read {path}: {e}")),
     };
+    let limit = u64::try_from(MAX_PROPOSAL_BYTES)
+        .unwrap_or(u64::MAX)
+        .saturating_add(1);
+    let mut json = String::new();
+    if let Err(e) = file.take(limit).read_to_string(&mut json) {
+        return fail(&format!("cannot read {path}: {e}"));
+    }
+    if json.len() > MAX_PROPOSAL_BYTES {
+        return fail("the encoded proposal is larger than 32 MiB");
+    }
 
     let policy = Policy::default();
     let plan = match plan_from_json(&json, &policy) {

@@ -27,10 +27,12 @@ Run `npm run typecheck` and `npx expo-doctor` before submitting a change. CI
 builds the Rust libraries and both native applications from clean runners.
 
 `npm run audit` fails if the dependency advisory set changes. The current Expo
-SDK build CLI brings two known high-severity advisories through `node-forge`
-and Zod; neither has a compatible upstream release yet. They are build-tool
-dependencies, not code loaded by the transaction reviewer, and are named rather
-than suppressed so an Expo update can remove the exception.
+SDK build CLI brings a high-severity resource-exhaustion advisory through Zod
+and a low-severity prototype-poisoning advisory through `deepmerge`; neither has
+a compatible upstream release yet. They are build-tool dependencies, not code
+loaded by the transaction reviewer, and are named rather than suppressed so an
+Expo update can remove the exception. Expo 58.0.20 also moves `node-forge` to
+1.4.2, removing the earlier signature-verification advisory.
 
 ## Native boundary
 

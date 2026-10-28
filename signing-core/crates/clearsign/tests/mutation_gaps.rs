@@ -401,6 +401,7 @@ fn safe_transactions_nest_exactly_to_the_limit() {
             .iter()
             .any(|f| f.code == "UNDECODED_CALLS" && f.severity == clearsign::Severity::Critical)
     );
+    assert!(r.signing_target().is_none());
 }
 
 // calls.rs:391 — batches nested to the limit are decoded, one more is not.
@@ -447,7 +448,9 @@ fn a_batch_shows_its_total_its_overflow_and_its_own_value() {
     );
 }
 
-// calls.rs:502, calls.rs:510 — the positions of hidden findings are listed.
+// A screen cannot present every call in an oversized batch. The decoder still
+// reports what it found, but the review must not carry signing authority: a
+// grouped warning is a useful refusal reason, not permission for many actions.
 #[test]
 fn hidden_findings_list_where_they_are() {
     let mut calls: Vec<_> = (0..45).map(|_| (0u8, TOKEN, 0u64, vec![])).collect();
@@ -461,29 +464,29 @@ fn hidden_findings_list_where_they_are() {
         &safe_call(MULTISEND_130, multisend(&calls), 1),
         DomainVersion::V1_3Plus,
     );
-    let f = r
+    let findings: Vec<_> = r
         .findings()
         .iter()
-        .find(|f| f.code == "UNLIMITED_APPROVAL")
-        .unwrap();
-    assert!(
-        f.message
-            .contains("33, 34, 35, 36, 37, 38, 39, 40 and 5 more"),
-        "{}",
-        f.message
-    );
+        .filter(|f| f.code == "UNLIMITED_APPROVAL")
+        .collect();
+    assert_eq!(findings.len(), 1);
+    assert!(findings[0].message.contains("33, 34, 35"));
+    assert!(findings[0].message.contains("5 more"));
+    assert!(r.signing_target().is_none());
 
     calls.truncate(35);
     let r = review_safe_transaction(
         &safe_call(MULTISEND_130, multisend(&calls), 1),
         DomainVersion::V1_3Plus,
     );
-    let f = r
+    let findings: Vec<_> = r
         .findings()
         .iter()
-        .find(|f| f.code == "UNLIMITED_APPROVAL")
-        .unwrap();
-    assert!(f.message.contains(": 33, 34, 35."), "{}", f.message);
+        .filter(|f| f.code == "UNLIMITED_APPROVAL")
+        .collect();
+    assert_eq!(findings.len(), 1);
+    assert!(findings[0].message.contains("33, 34, 35"));
+    assert!(r.signing_target().is_none());
 }
 
 // calls.rs:872 — one SELECTOR_IS_NOT_BEHAVIOUR notice per destination.

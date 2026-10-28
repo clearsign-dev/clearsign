@@ -68,18 +68,18 @@ signer_lines = [l for l in text.splitlines() if l.startswith("SIGNER|")]
 guest_lines = [l for l in text.splitlines() if l.startswith("GUEST|")]
 signer_reviewed = any("review written for the Linux compartment (severity code 4)" in l for l in signer_lines)
 guest_cannot_forge = not any(l.startswith("SIGNER|") for l in text.splitlines() if "GUEST|" in l)
-review_ok = signer_reviewed and "REQUEST_EXIT=3" in text and EXPECTED_HASH in text
+trusted_review = "\n".join(l.removeprefix("SIGNER|REVIEW|") for l in signer_lines if l.startswith("SIGNER|REVIEW|"))
+review_ok = signer_reviewed and EXPECTED_HASH in trusted_review
 # The prompt-injection case: the untrusted side proposed it, the compartment
 # that decides caught it, and the finding names the step and the destination.
-plan_reviewed = "submitting an assistant's action plan" in text
+plan_reviewed = "SECRET_EGRESS" in trusted_review
 plan_blocked = (
-    "SECRET_EGRESS" in text
-    and "notes-backup.example" in text
-    and "DO NOT APPROVE" in text
-    and "PLAN_EXIT=3" in text
+    "SECRET_EGRESS" in trusted_review
+    and "notes-backup.example" in trusted_review
+    and "DO NOT APPROVE" in trusted_review
 )
-tamper_attempted = "Writing 'no risk' now" in text
-tamper_blocked = tamper_attempted and "ISOLATION FAILURE" not in text and "TAMPER_EXIT=2" not in text
+tamper_attempted = "Writing 'no risk' now" in "\n".join(guest_lines)
+tamper_blocked = tamper_attempted and "VMM|blocked guest write to signer review region" in text
 import re
 hm_loaded = re.search(r"HM_MAPS=([1-9]\d*)", text) is not None
 hm_detects = "fatal allocator error: detected write after free" in text and "WAF_EXIT=134" in text

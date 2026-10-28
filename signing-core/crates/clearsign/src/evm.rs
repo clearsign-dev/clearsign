@@ -13,6 +13,13 @@ use crate::review::{Review, Section, Severity};
 use crate::rlp::{self, Item};
 use crate::{Error, U256, hex};
 
+/// Maximum encoded transaction accepted by the public raw-byte parser.
+///
+/// This matches the record limit used by the JSON, native and browser
+/// boundaries. Keeping it here makes the library safe for embedders that do
+/// not add a transport-specific cap of their own.
+pub const MAX_TRANSACTION_BYTES: usize = 1024 * 1024;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TxType {
     /// Pre-EIP-155: no chain ID, replayable on other chains.
@@ -153,6 +160,9 @@ pub struct EvmTransaction {
 /// Parse the unsigned transaction bytes a wallet asks the signer to sign.
 /// Signed transactions are rejected: a signer only ever signs unsigned payloads.
 pub fn parse_unsigned_transaction(bytes: &[u8]) -> Result<EvmTransaction, Error> {
+    if bytes.len() > MAX_TRANSACTION_BYTES {
+        return Err(Error::TooLarge("transaction exceeds 1 MiB"));
+    }
     let first = *bytes.first().ok_or(Error::Truncated)?;
     let signing_hash = keccak256(bytes);
     let typed_fields = || -> Result<Item<'_>, Error> {

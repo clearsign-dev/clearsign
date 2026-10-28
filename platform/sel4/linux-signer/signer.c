@@ -23,6 +23,29 @@ uintptr_t review_vaddr;
 extern long clearsign_review(const uint8_t *request, size_t request_len,
                              uint8_t *out, size_t out_cap, uint8_t *severity);
 
+static void trusted_review_puts(const volatile uint8_t *text, size_t len)
+{
+    char line[241];
+    size_t used = 0;
+    microkit_dbg_puts("SIGNER|REVIEW|");
+    for (size_t i = 0; i < len; i++) {
+        char c = (char)text[i];
+        if (c == '\n' || used + 1 >= sizeof(line)) {
+            line[used] = 0;
+            microkit_dbg_puts(line);
+            microkit_dbg_puts("\nSIGNER|REVIEW|");
+            used = 0;
+            if (c == '\n') {
+                continue;
+            }
+        }
+        line[used++] = (c >= 0x20 && c < 0x7f) ? c : '.';
+    }
+    line[used] = 0;
+    microkit_dbg_puts(line);
+    microkit_dbg_puts("\n");
+}
+
 void init(void)
 {
     microkit_dbg_puts("SIGNER|ready to serve the Linux compartment. No guest RAM, devices or network are mapped.\n");
@@ -52,8 +75,8 @@ void notified(microkit_channel ch)
     }
     if (len > REGION_SIZE - REQ_HEADER) {
         microkit_dbg_puts("SIGNER|refused: request length exceeds region\n");
-        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
+        __atomic_thread_fence(__ATOMIC_RELEASE);
         microkit_notify(CH_VMM);
         return;
     }
@@ -66,11 +89,12 @@ void notified(microkit_channel ch)
     }
 
     uint8_t severity = 0xff;
-    long n = clearsign_review(private_copy, len, rev + REV_HEADER, REGION_SIZE - REV_HEADER, &severity);
+    long n = clearsign_review(private_copy, len, (uint8_t *)(rev + REV_HEADER),
+                              REGION_SIZE - REV_HEADER, &severity);
     if (n < 0) {
         microkit_dbg_puts("SIGNER|refused: request could not be decoded\n");
-        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
+        __atomic_thread_fence(__ATOMIC_RELEASE);
         microkit_notify(CH_VMM);
         return;
     }
@@ -81,8 +105,9 @@ void notified(microkit_channel ch)
     /* Publish last, and only after everything it refers to is visible. On a
      * weakly ordered machine the reader could otherwise see the ready flag
      * before the text and length it promises. */
-    __atomic_thread_fence(__ATOMIC_RELEASE);
     rev[0] = 'R';
+    __atomic_thread_fence(__ATOMIC_RELEASE);
+    trusted_review_puts(rev + REV_HEADER, (size_t)n);
     microkit_dbg_puts("SIGNER|review written for the Linux compartment (severity code ");
     char code[2] = { (char)('0' + (severity & 7)), 0 };
     microkit_dbg_puts(code);

@@ -1,11 +1,11 @@
 # The signer binaries, as built in the canonical environment.
 # Reproduce with signing-core/scripts/reproducible-cross-check.sh.
 # Environment: debian:trixie@sha256:f324c7ff54321e8d9c588493a20244965938ce0aa50bbd1022d38010e9ffc4b1, Rust 1.98.1, target aarch64-unknown-linux-musl.
-# The compile is offline, from a copied registry cache. The container's
-# own bootstrap is not: it apt-gets curl, gcc and libc6-dev, and downloads
+# The compile is offline, from a frozen registry-cache snapshot. The container's
+# own bootstrap is not: it installs bootstrap packages with apt and downloads
 # rustup. Those are not pinned by digest, so the environment is named and
 # reproducible in practice rather than sealed.
 # Anything built elsewhere, including on the maintainer's own machine, may
 # differ: rustc does not promise identical output across compiler hosts.
-65831267d31f804853d267c3640b686abd54e1cbeac1199a3bc97cf2f54215ce  clearsign
-c49256d64f8e116297e973cf944bf3bb0f56ab1c14fdff574fe258c6bf06adb5  clearsign-device
+8880d0135c1f886a3fd24cd8d14a9b3b7bf6661255e53d7f32dd105aa9a462e9  clearsign
+907d6b013d6f279d8a6ee41c51e5490b9ec72e81f36adb3c4392c9989f09ef62  clearsign-device

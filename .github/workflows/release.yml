@@ -48,6 +48,11 @@ jobs:
             echo "apple_team_id=$(jq -r .appleTeamId <<< "$policy")"
             echo "windows_certificate_thumbprint=$(jq -r .windowsCertificateThumbprint <<< "$policy")"
           } >> "$GITHUB_OUTPUT"
+          if [ "$(jq -r .releaseMode <<< "$policy")" = signed ]; then
+            echo "::error::signed releases are disabled in this repository workflow." >&2
+            echo "::error::Use a separately administered signing service that receives only digest-verified unsigned artifacts." >&2
+            exit 1
+          fi
       - name: Validate release tooling
         run: |
           python3 -m unittest discover -s scripts -p 'test_*.py'
@@ -255,11 +260,10 @@ jobs:
             exit 1
           fi
 
-  publish:
+  prepare-publication:
     needs: [validate, artifacts, signer-image]
-    environment: release
     permissions:
-      contents: write
+      contents: read
     runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -278,9 +282,8 @@ jobs:
           python3 scripts/release_manifest.py verify dist "${GITHUB_REF_NAME#v}" "${GITHUB_SHA}" tag \
             "$CLEARSIGN_RELEASE_MODE" "$APPLE_TEAM_ID" "$WINDOWS_CERTIFICATE_THUMBPRINT"
           cat dist/SHA256SUMS
-      - name: Publish
+      - name: Prepare release notes
         env:
-          GH_TOKEN: ${{ github.token }}
           CLEARSIGN_RELEASE_MODE: ${{ needs.validate.outputs.release_mode }}
         run: |
           set -euo pipefail
@@ -334,8 +337,8 @@ jobs:
           **Reproducibility.** The `aarch64-unknown-linux-musl` build is the one
           you can check, and it is built here the same way you would rebuild it:
           in the canonical container, with build paths remapped out and the
-          compile itself offline from a copied registry cache. The container's
-          own bootstrap is not offline — it installs three packages with apt and
+          compile itself offline from a frozen registry-cache snapshot. The container's
+          own bootstrap is not offline — it installs bootstrap packages with apt and
           downloads rustup, neither pinned by digest — so the environment is
           named and reproducible in practice rather than sealed.
           Rebuild it with `signing-core/scripts/reproducible-cross-check.sh` and
@@ -352,23 +355,12 @@ jobs:
           imply otherwise.
 
           NOTES
-          if [ "$CLEARSIGN_RELEASE_MODE" = signed ]; then
-            cat >> notes.md <<'SIGNED'
-          **Publisher authentication.** The macOS application and DMG are signed
-          with a Developer ID certificate, accepted by Apple's notarization
-          service and stapled. The Windows application, MSI and NSIS installer
-          carry an Authenticode signature and trusted timestamp. Linux packages
-          are not platform-signed; use `SHA256SUMS` and the GitHub build-provenance
-          attestation. `BUILD-METADATA.json` records these platform differences.
-          SIGNED
-          else
-            cat >> notes.md <<'UNSIGNED'
+          cat >> notes.md <<'UNSIGNED'
           **Publisher authentication.** This is the explicitly selected unsigned
           evaluation mode. The macOS and Windows artifacts have no platform
           publisher signature or notarization. Use `SHA256SUMS`, inspect
           `BUILD-METADATA.json`, and verify the GitHub build-provenance attestation.
           UNSIGNED
-          fi
           cat >> notes.md <<'NOTES'
 
           **Not for real keys.** The signing and seed commands stay behind a
@@ -379,17 +371,15 @@ jobs:
           # away: only the tarballs were ever attached.
           # Upload into a draft first. When immutable releases are enabled, the
           # final publication locks the complete asset set and tag together.
-          release_flags=(--draft)
-          if [ "$CLEARSIGN_RELEASE_MODE" = unsigned-evaluation ]; then
-            release_flags+=(--prerelease)
-          fi
-          gh release create "${GITHUB_REF_NAME}" \
-            "${release_flags[@]}" \
-            --title "${GITHUB_REF_NAME}" \
-            --notes-file notes.md \
-            dist/*.tar.gz dist/clearsign.html dist/SHA256SUMS dist/BINARY-SHA256 dist/BUILD-METADATA.json dist/ClearSign.spdx.json \
-            $(ls dist/*.dmg dist/*.msi dist/*.exe dist/*.deb dist/*.AppImage 2>/dev/null || true)
-          gh release edit "${GITHUB_REF_NAME}" --draft=false
+          release_flags=(--draft --prerelease)
+          printf '%s\n' "${release_flags[@]}" > release-flags.txt
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: publication-candidate
+          path: |
+            dist/*
+            notes.md
+            release-flags.txt
 
   # The installers. One job per platform, because each one is built by the
   # operating system it installs onto.
@@ -449,144 +439,15 @@ jobs:
           test -s desktop/src/index.html \
             || { echo "app/build.sh did not produce desktop/src/index.html" >&2; exit 1; }
           echo "front end: $(wc -c < desktop/src/index.html) bytes"
-      - name: Prepare macOS Developer ID signing and notarization
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
-        shell: bash
-        env:
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_KEY_P8_BASE64: ${{ secrets.APPLE_API_KEY_P8_BASE64 }}
-          APPLE_TEAM_ID: ${{ needs.validate.outputs.apple_team_id }}
-        run: |
-          set -euo pipefail
-          python3 scripts/release_signing.py check-env macos
-          [[ "$APPLE_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]] \
-            || { echo "::error::APPLE_TEAM_ID must be 10 uppercase letters or digits" >&2; exit 1; }
-
-          certificate="$RUNNER_TEMP/clearsign-developer-id.p12"
-          api_key="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY}.p8"
-          python3 - "$certificate" "$api_key" <<'PY'
-          import base64
-          import os
-          from pathlib import Path
-          import sys
-
-          Path(sys.argv[1]).write_bytes(base64.b64decode(os.environ["APPLE_CERTIFICATE"], validate=True))
-          Path(sys.argv[2]).write_bytes(base64.b64decode(os.environ["APPLE_API_KEY_P8_BASE64"], validate=True))
-          PY
-          chmod 600 "$certificate" "$api_key"
-
-          keychain="$RUNNER_TEMP/clearsign-signing.keychain-db"
-          keychain_password=$(openssl rand -hex 32)
-          echo "::add-mask::$keychain_password"
-          previous_keychain=$(security default-keychain -d user | tr -d '"')
-          {
-            echo "CLEARSIGN_KEYCHAIN_PATH=$keychain"
-            echo "CLEARSIGN_PREVIOUS_KEYCHAIN=$previous_keychain"
-          } >> "$GITHUB_ENV"
-          security create-keychain -p "$keychain_password" "$keychain"
-          security set-keychain-settings -lut 21600 "$keychain"
-          security unlock-keychain -p "$keychain_password" "$keychain"
-          security import "$certificate" -k "$keychain" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain"
-          security list-keychains -d user -s "$keychain" "$previous_keychain"
-          security default-keychain -d user -s "$keychain"
-
-          identities=$(security find-identity -v -p codesigning "$keychain" \
-            | sed -n 's/.*"\(Developer ID Application:.*\)"/\1/p')
-          count=$(printf '%s\n' "$identities" | sed '/^$/d' | wc -l | tr -d ' ')
-          [ "$count" = 1 ] || {
-            echo "::error::expected exactly one Developer ID Application identity, found $count" >&2
-            exit 1
-          }
-
-          {
-            echo "APPLE_SIGNING_IDENTITY=$identities"
-            echo "APPLE_API_ISSUER=$APPLE_API_ISSUER"
-            echo "APPLE_API_KEY=$APPLE_API_KEY"
-            echo "APPLE_API_KEY_PATH=$api_key"
-            echo "APPLE_TEAM_ID=$APPLE_TEAM_ID"
-          } >> "$GITHUB_ENV"
-      - name: Prepare Windows Authenticode signing
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
-        shell: pwsh
-        env:
-          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ needs.validate.outputs.windows_certificate_thumbprint }}
-          WINDOWS_TIMESTAMP_URL: ${{ vars.WINDOWS_TIMESTAMP_URL }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          python scripts/release_signing.py check-env windows
-          if ($LASTEXITCODE -ne 0) { throw 'Windows signing credentials are incomplete' }
-
-          $certificatePath = Join-Path $env:RUNNER_TEMP 'clearsign-code-signing.pfx'
-          [IO.File]::WriteAllBytes(
-            $certificatePath,
-            [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE)
-          )
-          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
-          $imported = @(Import-PfxCertificate -FilePath $certificatePath -CertStoreLocation Cert:\CurrentUser\My -Password $password)
-          $signingCertificates = @($imported | Where-Object {
-            $_.HasPrivateKey -and
-            ($_.EnhancedKeyUsageList.ObjectId.Value -contains '1.3.6.1.5.5.7.3.3')
-          })
-          if ($signingCertificates.Count -ne 1) {
-            throw "Expected one imported certificate with a private key, found $($signingCertificates.Count)"
-          }
-          $certificate = $signingCertificates[0]
-          $expectedThumbprint = ($env:WINDOWS_CERTIFICATE_THUMBPRINT -replace '\s', '').ToUpperInvariant()
-          if ($certificate.Thumbprint -ne $expectedThumbprint) {
-            throw 'Imported Windows certificate does not match WINDOWS_CERTIFICATE_THUMBPRINT'
-          }
-          if ($certificate.NotAfter -le (Get-Date).ToUniversalTime()) {
-            throw 'Windows code-signing certificate is expired'
-          }
-          if ($certificate.NotBefore -gt (Get-Date).ToUniversalTime()) {
-            throw 'Windows code-signing certificate is not valid yet'
-          }
-          Add-Content $env:GITHUB_ENV "WINDOWS_SIGNING_THUMBPRINT=$($certificate.Thumbprint)"
-
-          $timestampUrl = $env:WINDOWS_TIMESTAMP_URL
-          if ([string]::IsNullOrWhiteSpace($timestampUrl)) {
-            $timestampUrl = 'http://timestamp.digicert.com'
-          }
-          $config = 'desktop/src-tauri/tauri.windows-signing.generated.json'
-          python scripts/release_signing.py windows-config $config $certificate.Thumbprint $timestampUrl
-          if ($LASTEXITCODE -ne 0) { throw 'Could not generate the Windows signing configuration' }
-          Add-Content $env:GITHUB_ENV "TAURI_SIGNING_CONFIG=src-tauri/tauri.windows-signing.generated.json"
       - name: Build the application
         working-directory: desktop
         shell: bash
         run: |
           set -euo pipefail
           npm ci
-          if [ -n "${TAURI_SIGNING_CONFIG:-}" ]; then
-            npm run build -- --config "$TAURI_SIGNING_CONFIG" -- --locked
-          else
-            npm run build -- -- --locked
-          fi
-      - name: Verify macOS signature, notarization and stapling
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
-        shell: bash
-        run: |
-          set -euo pipefail
-          apps=(desktop/src-tauri/target/release/bundle/macos/*.app)
-          images=(desktop/src-tauri/target/release/bundle/dmg/*.dmg)
-          [ "${#apps[@]}" = 1 ] && [ "${#images[@]}" = 1 ] \
-            || { echo "::error::expected one macOS app and one DMG" >&2; exit 1; }
-          codesign --verify --deep --strict --verbose=2 "${apps[0]}"
-          codesign --verify --verbose=2 "${images[0]}"
-          team_id=$(codesign -d --verbose=4 "${apps[0]}" 2>&1 | sed -n 's/^TeamIdentifier=//p')
-          [ "$team_id" = "$APPLE_TEAM_ID" ] \
-            || { echo "::error::macOS app has unexpected TeamIdentifier: $team_id" >&2; exit 1; }
-          spctl --assess --type execute --verbose=4 "${apps[0]}"
-          xcrun stapler validate "${apps[0]}"
-          xcrun stapler validate "${images[0]}"
+          npm run build -- -- --locked
       - name: Verify the evaluation macOS artifacts have no publisher identity
-        if: runner.os == 'macOS' && needs.validate.outputs.release_mode != 'signed'
+        if: runner.os == 'macOS'
         shell: bash
         run: |
           set -euo pipefail
@@ -671,31 +532,8 @@ jobs:
           fi
           kill "$app_pid"
           wait "$app_pid" || true
-      - name: Verify Windows Authenticode signatures and timestamps
-        if: runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v') && needs.validate.outputs.release_mode == 'signed'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $paths = @(
-            'desktop/src-tauri/target/release/clearsign-desktop.exe'
-          )
-          $paths += @(Get-ChildItem desktop/src-tauri/target/release/bundle/msi/*.msi | ForEach-Object FullName)
-          $paths += @(Get-ChildItem desktop/src-tauri/target/release/bundle/nsis/*.exe | ForEach-Object FullName)
-          if ($paths.Count -ne 3) { throw "Expected three signed Windows files, found $($paths.Count)" }
-          foreach ($path in $paths) {
-            $signature = Get-AuthenticodeSignature $path
-            if ($signature.Status -ne 'Valid') {
-              throw "Invalid Authenticode signature on ${path}: $($signature.StatusMessage)"
-            }
-            if ($signature.SignerCertificate.Thumbprint -ne $env:WINDOWS_SIGNING_THUMBPRINT) {
-              throw "Unexpected signer certificate on ${path}"
-            }
-            if ($null -eq $signature.TimeStamperCertificate) {
-              throw "Missing trusted timestamp on ${path}"
-            }
-          }
       - name: Verify the evaluation Windows artifacts are unsigned
-        if: runner.os == 'Windows' && needs.validate.outputs.release_mode != 'signed'
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -735,16 +573,8 @@ jobs:
         run: |
           function Assert-ReleaseSignature([string]$Path) {
             $signature = Get-AuthenticodeSignature $Path
-            if ([string]::IsNullOrWhiteSpace($env:WINDOWS_SIGNING_THUMBPRINT)) {
-              if ($signature.Status -ne 'NotSigned') {
-                throw "Unsigned evaluation file has unexpected signature status on ${Path}: $($signature.Status)"
-              }
-              return
-            }
-            if ($signature.Status -ne 'Valid' -or
-                $signature.SignerCertificate.Thumbprint -ne $env:WINDOWS_SIGNING_THUMBPRINT -or
-                $null -eq $signature.TimeStamperCertificate) {
-              throw "Installed file is not validly signed and timestamped: $Path"
+            if ($signature.Status -ne 'NotSigned') {
+              throw "Unsigned evaluation file has unexpected signature status on ${Path}: $($signature.Status)"
             }
           }
           cargo install --git https://github.com/chippers/msedgedriver-tool --rev 8c4b34f51b45f5cf08013366d703de464ab871d1 --locked
@@ -819,28 +649,6 @@ jobs:
             cp app/dist/clearsign.html desktop-dist/
           fi
           ls -la desktop-dist
-      - name: Remove temporary signing credentials
-        if: always() && runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: |
-          set +e
-          if [ -n "${CLEARSIGN_PREVIOUS_KEYCHAIN:-}" ]; then
-            security default-keychain -d user -s "$CLEARSIGN_PREVIOUS_KEYCHAIN"
-            security list-keychains -d user -s "$CLEARSIGN_PREVIOUS_KEYCHAIN"
-          fi
-          if [ -n "${CLEARSIGN_KEYCHAIN_PATH:-}" ]; then
-            security delete-keychain "$CLEARSIGN_KEYCHAIN_PATH"
-          fi
-          rm -f "$RUNNER_TEMP"/clearsign-developer-id.p12 "$RUNNER_TEMP"/AuthKey_*.p8
-      - name: Remove imported Windows signing certificate
-        if: always() && runner.os == 'Windows' && startsWith(github.ref, 'refs/tags/v')
-        shell: pwsh
-        run: |
-          if ($env:WINDOWS_SIGNING_THUMBPRINT) {
-            Remove-Item "Cert:\CurrentUser\My\$($env:WINDOWS_SIGNING_THUMBPRINT)" -Force -ErrorAction SilentlyContinue
-          }
-          Remove-Item "$env:RUNNER_TEMP\clearsign-code-signing.pfx" -Force -ErrorAction SilentlyContinue
-          Remove-Item 'desktop/src-tauri/tauri.windows-signing.generated.json' -Force -ErrorAction SilentlyContinue
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: success() || failure()
         with:

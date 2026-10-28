@@ -5,8 +5,14 @@ that already-published downloads were retroactively signed. ClearSign v0.1.2 is
 unsigned. The protected v0.1.3 tag produced no release because its macOS
 evaluation gate rejected an identity-free ad-hoc linker signature. v0.1.4 was
 published as an unsigned evaluation release, and v0.1.7 is configured the same
-way. Every future release tag requires an explicit mode; an unset or unknown
-mode fails before packaging begins.
+way.
+
+The former signed path imported publisher credentials before repository build
+code ran. That is not an acceptable signing boundary. The repository workflow
+therefore no longer consumes Apple or Windows private credentials, and
+`CLEARSIGN_RELEASE_MODE=signed` fails during validation. A stable release remains
+blocked until a separately administered signer can accept only immutable,
+digest-verified artifacts. This is a security gate, not a missing CI toggle.
 
 ## What the workflow enforces
 
@@ -14,16 +20,20 @@ Branch and manual builds remain without publisher identities. They exercise
 packaging, installation and smoke tests without consuming notarization requests
 or exposing signing credentials to ordinary development builds.
 
-Set the public repository variable `CLEARSIGN_RELEASE_MODE` to exactly one of:
+The current repository workflow accepts:
 
-- `signed`: a normal stable release. The macOS and Windows credential and
-  verification gates below are mandatory.
 - `unsigned-evaluation`: a temporary evaluation release. Platform signing and
   notarization credentials are not loaded. Windows artifacts and the macOS DMG
   must be unsigned. The macOS application may carry only an identity-free ad-hoc
   linker signature: no authority, no TeamIdentifier, no Gatekeeper acceptance
   and no stapled ticket. `BUILD-METADATA.json` records the mode, the release
   notes begin with an explicit warning, and GitHub publishes it as a prerelease.
+
+`signed` remains a recognized policy value so external release tooling and
+metadata can describe a properly signed candidate, but this workflow rejects it.
+The future signer must be protected independently from the tagged source and
+must not run package managers, build scripts, newly built applications or
+downloaded test tools while publisher authority is available.
 
 The validation job normalizes and snapshots this mode plus the public Apple Team
 ID and Windows certificate thumbprint. Every later build, metadata and publish
@@ -32,14 +42,8 @@ cannot make its artifacts and recorded policy disagree.
 
 For a `v*` tag, `.github/workflows/release.yml` then fails closed:
 
-- macOS requires a Developer ID Application certificate and App Store Connect
-  API key. The workflow imports them into a temporary keychain, asks Tauri to
-  sign and notarize, then runs `codesign`, Gatekeeper assessment and `stapler
-  validate` against the application and DMG.
-- Windows requires a publicly trusted Authenticode certificate in a PFX file.
-  Tauri signs the executable, MSI, NSIS installer and NSIS uninstaller. The
-  workflow rejects any missing, invalid, unexpectedly signed or un-timestamped
-  file, including the executable after each installer has placed it on disk.
+- the workflow rejects signed mode before any build starts;
+- macOS and Windows outputs must prove they contain no publisher identity;
 - Linux `.deb` and AppImage downloads have no universal publisher-signature
   mechanism in this distribution channel. They are covered by `SHA256SUMS`, the
   release metadata and GitHub's OIDC-backed build-provenance attestation.
@@ -51,9 +55,13 @@ For a `v*` tag, `.github/workflows/release.yml` then fails closed:
   Published vulnerabilities and RustSec `unsound` warnings block the build;
   unmaintained and yanked transitive packages remain visible as warnings.
 
-The workflow deletes imported signing material before uploading artifacts. The
-runners are ephemeral, but cleanup is still explicit. GitHub Actions secrets are
-available only to the native platform step that needs them.
+The workflow contains no Apple or Windows publisher-secret references. Release
+notes are prepared without repository write authority. The final publication
+step receives `GH_TOKEN`, accepts only a fixed filename allowlist, confirms the
+tag resolves to the candidate commit, verifies the exact `SHA256SUMS` contents
+and every listed asset with system tools, and only then uploads those explicit
+files. It uses the publisher workflow from the protected default branch and
+never checks out or executes code from the release tag.
 
 ## Accounts and credentials
 
@@ -70,7 +78,8 @@ Create a **team** App Store Connect API key with Developer access. Individual AP
 keys cannot use `notarytool`. Download the `.p8` file once and retain an offline
 backup; Apple does not offer the private key for download again.
 
-Configure these GitHub Actions repository secrets:
+Do not configure these as repository secrets. The separate signing service will
+need equivalent inputs in its own administrative boundary:
 
 | Secret | Value |
 | --- | --- |
@@ -80,9 +89,8 @@ Configure these GitHub Actions repository secrets:
 | `APPLE_API_KEY` | App Store Connect API key ID |
 | `APPLE_API_KEY_P8_BASE64` | Base64 of the downloaded `.p8` private key |
 
-Configure the public repository variable `APPLE_TEAM_ID` with the ten-character
-Developer Team ID. The workflow compares it with the signed application's
-`TeamIdentifier`, and the release metadata records it.
+The public `APPLE_TEAM_ID` value may remain in repository settings for metadata
+and verification, but it grants no signing authority.
 
 The certificate and API key are separate credentials. Revoke and replace either
 immediately if its secret is exposed. Track their expiry or revocation outside
@@ -90,15 +98,16 @@ the repository and test a manual workflow build before creating a release tag.
 
 ### Windows
 
-The implemented backend accepts a password-protected PFX containing one
-publicly trusted code-signing certificate and private key. Configure:
+The retired in-workflow backend accepted a password-protected PFX. Do not put a
+PFX or its password in repository secrets. Prefer a non-exportable HSM or managed
+signing service, and keep these values in that service's boundary:
 
 | Secret or variable | Value |
 | --- | --- |
 | `WINDOWS_CERTIFICATE` | Base64 of the PFX file |
 | `WINDOWS_CERTIFICATE_PASSWORD` | PFX export password |
-| `WINDOWS_CERTIFICATE_THUMBPRINT` | Repository variable containing the expected 40-hex SHA-1 certificate thumbprint |
-| `WINDOWS_TIMESTAMP_URL` | Optional repository variable; defaults to DigiCert's RFC 3161 service |
+| `WINDOWS_CERTIFICATE_THUMBPRINT` | Public expected 40-hex SHA-1 certificate thumbprint |
+| `WINDOWS_TIMESTAMP_URL` | Approved RFC 3161 timestamp service |
 
 Do not use a self-signed certificate for public downloads. Microsoft recommends
 Artifact Signing for eligible publishers; its entry plan is currently about
@@ -141,24 +150,22 @@ that the program is safe.
 1. Confirm all product versions and the dated changelog agree. Refresh both the
    canonical binary hashes and signer-image hashes before tagging. The tag
    workflow rebuilds each twice and refuses stale records.
-2. Set `CLEARSIGN_RELEASE_MODE` through a reviewed repository-settings change.
-   Use `unsigned-evaluation` for the next evaluation tag or `signed` for a stable
-   release. Never use an approximate or third value.
-3. For `signed`, confirm the Apple membership, certificate and API key are active.
-   Confirm the Windows certificate is active and the timestamp service is reachable.
-   For `unsigned-evaluation`, confirm the release is intended only for evaluation
-   and that public copy does not imply platform publisher authentication.
+2. Keep `CLEARSIGN_RELEASE_MODE=unsigned-evaluation` for repository-produced
+   tags. Setting it to `signed` must fail validation.
+3. Do not create a stable tag until the separate signing system exists and has
+   been exercised with non-production test identities. Confirm the Apple
+   membership, certificate and notarization key and the Windows signing service
+   only inside that isolated system.
 4. Run the release workflow manually from the intended commit. This produces a
    candidate without publisher identities and tests installers; it does not
    prove tag signing.
 5. Create the tag only from the reviewed commit. Never move or reuse a release tag.
-6. Require complete-candidate validation and provenance attestation to pass. In
-   `signed` mode, also require signing, notarization and Authenticode checks. In
-   `unsigned-evaluation` mode, require the explicit no-publisher-identity checks and
-   confirm the GitHub release is marked prerelease.
+6. Require complete-candidate validation, provenance attestation and explicit
+   no-publisher-identity checks to pass, and confirm the GitHub release is marked
+   prerelease.
 7. Download the published assets onto clean macOS, Windows and Linux machines.
    Verify the mode, checksums, provenance, installation, displayed version and
-   historical transaction fixture. For `signed`, also verify platform signatures.
+   historical transaction fixture.
 8. Preserve the workflow run URL, source commit, `SHA256SUMS`, metadata, SBOM and
    notarization/signing evidence in the release record. Do not replace assets in
    place; issue a new version if any published byte must change.

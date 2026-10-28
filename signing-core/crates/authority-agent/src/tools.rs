@@ -80,6 +80,12 @@ pub const TOOLS: &[(&str, &str)] = &[
 ];
 
 const MAX_STEPS_PROPOSED: usize = authority::MAX_STEPS;
+/// Maximum encoded proposal accepted before JSON allocation begins.
+///
+/// The typed model permits 128 transaction steps of 64 KiB each. Hex encoding
+/// doubles that payload, so 32 MiB preserves every typed maximum with room for
+/// labels and JSON structure while still bounding parser allocation.
+pub const MAX_PROPOSAL_BYTES: usize = 32 * 1024 * 1024;
 
 /// Build a plan from an agent's proposal.
 ///
@@ -90,6 +96,11 @@ const MAX_STEPS_PROPOSED: usize = authority::MAX_STEPS;
 ///                             "arguments": { "path": "…" }, "uses": [] } ] }
 /// ```
 pub fn plan_from_json(json: &str, policy: &Policy) -> Result<Plan, AdapterError> {
+    if json.len() > MAX_PROPOSAL_BYTES {
+        return Err(AdapterError::TooLarge(
+            "the encoded proposal is larger than 32 MiB",
+        ));
+    }
     let root: Value =
         serde_json::from_str(json).map_err(|e| AdapterError::NotJson(e.to_string()))?;
     let goal = root

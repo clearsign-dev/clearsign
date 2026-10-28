@@ -14,6 +14,8 @@ pub enum Error {
     NonCanonical(&'static str),
     /// Nesting exceeded the fixed limit.
     TooDeep,
+    /// An encoded input exceeds a fixed resource budget.
+    TooLarge(&'static str),
     /// A structure had the wrong number of fields.
     WrongFieldCount { expected: usize, found: usize },
     /// Expected a byte string, found a list, or the reverse.
@@ -36,6 +38,7 @@ impl fmt::Display for Error {
             Error::TrailingBytes => f.write_str("unexpected bytes after the end of the structure"),
             Error::NonCanonical(what) => write!(f, "non-canonical encoding: {what}"),
             Error::TooDeep => f.write_str("nesting is deeper than allowed"),
+            Error::TooLarge(what) => write!(f, "input is too large: {what}"),
             Error::WrongFieldCount { expected, found } => {
                 write!(f, "expected {expected} fields, found {found}")
             }

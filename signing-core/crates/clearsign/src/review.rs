@@ -76,6 +76,10 @@ pub struct Review {
     /// The exact digest this review covers, if it may be signed. Private so that
     /// code outside this crate cannot attach a digest the review did not derive.
     signing_target: Option<SigningTarget>,
+    /// Set when the decoder can report risk but cannot present enough detail
+    /// for an informed signing decision. A later attempt to attach a digest
+    /// must not make such a review signable again.
+    signing_refused: bool,
 }
 
 /// What a signature over this review's digest authorises.
@@ -104,6 +108,7 @@ impl Review {
             findings: Vec::new(),
             digests: Vec::new(),
             signing_target: None,
+            signing_refused: false,
         }
     }
 
@@ -114,12 +119,22 @@ impl Review {
     }
 
     pub(crate) fn set_signing_target(&mut self, target: SigningTarget) {
-        self.signing_target = Some(target);
+        if !self.signing_refused {
+            self.signing_target = Some(target);
+        }
     }
 
     /// Make the review display-only, for a review built by a path that signs
     /// but shown where nothing may be signed.
     pub(crate) fn clear_signing_target(&mut self) {
+        self.signing_target = None;
+    }
+
+    /// Permanently make this review display-only. This is stronger than
+    /// `clear_signing_target`: callers that compute the digest after decoding
+    /// cannot accidentally make the review signable again.
+    pub(crate) fn refuse_signing(&mut self) {
+        self.signing_refused = true;
         self.signing_target = None;
     }
 

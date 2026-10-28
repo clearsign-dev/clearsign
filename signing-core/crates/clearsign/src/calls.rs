@@ -493,6 +493,7 @@ fn review_batch(
     let calls = match calls {
         Ok(calls) => calls,
         Err(Error::TooDeep) => {
+            review.refuse_signing();
             review.sections.push(s);
             review.find(
                 Severity::Blind,
@@ -574,6 +575,7 @@ fn review_batch(
 
     let depth = ctx.depth.saturating_add(1);
     if depth > MAX_NESTING {
+        review.refuse_signing();
         review.find(
             Severity::Blind,
             "NESTING_LIMIT",
@@ -596,11 +598,14 @@ fn review_batch(
     // were never shown.
     //
     // Each hidden call goes through exactly the same rules as a displayed one,
-    // into a scratch review whose sections are then discarded. Only its findings
-    // survive, and they are grouped by code before being reported: a batch may
-    // hold a thousand calls, and a thousand separately acknowledgeable findings
-    // is not a review anybody reads.
+    // into a scratch review whose sections are then discarded. Findings are
+    // grouped for a bounded report, but the review is permanently display-only:
+    // grouping two unlimited approvals must never let one acknowledgement
+    // authorize both actions.
     if let Some(hidden) = calls.get(shown..) {
+        if !hidden.is_empty() {
+            review.refuse_signing();
+        }
         let mut by_code: BTreeMap<&'static str, (Severity, Vec<usize>)> = BTreeMap::new();
         for (offset, call) in hidden.iter().enumerate() {
             let position = shown.saturating_add(offset).saturating_add(1);
@@ -705,6 +710,10 @@ fn list_positions(positions: &[usize]) -> String {
 /// will be read must not earn an attacker a milder review than a malformed
 /// encoding gets, so it is CRITICAL, as an over-long MultiSend batch already is.
 fn undecoded_calls_finding(review: &mut Review) {
+    // A human cannot authorize executable calls the decoder did not inspect.
+    // Keep the finding for diagnosis, but permanently remove signing authority
+    // even if a caller later computes and installs the transaction digest.
+    review.refuse_signing();
     review.find(
         Severity::Critical,
         "UNDECODED_CALLS",
@@ -757,10 +766,14 @@ pub struct InnerCall<'a> {
 /// Review carried calls the way a batch is reviewed: every one is judged by the
 /// same rules, the first [`multisend::MAX_BATCH_CALLS`] are displayed, and the
 /// findings of the rest are grouped by code so nothing past the display limit
-/// can go unnamed.
+/// can go unnamed. A review with hidden calls is display-only: grouped findings
+/// can describe why it was refused, but can never authorize a signature.
 fn review_inner_calls(review: &mut Review, calls: &[InnerCall<'_>], title: &str, ctx: CallContext) {
     let shown = calls.len().min(multisend::MAX_BATCH_CALLS);
     if let Some(hidden) = calls.get(shown..) {
+        if !hidden.is_empty() {
+            review.refuse_signing();
+        }
         let mut by_code: BTreeMap<&'static str, (Severity, Vec<usize>)> = BTreeMap::new();
         for (offset, call) in hidden.iter().enumerate() {
             let position = shown.saturating_add(offset).saturating_add(1);
