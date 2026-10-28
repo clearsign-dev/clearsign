@@ -567,6 +567,10 @@ fn a_dangerous_call_past_the_display_limit_of_a_multicall_is_named() {
     assert_eq!(grant.severity, Severity::Critical);
     assert!(grant.message.contains("37"), "{}", grant.message);
     assert!(r.has("CARRIED_CALLS_NOT_SHOWN"));
+    assert!(
+        r.signing_target().is_none(),
+        "a grouped hidden action must make the entire review display-only"
+    );
 }
 
 #[test]
@@ -579,6 +583,7 @@ fn a_multicall_too_long_to_review_is_not_decoded_and_is_critical() {
     // malformed list gets: what was not read could be anything.
     assert_eq!(severity_of(&r, "UNDECODED_CALLS"), Severity::Critical);
     assert!(r.render().contains("DO NOT SIGN"));
+    assert!(r.signing_target().is_none());
 }
 
 #[test]
@@ -703,6 +708,7 @@ fn nesting_past_the_limit_is_blind() {
     assert!(r.has("NESTING_LIMIT"));
     assert_eq!(severity_of(&r, "UNDECODED_CALLS"), Severity::Critical);
     assert!(r.render().contains("DO NOT SIGN"));
+    assert!(r.signing_target().is_none());
 }
 
 #[test]
@@ -1258,6 +1264,7 @@ fn an_account_batch_at_the_limit_is_judged_call_by_call_and_one_more_is_not_read
     assert!(r.has("TOO_MANY_CARRIED_CALLS"));
     assert!(!r.has("UNLIMITED_APPROVAL"));
     assert_eq!(severity_of(&r, "UNDECODED_CALLS"), Severity::Critical);
+    assert!(r.signing_target().is_none());
 }
 
 #[test]

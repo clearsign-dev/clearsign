@@ -1,0 +1,132 @@
+name: publish validated release
+
+# workflow_run uses this workflow from the default branch, not from the release
+# tag. The publisher never checks out or executes candidate repository code.
+on:
+  workflow_run:
+    workflows: [release]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    environment: release
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: publication-candidate
+          path: publication
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+      - name: Verify and publish the exact candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_COMMIT: ${{ github.event.workflow_run.head_sha }}
+          EXPECTED_TAG: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          set -euo pipefail
+          test -x /usr/bin/gh
+          test -x /usr/bin/jq
+          test -f publication/notes.md
+          test -f publication/release-flags.txt
+          test -f publication/dist/BUILD-METADATA.json
+          test -f publication/dist/SHA256SUMS
+
+          version=$(/usr/bin/jq -er '.version' publication/dist/BUILD-METADATA.json)
+          commit=$(/usr/bin/jq -er '.commit' publication/dist/BUILD-METADATA.json)
+          reference_type=$(/usr/bin/jq -er '.referenceType' publication/dist/BUILD-METADATA.json)
+          release_mode=$(/usr/bin/jq -er '.releaseMode' publication/dist/BUILD-METADATA.json)
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]
+          [ "$commit" = "$EXPECTED_COMMIT" ]
+          [ "$reference_type" = tag ]
+          [ "$release_mode" = unsigned-evaluation ]
+          tag="v$version"
+          [ "$tag" = "$EXPECTED_TAG" ]
+          # Resolve the exact tag ref. The commits endpoint accepts ambiguous
+          # ref names, so a branch named like a release tag must never satisfy
+          # this publication boundary. Peel annotated tags until the commit is
+          # reached, with a hard bound for malformed or cyclic-looking input.
+          ref_json=$(/usr/bin/gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/$tag")
+          object_type=$(/usr/bin/jq -er '.object.type' <<<"$ref_json")
+          object_sha=$(/usr/bin/jq -er '.object.sha' <<<"$ref_json")
+          for _ in 1 2 3 4 5 6 7 8; do
+            [ "$object_type" = commit ] && break
+            [ "$object_type" = tag ]
+            tag_json=$(/usr/bin/gh api "repos/${GITHUB_REPOSITORY}/git/tags/$object_sha")
+            object_type=$(/usr/bin/jq -er '.object.type' <<<"$tag_json")
+            object_sha=$(/usr/bin/jq -er '.object.sha' <<<"$tag_json")
+          done
+          [ "$object_type" = commit ]
+          [ "$object_sha" = "$commit" ]
+
+          expected=(
+            BINARY-SHA256
+            BUILD-METADATA.json
+            ClearSign.spdx.json
+            "ClearSign_${version}_aarch64.dmg"
+            "ClearSign_${version}_amd64.AppImage"
+            "ClearSign_${version}_amd64.deb"
+            "ClearSign_${version}_x64-setup.exe"
+            "ClearSign_${version}_x64_en-US.msi"
+            SHA256SUMS
+            clearsign-aarch64-apple-darwin.tar.gz
+            clearsign-aarch64-apple-darwin.tar.gz.sha256
+            clearsign-aarch64-unknown-linux-musl.tar.gz
+            clearsign-aarch64-unknown-linux-musl.tar.gz.sha256
+            clearsign-x86_64-apple-darwin.tar.gz
+            clearsign-x86_64-apple-darwin.tar.gz.sha256
+            clearsign-x86_64-unknown-linux-musl.tar.gz
+            clearsign-x86_64-unknown-linux-musl.tar.gz.sha256
+            clearsign.html
+          )
+          /usr/bin/printf '%s\n' "${expected[@]}" | /usr/bin/sort > /tmp/expected-files
+          /usr/bin/find publication/dist -mindepth 1 -maxdepth 1 -type f -printf '%f\n' \
+            | /usr/bin/sort > /tmp/actual-files
+          /usr/bin/diff -u /tmp/expected-files /tmp/actual-files
+
+          manifest_files=(
+            BINARY-SHA256
+            BUILD-METADATA.json
+            ClearSign.spdx.json
+            "ClearSign_${version}_aarch64.dmg"
+            "ClearSign_${version}_amd64.AppImage"
+            "ClearSign_${version}_amd64.deb"
+            "ClearSign_${version}_x64-setup.exe"
+            "ClearSign_${version}_x64_en-US.msi"
+            clearsign-aarch64-apple-darwin.tar.gz
+            clearsign-aarch64-unknown-linux-musl.tar.gz
+            clearsign-x86_64-apple-darwin.tar.gz
+            clearsign-x86_64-unknown-linux-musl.tar.gz
+            clearsign.html
+          )
+          /usr/bin/printf '%s\n' "${manifest_files[@]}" | /usr/bin/sort > /tmp/expected-manifest
+          /usr/bin/awk '{print $2}' publication/dist/SHA256SUMS | /usr/bin/sort > /tmp/actual-manifest
+          /usr/bin/diff -u /tmp/expected-manifest /tmp/actual-manifest
+          (cd publication/dist && /usr/bin/sha256sum --check SHA256SUMS)
+
+          mapfile -t release_flags < publication/release-flags.txt
+          [ "${#release_flags[@]}" -eq 2 ]
+          [ "${release_flags[0]}" = --draft ]
+          [ "${release_flags[1]}" = --prerelease ]
+
+          assets=(publication/dist/SHA256SUMS)
+          for name in "${manifest_files[@]}"; do
+            assets+=("publication/dist/$name")
+          done
+          /usr/bin/gh release create "$tag" \
+            "${release_flags[@]}" \
+            --target "$commit" \
+            --title "$tag" \
+            --notes-file publication/notes.md \
+            "${assets[@]}"
+          /usr/bin/gh release edit "$tag" --draft=false

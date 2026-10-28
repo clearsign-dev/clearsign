@@ -4,6 +4,31 @@
 below records the 27 September pass; later evidence is listed in
 [03-verification-status.md](03-verification-status.md).
 
+## 26 October security pass
+
+A later repository-wide standard review found seven additional issues: the
+release workflow exposed publisher credentials to tagged build code; publication
+authority ran tagged scripts; hidden batch actions could share an
+acknowledgement; the untrusted wallet shared the signer's debug console; the
+Linux harness accepted guest-authored evidence; proposal JSON was unbounded
+before parsing; and the public transaction/RLP parsers lacked total resource
+limits.
+
+The code in this change closes the parser and authorization issues, gives the
+physical UART to a separate trusted display domain, makes the Linux harness
+accept review and fault evidence only from trusted components, and moves release
+publication to a no-checkout default-branch workflow with a fixed asset
+allowlist. Repository signing is deliberately disabled until an independently
+administered Apple/Windows signing service exists. This was an AI-assisted
+standard review, not a second independent human assessment.
+
+A separate post-fix pass then found three residual paths: an ambiguous Git ref
+lookup in the publisher, count and nesting limits that still left a signing
+target, and the inherited x86 VMM's direct COM1 passthrough. The publisher now
+resolves only `refs/tags/<version>` and peels annotated tags; every undecoded
+executable-call limit permanently removes signing authority; and the VMM refuses
+to compile for any board except the tested QEMU AArch64 target.
+
 A full pass over everything, run rather than assumed. This is the record of what
 was exercised and what it found, so the next person does not have to take the
 word "working" on trust.
@@ -12,7 +37,7 @@ word "working" on trust.
 
 | | |
 |---|---|
-| Rust workspace | 314 tests pass in release, clippy clean at `-D warnings`, `rustfmt` clean |
+| Rust workspace | 319 tests are defined (one diagnostic sample is ignored); the release suite passes, clippy is clean at `-D warnings`, and `rustfmt` is clean |
 | Bare metal | All four device crates build for `aarch64-unknown-none` and `thumbv7em-none-eabihf` |
 | Fuzzing | Nine targets are now defined; the seven-target 27 September pass ran ~35 million executions with no failures |
 | Reproducible build | Two builds in the canonical environment agree; CI reproduces them on other hardware |
@@ -30,10 +55,12 @@ with the key the request names and that the signature equals Foundry's.
 
 ## What the pass found
 
-Nothing wrong with the product. Four things wrong with the scaffolding around it,
-which is its own kind of finding: three of them were tests asserting on text that
-had been deliberately changed, and they would have gone on passing if the text
-had never been checked against reality.
+The September pass found no decoder defect. It found four problems in the
+scaffolding around it: three were tests asserting on text that had been
+deliberately changed, and they would have gone on passing if the text had never
+been checked against reality. The later October review above did find security
+defects, so this section should be read as the historical result of that earlier
+pass, not a claim about all subsequent work.
 
 **The signer image refused to build, correctly.** The gate that requires the
 binary inside the image to match `EXPECTED-HASHES.txt` stopped the build, because

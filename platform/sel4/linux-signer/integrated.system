@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Three things on the seL4 microkernel:
+  Two protection domains on the seL4 microkernel:
     VMM      runs a Linux guest (untrusted: apps, network in future, anything)
     signer   reviews transactions for the guest; trusted, tiny, no devices
   Every permission is in this file. Linux sees the request region read-write,

@@ -9,6 +9,14 @@
 #include <microkit.h>
 #include <libvmm/libvmm.h>
 
+/* ClearSign has hardened and tested only the QEMU AArch64 integration. The
+ * upstream example also contains x86 and physical-board paths; some of those
+ * pass a serial device directly to the untrusted guest, which violates the
+ * trusted-display boundary. Refuse to compile those latent configurations. */
+#if !defined(BOARD_qemu_virt_aarch64) || !defined(CONFIG_ARCH_ARM) || defined(CONFIG_ARCH_X86_64)
+#error "ClearSign Linux signer supports only BOARD_qemu_virt_aarch64"
+#endif
+
 /*
  * As this is just an example, for simplicity we just make the size of the
  * guest's "RAM" the same for all platforms. For just booting Linux with a
@@ -16,53 +24,16 @@
  */
 #define GUEST_RAM_SIZE 0x10000000
 
-/* For ARM, these constants depends on what's defined in your DTB. */
-#if defined(BOARD_qemu_virt_aarch64)
+/* These constants depend on the QEMU AArch64 device tree. */
 #define GUEST_RAM_START_GPA 0x40000000
 #define GUEST_DTB_GPA 0x4f000000
 #define GUEST_INIT_RAM_DISK_GPA 0x4d000000
-#elif defined(BOARD_odroidc4)
-#define GUEST_RAM_START_GPA 0x20000000
-#define GUEST_DTB_GPA 0x2f000000
-#define GUEST_INIT_RAM_DISK_GPA 0x2d000000
-#elif defined(BOARD_maaxboard)
-#define GUEST_RAM_START_GPA 0x40000000
-#define GUEST_DTB_GPA 0x4f000000
-#define GUEST_INIT_RAM_DISK_GPA 0x4c000000
-#elif defined(BOARD_x86_64_generic_vtx)
-#define TIMER_DRV_CH 10
-#define GUEST_RAM_START_GPA LOW_RAM_START_GPA
-#define GUEST_CMDLINE_HW "earlyprintk=serial,0x3f8,115200 debug console=ttyS0,115200 earlycon=serial,0x3f8,115200 loglevel=8"
-#define GUEST_CMDLINE_QEMU "earlyprintk=serial,0x3f8,115200 debug console=ttyS0,115200 earlycon=serial,0x3f8,115200 loglevel=8 tsc=nowatchdog"
-#elif defined(BOARD_zcu102)
-#define GUEST_RAM_START_GPA     0x800000000
-#define GUEST_DTB_GPA           0x80E000000
-#define GUEST_INIT_RAM_DISK_GPA 0x80D000000
-#else
-#error Need to define guest kernel image address and DTB address
-#endif
 
 /* For simplicity we just enforce the serial IRQ channel number to be the same
  * across platforms. */
 #define SERIAL_IRQ_CH 1
 
-#if defined(BOARD_qemu_virt_aarch64)
 #define SERIAL_IRQ 33
-#elif defined(BOARD_odroidc4)
-#define SERIAL_IRQ 225
-#elif defined(BOARD_maaxboard)
-#define SERIAL_IRQ 58
-#elif defined(BOARD_x86_64_generic_vtx)
-#define COM1_IOAPIC_CHIP 0
-#define COM1_IOAPIC_PIN 4
-#define COM1_IO_PORT_ID 0
-#define COM1_IO_PORT_ADDR 0x3F8
-#define COM1_IO_PORT_SIZE 8
-#elif defined(BOARD_zcu102)
-#define SERIAL_IRQ 53
-#else
-#error Need to define serial interrupt
-#endif
 
 /* Data for the guest's kernel image. */
 extern char _guest_kernel_image[];
@@ -71,15 +42,9 @@ extern char _guest_kernel_image_end[];
 extern char _guest_initrd_image[];
 extern char _guest_initrd_image_end[];
 
-#if defined(CONFIG_ARCH_X86_64)
-/* Data for the guest's ACPI Differentiated System Description Table (DSDT). */
-extern char _guest_dsdt_aml[];
-extern char _guest_dsdt_aml_end[];
-#else
 /* Data for the device tree to be passed to the kernel. */
 extern char _guest_dtb_image[];
 extern char _guest_dtb_image_end[];
-#endif
 
 /* Microkit will set this variable to the start of the guest RAM memory region. */
 uintptr_t guest_ram_vaddr;
@@ -92,6 +57,8 @@ uintptr_t guest_ram_vaddr;
 #define SIGNER_CH 2
 #define SIGNER_DOORBELL_GPA 0x60200000
 #define SIGNER_DOORBELL_SIZE 0x1000
+#define SIGNER_REVIEW_GPA 0x60100000
+#define SIGNER_REVIEW_SIZE 0x10000
 
 /* ---- The guest's console --------------------------------------------------
  * The guest used to have the serial device mapped into it, which meant the
@@ -183,6 +150,16 @@ static bool signer_doorbell(size_t vcpu_id, size_t offset, size_t fsr, seL4_User
     return true; /* ignore reads; always resume the guest past the faulting instruction */
 }
 
+static bool signer_review_fault(size_t vcpu_id, size_t offset, size_t fsr, seL4_UserContext *regs, void *data)
+{
+    if (fault_is_write(fsr)) {
+        microkit_dbg_puts("VMM|blocked guest write to signer review region\n");
+    }
+    /* The review mapping is read-only. Never emulate or advance a faulting
+     * write: returning false leaves the violating guest stopped. */
+    return false;
+}
+
 void init(void)
 {
     /* Initialise the VMM, the VCPU(s), and start the guest */
@@ -190,12 +167,7 @@ void init(void)
 
     arch_guest_init_t args = {
         .pci_init.mmio_aperature_size = 0, /* Disable the virtual PCI bus */
-#if defined(CONFIG_ARCH_X86_64)
-        .bsp = true,
-        .timer_ch = TIMER_DRV_CH,
-#elif defined(CONFIG_ARCH_ARM)
         .num_vcpus = 1,
-#endif
         .num_guest_ram_regions = 1,
         .guest_ram_regions = { (struct guest_ram_region) {
             .gpa_start = GUEST_RAM_START_GPA, .size = GUEST_RAM_SIZE, .vmm_vaddr = (void *)guest_ram_vaddr } }
@@ -208,6 +180,10 @@ void init(void)
 
     if (!fault_register_vm_exception_handler(SIGNER_DOORBELL_GPA, SIGNER_DOORBELL_SIZE, signer_doorbell, NULL)) {
         LOG_VMM_ERR("Failed to register signer doorbell\n");
+        return;
+    }
+    if (!fault_register_vm_exception_handler(SIGNER_REVIEW_GPA, SIGNER_REVIEW_SIZE, signer_review_fault, NULL)) {
+        LOG_VMM_ERR("Failed to register signer review protection\n");
         return;
     }
     if (!fault_register_vm_exception_handler(GUEST_UART_GPA, GUEST_UART_SIZE, guest_uart, NULL)) {
@@ -228,50 +204,6 @@ void init(void)
         return;
     }
 
-#if defined(CONFIG_ARCH_X86_64)
-    size_t dsdt_aml_size = _guest_dsdt_aml_end - _guest_dsdt_aml;
-
-    if (!dsdt_aml_size) {
-        LOG_VMM_ERR("DSDT AML image is empty\n");
-        return;
-    }
-
-    seL4_VCPUContext initial_regs;
-    linux_x86_setup_ret_t linux_setup;
-    char *cmdline;
-    /* Reading a TSC does not cause a VM Exit, but the HPET does. On QEMU, the nested virtualisation overhead
-     * is too high, leading to Linux's watchdog timer complaining:
-     * [    3.568257] clocksource: Watchdog hpet read timed out. Readout sequence took: 57800ns
-     * [    4.064535] clocksource: Watchdog hpet read timed out. Readout sequence took: 62000ns
-     * [    9.064695] watchdog_print_freq_timeout: 7 callbacks suppressed
-     * [    9.066802] clocksource: Watchdog hpet read timed out. Readout sequence took: 217500ns
-     * [    9.568591] clocksource: Watchdog hpet read timed out. Readout sequence took: 72900ns
-     *
-     * So lets turn off the TSC watchdog if the VMM detects that it is running on QEMU. This is sound because
-     * the virtual HPET time is derived from the TSC, and this problem doesn't manifest on hardware.
-     */
-    if (hypervisor_present()) {
-        cmdline = GUEST_CMDLINE_QEMU;
-    } else {
-        cmdline = GUEST_CMDLINE_HW;
-    }
-
-    if (!linux_setup_images((uintptr_t)_guest_kernel_image, kernel_size, (uintptr_t)_guest_initrd_image, initrd_size,
-                            _guest_dsdt_aml, dsdt_aml_size, cmdline, &initial_regs, &linux_setup)) {
-        LOG_VMM_ERR("Failed to initialise guest images\n");
-        return;
-    }
-
-    /* Pass through COM1 serial port */
-    microkit_vcpu_x86_enable_ioport(GUEST_BOOT_VCPU_ID, COM1_IO_PORT_ID, COM1_IO_PORT_ADDR, COM1_IO_PORT_SIZE);
-    microkit_irq_ack(SERIAL_IRQ_CH);
-
-    /* Pass through serial IRQs */
-    assert(virq_register_passthrough(X86_IOAPIC_IRQ_ROUTE(COM1_IOAPIC_CHIP, COM1_IOAPIC_PIN), SERIAL_IRQ_CH));
-
-    guest_start_long_mode(linux_setup.kernel_entry_gpa, linux_setup.pml4_gpa, linux_setup.gdt_gpa,
-                          linux_setup.gdt_limit, &initial_regs);
-#else
     size_t dtb_size = _guest_dtb_image_end - _guest_dtb_image;
     if (!dtb_size) {
         LOG_VMM_ERR("DTB image is empty\n");
@@ -286,20 +218,10 @@ void init(void)
         return;
     }
 
-#if defined(BOARD_zcu102)
-    /* Initialise the SMC SIP Handler */
-    success = smc_register_sip_handler(smc_sip_forward);
-    if (!success) {
-        LOG_VMM_ERR("Failed to initialise SMC SIP Handler\n");
-        return;
-    }
-#endif
-
     success = virq_register_passthrough(ARM_GIC_IRQ_ROUTE(GUEST_BOOT_VCPU_ID, SERIAL_IRQ), SERIAL_IRQ_CH);
     assert(success);
     /* Finally start the guest */
     guest_start(kernel_pc, GUEST_DTB_GPA, GUEST_INIT_RAM_DISK_GPA);
-#endif
 }
 
 void notified(microkit_channel ch)

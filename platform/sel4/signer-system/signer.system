@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Two compartments on the seL4 microkernel.
-  Every permission either domain has is written in this file; there is nothing else.
+  Three compartments on the seL4 microkernel.
+  Every permission each domain has is written in this file; there is nothing else.
 -->
 <system>
     <memory_region name="request" size="0x10000" />
     <memory_region name="review" size="0x10000" />
+    <memory_region name="serial" size="0x1000" phys_addr="0x9000000" />
 
     <!-- Trusted: decodes and reviews. Can read requests, cannot change them. -->
     <protection_domain name="signer" priority="200" stack_size="0x40000">
@@ -21,8 +22,19 @@
         <map mr="review" vaddr="0x4100000" perms="r" setvar_vaddr="review_vaddr" />
     </protection_domain>
 
+    <!-- Trusted: the only domain that can write the physical display UART. -->
+    <protection_domain name="display" priority="250">
+        <program_image path="display.elf" />
+        <map mr="review" vaddr="0x4100000" perms="r" setvar_vaddr="review_vaddr" />
+        <map mr="serial" vaddr="0x9000000" perms="rw" cached="false" setvar_vaddr="serial_vaddr" />
+    </protection_domain>
+
     <channel>
         <end pd="signer" id="1" />
         <end pd="wallet_ui" id="1" />
+    </channel>
+    <channel>
+        <end pd="signer" id="2" />
+        <end pd="display" id="1" />
     </channel>
 </system>

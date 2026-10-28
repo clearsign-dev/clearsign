@@ -27,7 +27,18 @@ export PATH="/opt/cargo/bin:$PATH"
 BUILD_PATH="${BUILD_PATH:-/build-one}"
 mkdir -p "$(dirname "$BUILD_PATH")"
 cp -a /src "$BUILD_PATH"
-rm -rf /opt/cargo/registry && cp -a "$BUILD_PATH/cargo-cache/registry" /opt/cargo/registry
+if [[ -d /cargo-registry ]]; then
+  REGISTRY_SNAPSHOT=/cargo-registry
+elif [[ -d "$BUILD_PATH/cargo-cache/registry" ]]; then
+  # The signer-image builder packages its snapshot with the source tree rather
+  # than mounting it separately. Supporting both callers keeps this helper
+  # reusable without allowing Cargo to reach the network.
+  REGISTRY_SNAPSHOT="$BUILD_PATH/cargo-cache/registry"
+else
+  echo "no frozen Cargo registry snapshot was supplied" >&2
+  exit 1
+fi
+rm -rf /opt/cargo/registry && cp -a "$REGISTRY_SNAPSHOT" /opt/cargo/registry
 cd "$BUILD_PATH"
 export CARGO_ENCODED_RUSTFLAGS=$'--remap-path-prefix='"$BUILD_PATH"$'=/build\x1f--remap-path-prefix=/opt/cargo=/cargo\x1f-C\x1fstrip=symbols'
 export CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=rust-lld

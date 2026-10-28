@@ -10,31 +10,20 @@
 #include <microkit.h>
 
 #define CH_WALLET_UI 1
+#define CH_DISPLAY 2
 #define REGION_SIZE 0x10000
 #define REQ_HEADER 4   /* big-endian u32 length */
 #define REV_HEADER 16  /* [0] magic 'R', [1] severity, [8..16] text length */
 
 uintptr_t request_vaddr;
 uintptr_t review_vaddr;
+static int request_processed;
 
 extern long clearsign_review(const uint8_t *request, size_t request_len,
                              uint8_t *out, size_t out_cap, uint8_t *severity);
 
-static const char *severity_name(uint8_t s)
-{
-    switch (s) {
-    case 0: return "NONE";
-    case 1: return "INFO";
-    case 2: return "WARNING";
-    case 3: return "BLIND";
-    case 4: return "CRITICAL";
-    default: return "?";
-    }
-}
-
 void init(void)
 {
-    microkit_dbg_puts("SIGNER|ready. Request region is mapped read-only; no devices or network are mapped.\n");
 }
 
 void notified(microkit_channel ch)
@@ -47,14 +36,25 @@ void notified(microkit_channel ch)
     volatile const uint8_t *req = (volatile const uint8_t *)request_vaddr;
     volatile uint8_t *rev = (volatile uint8_t *)review_vaddr;
 
+    /* The wallet's only legitimate first notification submits the request. If
+     * it can notify us again after its forbidden review write, the isolation
+     * property failed. Only this trusted domain may report that to display. */
+    if (request_processed) {
+        rev[0] = 'F';
+        __atomic_thread_fence(__ATOMIC_RELEASE);
+        microkit_notify(CH_DISPLAY);
+        return;
+    }
+    request_processed = 1;
+
     /* Everything the wallet UI wrote before notifying must be visible first. */
     __atomic_thread_fence(__ATOMIC_ACQUIRE);
 
     uint32_t len = ((uint32_t)req[0] << 24) | ((uint32_t)req[1] << 16) | ((uint32_t)req[2] << 8) | req[3];
     if (len > REGION_SIZE - REQ_HEADER) {
-        microkit_dbg_puts("SIGNER|refused: request length exceeds region\n");
-        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
+        __atomic_thread_fence(__ATOMIC_RELEASE);
+        microkit_notify(CH_DISPLAY);
         microkit_notify(CH_WALLET_UI);
         return;
     }
@@ -70,9 +70,9 @@ void notified(microkit_channel ch)
     uint8_t severity = 0xff;
     long n = clearsign_review(private_copy, len, (uint8_t *)(rev + REV_HEADER), REGION_SIZE - REV_HEADER, &severity);
     if (n < 0) {
-        microkit_dbg_puts("SIGNER|refused: request could not be decoded\n");
-        __atomic_thread_fence(__ATOMIC_RELEASE);
         rev[0] = 'E';
+        __atomic_thread_fence(__ATOMIC_RELEASE);
+        microkit_notify(CH_DISPLAY);
         microkit_notify(CH_WALLET_UI);
         return;
     }
@@ -81,14 +81,11 @@ void notified(microkit_channel ch)
     for (int i = 0; i < 8; i++) {
         rev[8 + i] = (uint8_t)((uint64_t)n >> (56 - 8 * i));
     }
-    /* Publish last, after everything it refers to is visible. */
-    __atomic_thread_fence(__ATOMIC_RELEASE);
+    /* Publish the magic after everything it refers to, then order every write
+     * before either recipient is notified. */
     rev[0] = 'R';
+    __atomic_thread_fence(__ATOMIC_RELEASE);
 
-    microkit_dbg_puts("SIGNER|review computed inside the signer compartment:\n");
-    microkit_dbg_puts((const char *)(rev + REV_HEADER));
-    microkit_dbg_puts("SIGNER|highest severity: ");
-    microkit_dbg_puts(severity_name(severity));
-    microkit_dbg_puts("\n");
+    microkit_notify(CH_DISPLAY);
     microkit_notify(CH_WALLET_UI);
 }

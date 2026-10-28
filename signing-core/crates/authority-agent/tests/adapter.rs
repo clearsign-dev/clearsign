@@ -8,7 +8,7 @@
 )]
 
 use authority::{Action, Sensitivity, fingerprint, review_plan};
-use authority_agent::{AdapterError, Policy, plan_from_json};
+use authority_agent::{AdapterError, MAX_PROPOSAL_BYTES, Policy, plan_from_json};
 use clearsign::Severity;
 
 const INJECTED: &str = include_str!("../examples/injected-proposal.json");
@@ -107,6 +107,14 @@ fn an_oversized_proposal_is_refused_before_review() {
         ));
     }
     let json = format!(r#"{{"goal":"g","steps":[{}]}}"#, steps.join(","));
+    assert!(matches!(plan(&json), Err(AdapterError::TooLarge(_))));
+}
+
+#[test]
+fn an_oversized_encoded_proposal_is_refused_before_json_parsing() {
+    let at_limit = " ".repeat(MAX_PROPOSAL_BYTES);
+    assert!(matches!(plan(&at_limit), Err(AdapterError::NotJson(_))));
+    let json = " ".repeat(MAX_PROPOSAL_BYTES.saturating_add(1));
     assert!(matches!(plan(&json), Err(AdapterError::TooLarge(_))));
 }
 

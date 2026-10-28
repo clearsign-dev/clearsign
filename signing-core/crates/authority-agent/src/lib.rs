@@ -24,4 +24,4 @@ pub mod tools;
 
 pub use policy::{PathPolicy, Policy, Resolved, sensitivity_for_path};
 pub use runner::{LocalRunner, RunnerLimits};
-pub use tools::{AdapterError, plan_from_json};
+pub use tools::{AdapterError, MAX_PROPOSAL_BYTES, plan_from_json};

@@ -16,7 +16,10 @@ The layers of `docs/04-platform-architecture.md`, built from borrowed, verified 
 ```sh
 ./sel4/signer-system/build.sh && python3 sel4/signer-system/run.py
 ```
-seL4 with two compartments. An untrusted wallet UI submits a Safe transaction; the signer reviews it on bare metal; the UI's attempt to overwrite the verdict is stopped by seL4.
+seL4 with three compartments. An untrusted wallet UI submits a Safe transaction;
+the signer reviews it on bare metal, and a separate trusted display domain is the
+only component that maps the physical UART. The UI's attempt to overwrite the
+verdict is stopped by seL4.
 
 Everything at once, from pinned and verified sources:
 
@@ -32,6 +35,11 @@ Or individually:
 ./grapheneos/build-hardened-malloc.sh        # needs Docker
 ./sel4/linux-signer/build.sh && python3 sel4/linux-signer/run.py
 ```
+
+The hardened Linux/VMM integration currently supports only the
+`qemu_virt_aarch64` board. Other upstream libvmm example targets are rejected at
+compile time because their device-passthrough paths have not been brought inside
+ClearSign's trusted-display boundary.
 seL4 running a Linux guest and the signer side by side. Inside Linux, GrapheneOS's hardened_malloc is the system allocator and stops a write-after-free that glibc's allocator misses. A Linux program asks the signer compartment for a review over shared memory and a doorbell; the verdict comes back CRITICAL with the correct Safe hash. Linux then uses its own kernel privileges to try to overwrite the review, and seL4 blocks the write.
 
 ## The signer-only image

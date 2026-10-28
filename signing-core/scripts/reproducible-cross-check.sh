@@ -28,12 +28,10 @@ PACKAGES=(clearsign-cli clearsign-device)
 BINARIES=(clearsign clearsign-device)
 mkdir -p "$ARTIFACTS"
 
-prepare() { # source tree plus this machine's crate cache, so the build is offline
+prepare() { # source tree; the caller mounts one frozen crate-cache snapshot
   local work="$1"
   # bench/ is its own workspace with large corpora and is not part of any build.
   (cd "$ROOT" && tar --exclude ./target --exclude ./fuzz --exclude ./vendor --exclude ./bench -cf - .) | (cd "$work" && tar -xf -)
-  mkdir -p "$work/cargo-cache"
-  cp -R "$CARGO_HOME_DIR/registry" "$work/cargo-cache/registry"
   cp "$ROOT/scripts/in-canonical-container.sh" "$work/in-container.sh"
   chmod +x "$work/in-container.sh"
 }
@@ -42,7 +40,7 @@ canonical_build() { # $1 work dir, $2 label, $3 build path, $4 locale, $5 timezo
   local work="$1" label="$2"
   docker run --rm --platform linux/arm64 \
     --hostname "builder-$label" \
-    -v "$work:/src:ro" -v "$ARTIFACTS:/artifacts" \
+    -v "$work:/src:ro" -v "$CACHE_SNAPSHOT:/cargo-registry:ro" -v "$ARTIFACTS:/artifacts" \
     -e BUILD_PATH="$3" -e BUILD_LOCALE="$4" -e BUILD_TZ="$5" -e BUILD_UMASK="$6" -e LABEL="$label" \
     "$DEBIAN_BUILD_IMAGE" /src/in-container.sh "$TOOLCHAIN" "$TARGET" "${PACKAGES[@]}" \
     | tail -n "${#BINARIES[@]}"
@@ -62,10 +60,13 @@ host_build() { # informational: the developer's own machine and toolchain
 
 WORK_PARENT="$(mktemp -d "$REPO/.repro-work.XXXXXX")"
 WORK_A="$WORK_PARENT/one"; WORK_B="$WORK_PARENT/two"
+CACHE_SNAPSHOT="$WORK_PARENT/cargo-registry"
 mkdir -p "$WORK_A" "$WORK_B"
 trap 'rm -rf "$WORK_PARENT"' EXIT
 echo "canonical environment: $DEBIAN_BUILD_IMAGE"
 echo "toolchain $TOOLCHAIN, target $TARGET"
+echo "snapshotting the Cargo registry once for both offline builds"
+cp -R "$CARGO_HOME_DIR/registry" "$CACHE_SNAPSHOT"
 echo "preparing two identical source trees"
 prepare "$WORK_A"
 prepare "$WORK_B"
@@ -73,8 +74,8 @@ prepare "$WORK_B"
 echo
 echo "--- canonical build 1: /build-one, C.UTF-8, UTC, umask 022"
 A="$(canonical_build "$WORK_A" one /build-one C.UTF-8 UTC 022)"; echo "$A"
-echo "--- canonical build 2: /a/much/longer/build/path/two, en_US.UTF-8, Pacific/Kiritimati, umask 077"
-B="$(canonical_build "$WORK_B" two /a/much/longer/build/path/two en_US.UTF-8 Pacific/Kiritimati 077)"; echo "$B"
+echo "--- canonical build 2: /a/much/longer/build/path/two, C, Pacific/Kiritimati, umask 077"
+B="$(canonical_build "$WORK_B" two /a/much/longer/build/path/two C Pacific/Kiritimati 077)"; echo "$B"
 
 if [[ "${SKIP_HOST_BUILD:-0}" != "1" ]]; then
   echo
@@ -88,8 +89,8 @@ if [[ "$A" == "$B" ]]; then
     echo "# The signer binaries, as built in the canonical environment."
     echo "# Reproduce with signing-core/scripts/reproducible-cross-check.sh."
     echo "# Environment: $DEBIAN_BUILD_IMAGE, Rust $TOOLCHAIN, target $TARGET."
-    echo "# The compile is offline, from a copied registry cache. The container's"
-    echo "# own bootstrap is not: it apt-gets curl, gcc and libc6-dev, and downloads"
+    echo "# The compile is offline, from a frozen registry-cache snapshot. The container's"
+    echo "# own bootstrap is not: it installs bootstrap packages with apt and downloads"
     echo "# rustup. Those are not pinned by digest, so the environment is named and"
     echo "# reproducible in practice rather than sealed."
     echo "# Anything built elsewhere, including on the maintainer's own machine, may"

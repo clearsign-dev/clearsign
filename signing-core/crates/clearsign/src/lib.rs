@@ -37,8 +37,8 @@ pub mod u256;
 
 pub use error::Error;
 pub use evm::{
-    Authorization, AuthorizationSignatureError, EvmTransaction, TxType, parse_unsigned_transaction,
-    review_evm_transaction, review_transaction_bytes,
+    Authorization, AuthorizationSignatureError, EvmTransaction, MAX_TRANSACTION_BYTES, TxType,
+    parse_unsigned_transaction, review_evm_transaction, review_transaction_bytes,
 };
 pub use review::{
     Finding, MAX_ACKNOWLEDGEABLE_FINDINGS, Review, Section, Severity, SigningTarget, TargetKind,

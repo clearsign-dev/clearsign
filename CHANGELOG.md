@@ -7,6 +7,40 @@ Security fixes say what an affected version does wrong, not just that something
 was fixed. A release note that says "various improvements" is a release note
 that keeps people on a broken version.
 
+## Unreleased
+
+### Security
+
+- Release builds no longer receive Apple or Windows publisher credentials.
+  Signed mode now fails before building until a separately administered signer
+  exists. Final GitHub publication moved to a no-checkout workflow loaded from
+  the default branch, with an exact tag/commit check, fixed asset allowlist and
+  explicit upload list.
+- A transaction with calls beyond the display, count or nesting limits is now
+  display-only. The decoder still reports risks found in hidden calls, but
+  grouped or generic findings can no longer authorize a signature over actions
+  the operator could not read.
+- The bare-metal demo gives the physical UART only to a trusted display domain;
+  the untrusted wallet cannot print signer-looking verdicts. The Linux harness
+  now accepts review text only from the signer and the blocked-write record only
+  from the VMM. The Linux/VMM build also refuses every board except the tested
+  QEMU AArch64 configuration; the inherited x86 path passed COM1 directly to the
+  guest and is not part of the security boundary.
+- Raw transactions, RLP item counts and agent proposal JSON now have total
+  resource limits before expensive parsing or allocation.
+
+### Verification
+
+- The 238-transaction live Safe replay still agrees with Safe's hash 238/238.
+  Current code reports a second, unexecuted legacy-Safe `DELEGATECALL` that the
+  original historical report treated as authenticated MultiSend; the report now
+  records that distinction.
+- The canonical two-build check now uses two locales that are actually present
+  in the pinned container. The previous `en_US.UTF-8` setting was not generated
+  and fell back with a warning, so it did not test the locale variation the log
+  claimed. Both builds share one frozen snapshot of the Cargo registry while
+  retaining separate source trees and containers.
+
 ## v0.1.7 — 2026-10-26
 
 - Carries forward the unpublished v0.1.6 candidate after its Windows installer

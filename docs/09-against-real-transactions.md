@@ -6,6 +6,20 @@
 > transaction's own CRITICAL is now numbered first, ahead of the chain-binding
 > notice. This file records the first run as it happened.
 
+> **26 Oct 2026 rerun:** hashes still agree **238/238**. The current decoder
+> reports two top-level `DELEGATECALL` transactions, not one. The Bybit
+> transaction (`0xb3476d06…5ba004f8`) was executed. The other
+> (`0xeda7646b…030ced2d`) is queued and unexecuted on another v1.1.x Safe; its
+> target is a published MultiSend address, but the legacy Safe signature does
+> not bind a chain ID, so current code refuses to authenticate that deployment
+> from caller-supplied chain metadata and reports both `SAFE_DELEGATECALL` and
+> `MULTISEND_WRONG_CHAIN`. The older “one DELEGATECALL” statement below is kept
+> only as the result recorded by the original decoder, not as a current claim.
+> Current outcomes are 8 exit-0, 44 BLIND and 186 CRITICAL. Critical codes are
+> 176 `SIGNATURE_NOT_CHAIN_BOUND`, 24 `SAFE_OWNER_CHANGE`, two
+> `SAFE_DELEGATECALL`, one `SAFE_THRESHOLD_CHANGE` and one
+> `MULTISEND_WRONG_CHAIN` (a transaction may contribute more than one code).
+
 **Run 28 September 2026.** Reproduce with:
 
 ```sh
@@ -67,7 +81,8 @@ CRITICAL findings by code:
 | `SAFE_FALLBACK_HANDLER_CHANGE` | 1 |
 | `SAFE_DELEGATECALL` | 1 |
 
-**One DELEGATECALL in 238 transactions, and it is the Bybit one** —
+**Historical 28 September result: one DELEGATECALL in 238 transactions, and it
+is the Bybit one** —
 `0xb3476d06…5ba004f8`, nonce 71. The other 73 transactions on that same Safe
 are ordinary and the reviewer treats them as ordinary. It did not find the
 attack because it was pointed at it; it found it because it was the only one of

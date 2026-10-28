@@ -7,4 +7,4 @@
 # binary recorded in signing-core/EXPECTED-HASHES.txt, and the build refuses to
 # package any other.
 2aa6a4b8a0bedd695c4d331f7c824c96433290598869ec9a91720dd065c11a13  Image
-b24bfacf57ec6202d7b91ac80102a18fa35b15fa108e88b89a7b15221fa1c474  initramfs.cpio.gz
+ffc5f31cc475c85ad29aaa92091c7a1468b1c1a710fdf9c04e1a0b0ce216e4a1  initramfs.cpio.gz

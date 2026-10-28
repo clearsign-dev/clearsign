@@ -25,7 +25,6 @@ void init(void)
     for (uint32_t i = 0; i < len; i++) {
         req[REQ_HEADER + i] = REQUEST_BYBIT_PATTERN[i];
     }
-    microkit_dbg_puts("WALLET_UI|submitted a Safe transaction for review (the UI calls it a token transfer)\n");
     microkit_notify(CH_SIGNER);
 }
 
@@ -34,22 +33,14 @@ void notified(microkit_channel ch)
     if (ch != CH_SIGNER) {
         return;
     }
+    __atomic_thread_fence(__ATOMIC_ACQUIRE);
     const uint8_t *rev = (const uint8_t *)review_vaddr;
     if (rev[0] != 'R') {
-        microkit_dbg_puts("WALLET_UI|signer refused the request\n");
         return;
     }
-    if (rev[1] <= 2) {
-        microkit_dbg_puts("WALLET_UI|signer verdict received: reviewed, no blocking finding\n");
-    } else if (rev[1] == 3) {
-        microkit_dbg_puts("WALLET_UI|signer verdict received: BLIND; approval blocked\n");
-    } else if (rev[1] == 4) {
-        microkit_dbg_puts("WALLET_UI|signer verdict received: CRITICAL\n");
-    } else {
-        microkit_dbg_puts("WALLET_UI|signer verdict received: invalid severity; approval blocked\n");
-    }
-
-    microkit_dbg_puts("WALLET_UI|attempting to overwrite the signer's verdict with 'no risk'...\n");
     ((uint8_t *)review_vaddr)[1] = 0; /* review region is mapped read-only here: seL4 must fault */
-    microkit_dbg_puts("WALLET_UI|ISOLATION FAILURE: write succeeded\n");
+    /* Reaching this notification means the forbidden write was not blocked.
+     * The trusted signer, not this untrusted domain, reports the failure. */
+    __atomic_thread_fence(__ATOMIC_RELEASE);
+    microkit_notify(CH_SIGNER);
 }

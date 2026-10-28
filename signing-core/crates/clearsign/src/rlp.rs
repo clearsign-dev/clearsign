@@ -13,6 +13,8 @@ use alloc::vec::Vec;
 use crate::{Error, U256};
 
 pub const MAX_DEPTH: usize = 16;
+/// Maximum number of RLP nodes in one encoded value, including the root.
+pub const MAX_ITEMS: usize = 4096;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Item<'a> {
@@ -61,17 +63,25 @@ impl<'a> Item<'a> {
 
 /// Decode exactly one item that spans the entire input.
 pub fn decode(input: &[u8]) -> Result<Item<'_>, Error> {
-    let (item, rest) = decode_item(input, 0)?;
+    let mut remaining = MAX_ITEMS;
+    let (item, rest) = decode_item(input, 0, &mut remaining)?;
     if !rest.is_empty() {
         return Err(Error::TrailingBytes);
     }
     Ok(item)
 }
 
-fn decode_item(input: &[u8], depth: usize) -> Result<(Item<'_>, &[u8]), Error> {
+fn decode_item<'a>(
+    input: &'a [u8],
+    depth: usize,
+    remaining: &mut usize,
+) -> Result<(Item<'a>, &'a [u8]), Error> {
     if depth > MAX_DEPTH {
         return Err(Error::TooDeep);
     }
+    *remaining = remaining
+        .checked_sub(1)
+        .ok_or(Error::TooLarge("RLP contains too many items"))?;
     let (&prefix, after) = input.split_first().ok_or(Error::Truncated)?;
     match prefix {
         0x00..=0x7f => {
@@ -97,22 +107,32 @@ fn decode_item(input: &[u8], depth: usize) -> Result<(Item<'_>, &[u8]), Error> {
         0xc0..=0xf7 => {
             let len = usize::from(prefix.checked_sub(0xc0).ok_or(Error::Truncated)?);
             let (payload, rest) = take(after, len)?;
-            Ok((Item::List(decode_list_payload(payload, depth)?), rest))
+            Ok((
+                Item::List(decode_list_payload(payload, depth, remaining)?),
+                rest,
+            ))
         }
         0xf8..=0xff => {
             let len_of_len = usize::from(prefix.checked_sub(0xf7).ok_or(Error::Truncated)?);
             let (len, after_len) = read_long_length(after, len_of_len)?;
             let (payload, rest) = take(after_len, len)?;
-            Ok((Item::List(decode_list_payload(payload, depth)?), rest))
+            Ok((
+                Item::List(decode_list_payload(payload, depth, remaining)?),
+                rest,
+            ))
         }
     }
 }
 
-fn decode_list_payload(mut payload: &[u8], depth: usize) -> Result<Vec<Item<'_>>, Error> {
+fn decode_list_payload<'a>(
+    mut payload: &'a [u8],
+    depth: usize,
+    remaining: &mut usize,
+) -> Result<Vec<Item<'a>>, Error> {
     let mut items = Vec::new();
     let child_depth = depth.checked_add(1).ok_or(Error::TooDeep)?;
     while !payload.is_empty() {
-        let (item, rest) = decode_item(payload, child_depth)?;
+        let (item, rest) = decode_item(payload, child_depth, remaining)?;
         items.push(item);
         payload = rest;
     }
@@ -144,4 +164,39 @@ fn take(input: &[u8], len: usize) -> Result<(&[u8], &[u8]), Error> {
         return Err(Error::Truncated);
     }
     Ok(input.split_at(len))
+}
+
+#[cfg(test)]
+mod tests {
+    use alloc::vec;
+
+    use super::{Error, MAX_ITEMS, decode};
+
+    #[test]
+    fn a_flat_list_cannot_exhaust_memory_with_item_headers() {
+        // f9 10 00 is the canonical prefix for a 4096-byte list. Each payload
+        // byte is one complete RLP item, so the root plus its children exceeds
+        // the global item budget even though nesting remains shallow.
+        let mut encoded = vec![0xf9, 0x10, 0x00];
+        encoded.extend(core::iter::repeat_n(0x01, MAX_ITEMS));
+        assert_eq!(
+            decode(&encoded),
+            Err(Error::TooLarge("RLP contains too many items"))
+        );
+    }
+
+    #[test]
+    fn the_exact_global_item_limit_is_accepted() {
+        // The root is one item and the payload contains MAX_ITEMS - 1
+        // single-byte children. This locks the inclusive boundary so a future
+        // hardening change cannot silently reject the last permitted item.
+        let children = MAX_ITEMS - 1;
+        assert_eq!(MAX_ITEMS, 4096);
+        let mut encoded = vec![0xf9, 0x0f, 0xff];
+        encoded.extend(core::iter::repeat_n(0x01, children));
+        assert_eq!(
+            decode(&encoded).and_then(|item| item.as_list().map(|items| items.len())),
+            Ok(children)
+        );
+    }
 }
